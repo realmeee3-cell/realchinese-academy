@@ -28148,15 +28148,17 @@ const BIZ_PLAN = [
   }
 
   function board() {
-    if (Ride.kind || Bus.riding || Metro.riding) return;
+    if (Ride.kind || Bus.riding || Metro.riding) return false;
     const m = nearestStation();
-    const mc = m && m.d < 6.5;
-    const b = nearestBus();
     const s = nearestStop();
-    if (mc && (!b || m.d <= b.d)) return boardMetro();
-    if (b && b.d < 6) return boardBus(b.route);
-    if (s && s.d < 6) return boardBus();
-    if (mc) return boardMetro();
+    const b = nearestBus();
+    const md = m ? m.d : 1e9;
+    const sd = s ? s.d : 1e9;
+    const bd = b ? b.d : 1e9;
+    const busNear = Math.min(sd, bd);
+    if (md < 6.5 && md <= busNear) return boardMetro();
+    if (busNear < 6) return boardBus(bd <= sd ? (b && b.route) : null);
+    if (md < 6.5) return boardMetro();
     return false;
   }
   V12.rideBoard = board;
