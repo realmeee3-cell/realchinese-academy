@@ -21405,15 +21405,13 @@ window.V12 = (function () {
       c.fillStyle = '#8a7a63'; c.font = '500 34px sans-serif';
       c.fillText('PANDA PHOTO ZONE · 熊猫拍照区', w / 2, 132);
     });
-    // 간판은 앞/뒤 두 장 — 어느 쪽에서 봐도 글자가 바르게 보인다
-    const signTexM = new THREE.MeshBasicMaterial({ map: st });
-    const signF = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 1.4), signTexM);
-    signF.position.set(0, 2.9, 7.22);
-    p.add(signF);
-    const signB = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 1.4), signTexM);
-    signB.position.set(0, 2.9, 7.18);
-    signB.rotation.y = Math.PI;
-    p.add(signB);
+    // 간판 — 얇은 박스 판: 앞/뒤 면 모두 글자가 바르게 보인다
+    const signBoard = new THREE.Mesh(new THREE.BoxGeometry(5.0, 1.4, 0.14),
+      [null, null, null, null,
+       new THREE.MeshBasicMaterial({ map: st }),
+       new THREE.MeshBasicMaterial({ map: st })].map((m) => m || new THREE.MeshBasicMaterial({ color: 0x2f6b4f })));
+    signBoard.position.set(0, 2.9, 7.2);
+    p.add(signBoard);
     // 입구로 이어지는 산책로 + 포토 프레임
     p.add(pl(3.4, 9.0, M(0xcbbfa4, { roughness: .95 }), 0, 0.05, 4.2));
     const fr = new THREE.Group();
