@@ -24461,7 +24461,7 @@ window.V12 = (function () {
     V12.built.stock = true;
     const g = new THREE.Group(); g.name = 'v12stock';
     scene.add(g);
-    const x = 41, z = 84;
+    const x = 41, z = 88;
     /* --- 본관 : 석재 파사드 + 유리 커튼월 --- */
     const stoneM = M(0x8d93a0, { roughness: .7 });
     const stoneD = M(0x5d636e, { roughness: .8 });
@@ -24523,11 +24523,11 @@ window.V12 = (function () {
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
     })();
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 1.08), new THREE.MeshBasicMaterial({ map: signTex }));
-    sign.position.set(x, 4.62, z - 2.72);
+    sign.position.set(x, 3.95, z - 2.72);
     sign.rotation.y = Math.PI;
     g.add(sign);
     const signBack = new THREE.Mesh(new THREE.BoxGeometry(5.5, 1.3, 0.1), M(0x11161f, { roughness: .7 }));
-    signBack.position.set(x, 4.62, z - 2.66);
+    signBack.position.set(x, 3.95, z - 2.66);
     g.add(signBack);
 
     // 문 (유리 자동문) + 안내
@@ -24542,7 +24542,33 @@ window.V12 = (function () {
     open.rotation.y = Math.PI;
     g.add(open);
 
-    V12.label('📈 리얼 증권거래소 · 证券交易所', x, 5.5, z, { scale: 0.0032 });
+    V12.label('📈 리얼 증권거래소 · 证券交易所', x, 4.9, z, { scale: 0.0032 });
+    // 앞 광장 눈높이 입간판 — 멀리서도 무엇인지 바로 보이게
+    const aTex = (() => {
+      const c = document.createElement('canvas'); c.width = 512; c.height = 320;
+      const k = c.getContext('2d');
+      k.fillStyle = '#101820'; k.fillRect(0, 0, 512, 320);
+      k.strokeStyle = '#ffc14d'; k.lineWidth = 8; k.strokeRect(8, 8, 496, 304);
+      k.textAlign = 'center';
+      k.fillStyle = '#ffe9bd'; k.font = '800 64px "Noto Sans CJK KR",sans-serif';
+      k.fillText('📈 증권거래소', 256, 108);
+      k.fillStyle = '#ffd98a'; k.font = '700 34px sans-serif';
+      k.fillText('证券交易所', 256, 166);
+      k.fillStyle = '#a9d8be'; k.font = '600 26px sans-serif';
+      k.fillText('가상 주식 · 골드 매매', 256, 220);
+      k.fillStyle = '#cfe0ea'; k.font = '500 22px sans-serif';
+      k.fillText('눌러서 거래하기', 256, 268);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+    })();
+    const aBoard = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.5, 0.1),
+      new THREE.MeshBasicMaterial({ map: aTex }));
+    aBoard.position.set(x, 1.35, z - 3.25);
+    g.add(aBoard);
+    [-0.95, 0.95].forEach((dx) => {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.8, 0.1), MAT.dark);
+      leg.position.set(x + dx, 0.4, z - 3.1);
+      g.add(leg);
+    });
     const hit = new THREE.Mesh(new THREE.BoxGeometry(7.2, 3.8, 1.6), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
     hit.position.set(x, 1.9, z - 3.4);
     g.add(hit);
@@ -24630,7 +24656,7 @@ window.V12 = (function () {
     if (V12.built.buffett) return;
     V12.built.buffett = true;
     try {
-      const x = 36.6, z = 79.6;
+      const x = 36.4, z = 83.4;
       const av = createAvatar({ name: '워렌 버핏', shirt: 0x2a3038, pants: 0x232830, hair: 0xd8d2c6 });
       av.root.position.set(x, 0, z);
       av.root.rotation.y = Math.PI / 2;
@@ -25573,7 +25599,7 @@ window.V12 = (function () {
     shopA: R(36.6, 45.4, 54.2, 61.8),
     shopF: R(36.6, 45.4, 62.2, 69.8),
     shopD: R(36.6, 45.4, 70.2, 77.8),
-    stock: R(37.1, 44.9, 81.3, 86.7),   // 실제 건물 footprint (정면 입구 앞은 열어 둔다)
+    stock: R(37.1, 44.9, 85.3, 90.7),   // 실제 건물 footprint (정면 앞 광장은 열어 둔다)
     news: R(20.6, 27.4, 66.7, 70.9),
     tower1: R(-84, -72, 44, 56),
     tower2: R(-64, -52, 8, 20),
@@ -25762,7 +25788,7 @@ window.V12 = (function () {
     { id: 'home', icon: '🏠', name: '내 집', sub: '我的家', home: 1 },
     { id: 'panda', icon: '🐼', name: '판다 공원', sub: '熊猫公园', x: -44.5, z: 47 },
     { id: 'sports', icon: '🏀', name: '농구장 · 운동장', sub: '篮球场', x: 0, z: -36 },
-    { id: 'stock', icon: '📈', name: '증권거래소', sub: '证券交易所', x: 41, z: 86.5 },
+    { id: 'stock', icon: '📈', name: '증권거래소', sub: '证券交易所', x: 41, z: 82.6 },
     { id: 'truck', icon: '🛻', name: '사이버트럭', sub: 'CYBERTRUCK', x: 19.4, z: 16.3 },
     { id: 'metro', icon: '🚇', name: '지하철역', sub: '리얼학원역', x: 24.0, z: 72.6 },
   ];
