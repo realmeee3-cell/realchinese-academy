@@ -39833,6 +39833,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     host.querySelectorAll('[data-b]').forEach((btn) => {
       btn.onclick = () => {
         const b = BOOKS[Number(btn.dataset.b)];
+        try { const lp = document.getElementById('libPanel'); if (lp) lp.classList.add('closed'); } catch (e) {}
         if (V12.say) V12.say(b.ic + ' ' + b.t, '바로 학습 화면으로 이동합니다', 1600);
         try { b.go(); } catch (e) { err('lib:book:' + e.message); }
       };
