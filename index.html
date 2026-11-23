@@ -34872,6 +34872,7 @@ window.V15_HSK_DATA = [{"id":1,"exam":{"vocab":[{"range":[36,38],"passage":"è¿™å
   }
   function startMole() {
     if (!pay(20)) return;
+    stop();
     G.score = 0; G.playing = true; G.miss = 0; G.left = 30;
     const grid = document.getElementById('v15MoleGrid');
     const scoreEl = document.getElementById('v15MoleScore');
@@ -34891,10 +34892,9 @@ window.V15_HSK_DATA = [{"id":1,"exam":{"vocab":[{"range":[36,38],"passage":"è¿™å
         b.classList.add('hit');
         if (scoreEl) scoreEl.textContent = G.score;
         try { speak(b.dataset.w || 'å¾ˆå¥½'); } catch (e) {}
-        setTimeout(() => { b.classList.remove('hit'); b.textContent = ''; b.disabled = true; }, 180);
+        setTimeout(() => { b.classList.remove('hit'); b.textContent = ''; b.disabled = false; }, 180);
       };
     });
-    stop();
     const tick = setInterval(() => {
       G.left -= 0.1;
       if (timeEl) timeEl.textContent = Math.max(0, G.left).toFixed(1);
@@ -34903,7 +34903,7 @@ window.V15_HSK_DATA = [{"id":1,"exam":{"vocab":[{"range":[36,38],"passage":"è¿™å
     G.timer = tick;
     G.popper = setInterval(() => {
       if (!G.playing) return;
-      const holes = Array.from(grid.querySelectorAll('[data-hole]')).filter((b) => !b.disabled);
+      const holes = Array.from(grid.querySelectorAll('[data-hole]')).filter((b) => !b.classList.contains('up') && !b.classList.contains('hit'));
       const b = holes[Math.floor(Math.random() * holes.length)];
       if (!b) return;
       b.disabled = false;
@@ -34914,7 +34914,7 @@ window.V15_HSK_DATA = [{"id":1,"exam":{"vocab":[{"range":[36,38],"passage":"è¿™å
         if (!G.playing) return;
         if (b.classList.contains('up')) {
           b.classList.remove('up');
-          b.disabled = true;
+          b.disabled = false;
           b.textContent = '';
           G.miss += 1;
           if (missEl) missEl.textContent = G.miss;
@@ -34956,13 +34956,13 @@ window.V15_HSK_DATA = [{"id":1,"exam":{"vocab":[{"range":[36,38],"passage":"è¿™å
   }
   function startTone() {
     if (!pay(20)) return;
+    stop();
     G.playing = true; G.score = 0; G.left = 30; G.target = null;
     document.getElementById('v15ToneStart').style.display = 'none';
     const field = document.getElementById('v15ToneField');
     const scoreEl = document.getElementById('v15ToneScore');
     const timeEl = document.getElementById('v15ToneTime');
     const targetEl = document.getElementById('v15ToneTarget');
-    stop();
     G.timer = setInterval(() => {
       G.left -= 0.1;
       if (timeEl) timeEl.textContent = Math.max(0, G.left).toFixed(1);
