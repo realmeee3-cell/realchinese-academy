@@ -39950,9 +39950,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   } catch (e) { err('wearfix:cat:' + e.message); }
 
   /* 2) Bag(기본 착용 시스템) → 옷장 상태로 가져오기 */
+  function far() { return (typeof Bag !== 'undefined') ? Bag : (window.Bag || null); }
   function syncFromBag() {
     try {
-      const B = window.Bag;
+      const B = far();
       if (!B) return;
       (B.owned || []).forEach((id) => {
         if (!MAP[id]) return;
@@ -39969,30 +39970,31 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   const hadHas = W.has.bind(W);
   W.has = function (id) {
     if (hadHas(id)) return true;
-    try { return !!(window.Bag && Bag.owns(id) && MAP[id]); } catch (e) { return false; }
+    try { const B = far(); return !!(B && B.owns(id) && MAP[id]); } catch (e) { return false; }
   };
 
   /* 4) equip / unequip — Bag 과 함께 */
   const eq0 = W.equip.bind(W);
   W.equip = function (id) {
     try {
-      if (!W.owned[id] && window.Bag && Bag.owns(id)) W.owned[id] = 1;
+      if (!W.owned[id]) { const B0 = far(); if (B0 && B0.owns(id)) W.owned[id] = 1; }
       const r = eq0(id);
-      if (window.Bag && Bag.equip) {
+      const B1 = far();
+      if (B1 && B1.equip) {
         try {
           /* Bag 쪽에도 보유 등록해야 캐릭터(createAvatar)가 실제로 착용한다 */
-          if (Array.isArray(Bag.owned) && Bag.owned.indexOf(id) < 0) Bag.owned.push(id);
-          Bag.equip(id); Bag.save();
+          if (Array.isArray(B1.owned) && B1.owned.indexOf(id) < 0) B1.owned.push(id);
+          B1.equip(id); B1.save();
         } catch (e) {}
       }
       /* 같은 슬롯의 기본 아이템은 Bag 에서도 벗긴다 */
       try {
         const mySlot = MAP[id] && MAP[id].slot;
-        if (mySlot && window.Bag && Bag.equipped) {
-          Object.keys(Bag.equipped).forEach((k) => {
-            if (k !== id && MAP[k] && MAP[k].slot === mySlot) delete Bag.equipped[k];
+        if (mySlot && B1 && B1.equipped) {
+          Object.keys(B1.equipped).forEach((k) => {
+            if (k !== id && MAP[k] && MAP[k].slot === mySlot) delete B1.equipped[k];
           });
-          Bag.save();
+          B1.save();
         }
       } catch (e) {}
       return r;
@@ -40002,7 +40004,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   W.unequip = function (id) {
     try {
       un0(id);
-      if (window.Bag && Bag.equipped && Bag.equipped[id]) { delete Bag.equipped[id]; Bag.save(); }
+      const B2 = far(); if (B2 && B2.equipped && B2.equipped[id]) { delete B2.equipped[id]; B2.save(); }
     } catch (e) {}
   };
 
@@ -40031,7 +40033,8 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     cat: CAT.length,
     base: CAT.filter((c) => c.shape === 'base').length,
     equipped: Object.keys(W.equipped || {}).filter((k) => W.equipped[k]),
-    bagEq: Object.keys((window.Bag && Bag.equipped) || {}),
+    bagEq: Object.keys((far() && far().equipped) || {}),
+    bagOwned: (far() && far().owned || []).length,
   });
 })();
 
