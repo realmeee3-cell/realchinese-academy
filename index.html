@@ -39978,7 +39978,13 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     try {
       if (!W.owned[id] && window.Bag && Bag.owns(id)) W.owned[id] = 1;
       const r = eq0(id);
-      if (window.Bag && Bag.equip) { try { Bag.equip(id); Bag.save(); } catch (e) {} }
+      if (window.Bag && Bag.equip) {
+        try {
+          /* Bag 쪽에도 보유 등록해야 캐릭터(createAvatar)가 실제로 착용한다 */
+          if (Array.isArray(Bag.owned) && Bag.owned.indexOf(id) < 0) Bag.owned.push(id);
+          Bag.equip(id); Bag.save();
+        } catch (e) {}
+      }
       /* 같은 슬롯의 기본 아이템은 Bag 에서도 벗긴다 */
       try {
         const mySlot = MAP[id] && MAP[id].slot;
