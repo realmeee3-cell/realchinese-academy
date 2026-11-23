@@ -30831,7 +30831,7 @@ const BIZ_PLAN = [
     }
   }
 
-  V14.addWarp({ id: 'seongsu', icon: '🧱', name: '성수동', sub: '圣水洞 · 연무장길 카페거리', x: -73, z: -42, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'seongsu', icon: '🧱', name: '성수동', sub: '圣水洞 · 연무장길 카페거리', x: -64, z: -41, yaw: Math.PI }, build);
   V14.lazyBuild(build, -73, -40, 70);
   setTimeout(() => {
     if (V12 && V12.tapHandlers) {
@@ -38876,6 +38876,16 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   hookWarp();
   setTimeout(hookWarp, 2000);
   setInterval(hookWarp, 5000);
+
+  /* ---------------- 4.5) 구역 표시를 V15 기준으로 유지 ---------------- */
+  setInterval(() => {
+    try {
+      const el = document.getElementById('zoneTag');
+      if (!el || !window.V10 || !V10.zoneName) return;
+      const n = V10.zoneName(Player.pos.x, Player.pos.z);
+      if (n && el.textContent !== n) el.textContent = n;
+    } catch (e) {}
+  }, 240);
 
   /* ---------------- 5) 성능 계측 ---------------- */
   let ft = [], lastT = 0;
