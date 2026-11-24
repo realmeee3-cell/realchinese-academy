@@ -6279,21 +6279,26 @@ function createAvatar(o = {}) {
     const g = tagItem(new THREE.Group(), 'scarf');
     const wool = new THREE.MeshStandardMaterial({ color: 0xa8322f, roughness: .96 });
     const wool2 = new THREE.MeshStandardMaterial({ color: 0xc2433c, roughness: .96 });
-    const wrap = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.026, 8, 20), wool);
-    wrap.position.y = 1.345;
-    wrap.rotation.x = Math.PI / 2 - 0.08;
+    /* 목(어깨 위)에 둘둘 감긴 모양 — 머리통 안에 묻히지 않게 y 1.02 */
+    const wrap = new THREE.Mesh(new THREE.TorusGeometry(0.158, 0.042, 9, 24), wool);
+    wrap.position.y = 1.025;
+    wrap.rotation.x = Math.PI / 2 - 0.05;
     g.add(wrap);
-    const tail1 = new THREE.Mesh(new THREE.BoxGeometry(0.058, 0.25, 0.024), wool);
-    tail1.position.set(-0.03, 1.215, 0.078);
-    tail1.rotation.z = 0.06;
+    const wrap2 = new THREE.Mesh(new THREE.TorusGeometry(0.150, 0.030, 8, 22), wool2);
+    wrap2.position.y = 0.965;
+    wrap2.rotation.x = Math.PI / 2 + 0.04;
+    g.add(wrap2);
+    const tail1 = new THREE.Mesh(new THREE.BoxGeometry(0.078, 0.30, 0.030), wool);
+    tail1.position.set(-0.055, 0.855, 0.152);
+    tail1.rotation.z = 0.07;
     g.add(tail1);
-    const tail2 = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.2, 0.024), wool2);
-    tail2.position.set(0.04, 1.24, 0.082);
+    const tail2 = new THREE.Mesh(new THREE.BoxGeometry(0.070, 0.235, 0.028), wool2);
+    tail2.position.set(0.048, 0.885, 0.160);
     tail2.rotation.z = -0.05;
     g.add(tail2);
-    for (let i = 0; i < 3; i++) {
-      const fringe = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.045, 0.011), wool2);
-      fringe.position.set(-0.052 + i * 0.02, 1.075, 0.078);
+    for (let i = 0; i < 4; i++) {
+      const fringe = new THREE.Mesh(new THREE.BoxGeometry(0.013, 0.05, 0.013), wool2);
+      fringe.position.set(-0.082 + i * 0.019, 0.695, 0.150);
       fringe.rotation.z = 0.06;
       g.add(fringe);
     }
@@ -21292,8 +21297,13 @@ window.V12 = (function () {
   V12.News = News;
   V12.news = NEWS;
 
+  function newsList() {
+    try { if (window.V12 && Array.isArray(V12.news) && V12.news.length) return V12.news; } catch (e) {}
+    return NEWS;
+  }
   function paintNews(i) {
-    const n = NEWS[i % NEWS.length];
+    const L = newsList();
+    const n = L[((i % L.length) + L.length) % L.length];
     const c = News.ctx, w = News.canvas.width, h = News.canvas.height;
     // 배경
     const grd = c.createLinearGradient(0, 0, 0, h);
@@ -21315,13 +21325,21 @@ window.V12 = (function () {
     wrapText(c, n.hz, w * 0.04, h * 0.30, w * 0.92, h * 0.10, 2);
     // 본문(2줄)
     c.fillStyle = '#cfe4f4'; c.font = `500 ${Math.round(h * 0.052)}px "Noto Sans CJK KR",sans-serif`;
-    wrapText(c, n.body, w * 0.04, h * 0.545, w * 0.92, h * 0.065, 3);
+    wrapText(c, n.body || n.ko || n.py || '', w * 0.04, h * 0.545, w * 0.92, h * 0.065, 3);
     // 하단 티커
     c.fillStyle = 'rgba(179,38,30,.92)'; c.fillRect(0, h * 0.88, w, h * 0.12);
     c.fillStyle = '#ffe9c8'; c.font = `700 ${Math.round(h * 0.055)}px "Noto Sans CJK KR",sans-serif`;
-    c.fillText(`${(i % NEWS.length) + 1}/${NEWS.length} · ${n.hz.slice(0, 22)}`, w * 0.035, h * 0.963);
+    c.fillText(`${(((i % L.length) + L.length) % L.length) + 1}/${L.length} · ${String(n.hz || '').slice(0, 22)}`, w * 0.035, h * 0.963);
     if (News.tex) News.tex.needsUpdate = true;
   }
+  /* 실시간 뉴스를 받아 오면 광장 전광판도 그 뉴스로 다시 그린다 */
+  V12.repaintNewsBoard = function (i) {
+    try {
+      if (!News.ctx) return false;
+      paintNews(typeof i === 'number' ? i : News.idx);
+      return true;
+    } catch (e) { return false; }
+  };
   function wrapText(c, text, x, y, maxW, lineH, maxLines) {
     const chars = String(text).split('');
     let line = '', n = 0;
@@ -26114,7 +26132,7 @@ window.V12 = (function () {
     { id: 'garden', icon: '🌿', name: '정원', sub: 'GARDEN', x: 0, z: 17.4 },
     { id: 'dept', icon: '🏬', name: '백화점', sub: '명품관 · 奢侈品', x: 23.9, z: 8.5, yaw: Math.PI / 2 },
     { id: 'resto', icon: '🥟', name: '중식당', sub: '中餐厅', x: 23.9, z: 21.9, yaw: Math.PI / 2 },
-    { id: 'plaza', icon: '📺', name: '뉴스 광장', sub: '真实广场', x: 17.5, z: 77 },
+    { id: 'plaza', icon: '📺', name: '뉴스 광장', sub: '真实广场', x: 17.5, z: 61.5, yaw: 0 },
     { id: 'shop', icon: '🛋️', name: '가구점', sub: '家具店 · 家电 · 大创', x: 34.8, z: 66, yaw: Math.PI / 2 },
     { id: 'club', icon: '🪩', name: 'MADHOLIC 클럽', sub: '夜店 · 홍대', x: 6, z: 75.6, yaw: 0, club: 1 },
     { id: 'mall', icon: '🏮', name: '중국 지하상가', sub: '地下商业街', mall: 1 },
@@ -28830,8 +28848,9 @@ const BIZ_PLAN = [
           if (z > 40 && x > 74 && x < 101) return '강남 명품거리 · 江南名品街';
           return '강남역 · 江南站';
         }
-        if (z < -54) return '한강 · 汉江';
-        if (z < -30) return '여의도 한강공원 · 汝矣岛汉江公园';
+        if (z < -54 && x > 26) return '한강 · 汉江';
+        if (z < -30 && x > 26) return '여의도 한강공원 · 汝矣岛汉江公园';
+        if (x > -52 && x < -36 && z > 42 && z < 52) return '판다 공원 · 熊猫公园';
         if (inRect(Y, x, z, 0)) return '여의도역 · 汝矣岛站';
         return old(x, z);
       };
@@ -30548,7 +30567,7 @@ const BIZ_PLAN = [
   /* ---------------- 등록 ---------------- */
   V14.addWarp({ id: 'yeouido', icon: '📈', name: '여의도역', sub: '汝矣岛 · 증권가·직장인', x: 73.2, z: -10.4, yaw: Math.PI }, build);
   /* 한강공원 잔디 — 한강·한강대교가 정면에 들어오는 방향으로 서 있다 */
-  V14.addWarp({ id: 'hangang', icon: '🌊', name: '한강공원', sub: '汉江公园 · 한강·한강대교', x: 60, z: -49, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'hangang', icon: '🌊', name: '한강공원', sub: '汉江公园 · 한강·한강대교', x: 16, z: -36, yaw: 2.35 }, build);
   V14.lazyBuild(build, 74, -8, 80);
   setTimeout(() => { try { hookCam(); } catch (e) {} }, 1600);
   V14.yeouidoInfo = () => ({ built, ride: Ride.kind, boat: !!(Y3 && Y3.boat) });
@@ -33236,7 +33255,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     g.position.set(s.x, 0, s.z);
     return g;
   };
-  V15.worldRect = { x0: -310, x1: 310, z0: -330, z1: 160 };
+  V15.worldRect = { x0: -310, x1: 570, z0: -330, z1: 160 };
   /* 건물·입구 앞은 나무/소품을 심지 않는다 */
   V15.reserved = [];
   V15.reserve = (x0, x1, z0, z1, id) => { V15.reserved.push({ x0, x1, z0, z1, id: id || '' }); };
@@ -33598,8 +33617,22 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const old = V13.walkable;
       const W = V15.worldRect;
       const inOld = (x, z) => x >= -104 && x <= 104 && z >= -68 && z <= 110;
+      /* 지하상가·내 집처럼 월드 밖에 따로 있는 존은 원래 판정을 그대로 쓴다 */
+      const inExtra = (x, z) => {
+        try {
+          const W = (window.V12 && V12.W) || null;
+          if (!W) return false;
+          const rs = [W.mall, W.home];
+          for (let i = 0; i < rs.length; i++) {
+            const r = rs[i];
+            if (r && x > r.x0 - 2 && x < r.x1 + 2 && z > r.z0 - 2 && z < r.z1 + 2) return true;
+          }
+        } catch (e) {}
+        return false;
+      };
       const fn = function (x, z) {
         if (inOld(x, z)) return old(x, z);
+        if (inExtra(x, z)) return old(x, z);
         if (x < W.x0 || x > W.x1 || z < W.z0 || z > W.z1) return false;
         if (V14 && V14.solidAt && V14.solidAt(x, z) && !(V14.insideInterior && V14.insideInterior(x, z))) return false;
         if (V14 && V14.inWater && V14.inWater(x, z)) return false;
@@ -33628,6 +33661,16 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const fn = function (p, prevZ, prevX) {
         const inOld = p.x >= -104 && p.x <= 104 && p.z >= -68 && p.z <= 110;
         if (inOld) { inner(p, prevZ, prevX); return; }
+        try {
+          const W2 = (window.V12 && V12.W) || null;
+          if (W2) {
+            const rs = [W2.mall, W2.home];
+            for (let i = 0; i < rs.length; i++) {
+              const r = rs[i];
+              if (r && p.x > r.x0 - 2 && p.x < r.x1 + 2 && p.z > r.z0 - 2 && p.z < r.z1 + 2) { inner(p, prevZ, prevX); return; }
+            }
+          }
+        } catch (e) {}
         const bx = p.x, bz = p.z;
         const px0 = (typeof prevX === 'number') ? prevX : bx;
         const pz0 = (typeof prevZ === 'number') ? prevZ : bz;
@@ -35131,7 +35174,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   V15.openArcade = open;
 
   /* ---------------- 등록 ---------------- */
-  V14.addWarp({ id: 'arcade', icon: '🕹️', name: '리얼 오락실', sub: '게임厅 · 두더지·성조슈팅', x: -139, z: 23.4, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'arcade', icon: '🕹️', name: '리얼 오락실', sub: '게임厅 · 두더지·성조슈팅', x: -139, z: 23.2, yaw: 0 }, build);
   V14.lazyBuild(build, -139, 32, 90);
   V12.tapHandlers['v15:arcade:play'] = () => { try { open(); } catch (e) { err('open:' + e.message); } };
   V12.tapHandlers['v15:arcade:door'] = () => { try { V15.enterRoom && V15.enterRoom(V14.rooms.find((r) => r.id === 'arcade')); } catch (e) {} };
@@ -35396,7 +35439,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   function msg(t, s) { try { V12.say(t, s, 2400); } catch (e) {} try { Sound.wrong(); } catch (e) {} }
 
   V15.openBank = open;
-  V14.addWarp({ id: 'bank', icon: '🏦', name: '리얼은행', sub: '真实银行 · 예금·적금', x: 118, z: 73.4, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'bank', icon: '🏦', name: '리얼은행', sub: '真实银行 · 예금·적금', x: 118, z: 73.0, yaw: 0 }, build);
   V14.lazyBuild(build, 118, 82, 90);
   V12.tapHandlers['v15:bank:teller'] = () => { try { open(); } catch (e) { err('open:' + e.message); } };
   V15.bankInfo = () => ({ built: !!V15._bankBuilt, deposit: Bank.deposit, savings: Bank.savings });
@@ -35651,7 +35694,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   }
   V15.openSeven = open;
 
-  V14.addWarp({ id: 'seven', icon: '🏪', name: '세븐일레븐', sub: '7-ELEVEN · 24시간 편의점', x: 53, z: 83.4, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'seven', icon: '🏪', name: '세븐일레븐', sub: '7-ELEVEN · 24시간 편의점', x: 53, z: 83.2, yaw: 0 }, build);
   V14.lazyBuild(build, 53, 92, 70);
   V12.tapHandlers['v15:seven:buy'] = () => { try { open(); } catch (e) { err('open:' + e.message); } };
   V15.sevenInfo = () => ({ built: !!V15._sevenBuilt, food: Food.owned });
@@ -36021,7 +36064,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   V15.buildRiver = build;
   V14.lazyBuild(build, 126, -220, 140);
   /* 다리 입구 빠른 이동 (건설 전에도 목록에 보인다) */
-  V14.addWarp({ id: 'hangangbridge', icon: '🌉', name: '한강대교', sub: '汉江大桥 · 보행 데크', x: 106, z: -186, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'hangangbridge', icon: '🌉', name: '한강대교', sub: '汉江大桥 · 보행 데크', x: 114.5, z: -207, yaw: Math.PI }, build);
   try {
     V14.extraTick = (function (prev) {
       return function (dt, t) {
@@ -36352,7 +36395,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   }
 
   /* 마을 입구 빠른 이동 — 마을을 바라보는 방향(+z)으로 서서 도착한다 */
-  V14.addWarp({ id: 'bukchon', icon: '🏮', name: '북촌 한옥마을', sub: '北村韩屋村 · 한복·찻집', x: 0, z: 108.5, yaw: 0 }, build);
+  V14.addWarp({ id: 'bukchon', icon: '🏮', name: '북촌 한옥마을', sub: '北村韩屋村 · 한복·찻집', x: 0, z: 120, yaw: 0 }, build);
 
   /* 한옥 지붕을 상점 위에 얹기 */
   function hanokRoofOver(g, x0, x1, z0, z1, h) {
@@ -38784,9 +38827,19 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         yw = yw + dd * Math.min(0.75, (2.6 - t) / 2.6 * 1.3);
         t = reach(yw);
       }
-      const ddx = Math.sin(yw) * cp, ddz = Math.cos(yw) * cp;
-      d = t;
-      tmp.set(Cam.look.x + ddx * d, Cam.look.y + sp * d, Cam.look.z + ddz * d);
+      if (t < 2.3) {
+        /* 좁은 실내 — 벽에 붙어도 머리통이 화면을 채우지 않게 위에서 내려다본다 */
+        const mp2 = Math.min(1.2, mp + (2.3 - t) * 0.62);
+        const cp2 = Math.cos(mp2), sp2 = Math.sin(mp2);
+        let d2 = Math.max(1.25, t);
+        const room = r.h - 0.42;
+        if (Cam.look.y + sp2 * d2 > room) d2 = Math.max(1.05, (room - Cam.look.y) / Math.max(0.06, sp2));
+        tmp.set(Cam.look.x + Math.sin(yw) * cp2 * d2, Cam.look.y + sp2 * d2, Cam.look.z + Math.cos(yw) * cp2 * d2);
+      } else {
+        const ddx = Math.sin(yw) * cp, ddz = Math.cos(yw) * cp;
+        d = t;
+        tmp.set(Cam.look.x + ddx * d, Cam.look.y + sp * d, Cam.look.z + ddz * d);
+      }
       camera.position.lerp(tmp, 1 - Math.exp(-9 * dt));
       camera.lookAt(Cam.look);
       if (camera.fov !== 62) { camera.fov = 62; camera.updateProjectionMatrix(); }
@@ -38808,8 +38861,45 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const gy = Player.groundY || 0;
       tmp.set(p.x, 1.02 + gy * 0.85, p.z);
       Cam.look.lerp(tmp, 1 - Math.exp(-9 * dt));
-      const cp = Math.cos(Cam.pitch), sp = Math.sin(Cam.pitch);
-      const dist = Math.min(5.2, Math.max(2.8, Cam.dist || 3.6));
+      let dist = Math.min(5.2, Math.max(2.8, Cam.dist || 3.6));
+      let pitch = Cam.pitch;
+      /* --- 카메라가 건물 벽·기둥 안으로 파고들지 않게 (입구 앞·좁은 골목) --- */
+      try {
+        const sxp = Math.sin(Cam.yaw), szp = Math.cos(Cam.yaw);
+        const cp0 = Math.cos(pitch);
+        const blockedAt = (t) => {
+          const sx = Cam.look.x + sxp * t * cp0, sz = Cam.look.z + szp * t * cp0;
+          try { if (V14.solidAt && V14.solidAt(sx, sz)) return true; } catch (e) {}
+          /* 내가 들어가 있지 않은 실내로는 카메라가 넘어가지 않게 (열린 문 너머) */
+          try {
+            const r = V14.insideInterior && V14.insideInterior(sx, sz);
+            /* 문 통로는 0.9m까지만 허용 (문 안쪽 벽면을 들여다보지 않게) */
+            const isDoor = r && /door/i.test(String(r.tag || r.id || ''));
+            if (r && !(V14.curRoom && V14.curRoom === r)) {
+              if (!isDoor) return true;
+              /* 문 통로에 걸친 경우 : 들어간 깊이가 0.9m를 넘으면 막는다 */
+              try {
+                const dd = Math.min(
+                  Math.abs(z - r.z0), Math.abs(z - r.z1), Math.abs(x - r.x0), Math.abs(x - r.x1)
+                );
+                const depth = Math.min(r.x1 - r.x0, r.z1 - r.z0) - dd;
+                if (dd > 0.9) return true;
+              } catch (e) { return true; }
+            }
+          } catch (e) {}
+          try { if (V13.walkable && !V13.walkable(sx, sz)) return true; } catch (e) {}
+          return false;
+        };
+        let free = dist;
+        for (let i = 1; i <= 16; i++) {
+          const t = dist * i / 16;
+          if (blockedAt(t)) { free = Math.max(0.9, t - 0.5); break; }
+        }
+        dist = free;
+        /* 아주 좁으면 살짝 위에서 내려다보게 (머리통이 화면을 채우지 않게) */
+        if (dist < 2.5) pitch = Math.min(1.05, pitch + (2.5 - dist) * 0.30);
+      } catch (e) {}
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
       const px = Cam.look.x + Math.sin(Cam.yaw) * dist * cp;
       const pz = Cam.look.z + Math.cos(Cam.yaw) * dist * cp;
       const py = Math.max(0.9 + gy, Cam.look.y + 0.36 + dist * sp);
@@ -39526,6 +39616,11 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         link: n.link || '',
       }));
     } catch (e) { err('apply:' + e.message); return false; }
+    /* 광장 전광판(3D) 도 첫 실시간 뉴스로 맞춘다 */
+    try {
+      if (V12.News) V12.News.idx = 0;
+      if (V12.repaintNewsBoard) V12.repaintNewsBoard(0);
+    } catch (e) {}
     return true;
   }
 
