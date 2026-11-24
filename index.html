@@ -39260,9 +39260,9 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         dist -= 3.4;
         if (k === 2) tmp.set(m.position.x - fx * 6.0, 7.4, m.position.z - fz * 6.0);
       }
+      look.set(m.position.x + fx * 11, 1.9, m.position.z + fz * 11);
       if (camera.position.distanceTo(tmp) > 40) camera.position.copy(tmp);
       else camera.position.lerp(tmp, 1 - Math.exp(-5.2 * dt));
-      look.set(m.position.x + fx * 11, 1.9, m.position.z + fz * 11);
       Cam.look.lerp(look, 1 - Math.exp(-7 * dt));
       camera.lookAt(Cam.look);
       if (camera.fov !== 62) { camera.fov = 62; camera.updateProjectionMatrix(); }
