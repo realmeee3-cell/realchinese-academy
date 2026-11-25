@@ -22873,8 +22873,13 @@ window.V12 = (function () {
       // 정류장 정차 (한 번 정차하면 반경을 벗어날 때까지 다시 서지 않는다)
       (V12.stops || []).forEach((s) => {
         const d = Math.hypot(nx - s.x, nz - s.z);
+        const nowMs = Date.now();
         if (d < 3.4) {
-          if (!r.__inStop) { r.__inStop = 1; r.dwell = Math.max(r.dwell || 0, 2.4); r.__lastStop = s.name; }
+          /* 같은 정류장에서 6초 안에 다시 서지 않는다 (버스가 멈춰 보이던 원인) */
+          if (!r.__inStop && (!r.__dwellAt || nowMs - r.__dwellAt > 6000)) {
+            r.__inStop = 1; r.dwell = Math.max(r.dwell || 0, 1.6);
+            r.__dwellAt = nowMs; r.__lastStop = s.name;
+          }
         } else if (d > 8) {
           r.__inStop = 0;
         }
@@ -23344,6 +23349,9 @@ window.V12 = (function () {
         <button class="v12-btn" id="newsNext">다음 뉴스 →</button>
         <button class="v12-btn" id="newsStop">⏹ 멈춤</button>
       </div>
+      <div class="v12-row">
+        <button class="v12-btn gold" id="newsGsit">🎓 통대 강좌로 보기 · 高级</button>
+      </div>
       <div class="small-note">“🔊 뉴스 듣기”는 중국어 원문을 이어서 읽어 줍니다. 자동으로 다음 뉴스로 넘어가요.</div>`;
     sheet('newsModal', '📺 리얼 중국어 뉴스', body, 'REAL NEWS · 실시간 중국어 뉴스').classList.add('show');
     V12.syncModalState();
@@ -23361,6 +23369,15 @@ window.V12 = (function () {
     $('newsPlay').onclick = (e) => playNews(e.currentTarget);
     $('newsNext').onclick = () => { stopNews(); News.idx = (News.idx + 1) % V12.news.length; openNews(News.idx); };
     $('newsStop').onclick = () => stopNews();
+    const gs = $('newsGsit');
+    if (gs) gs.onclick = () => {
+      stopNews();
+      try { V12.close('newsModal'); } catch (e) {}
+      try {
+        if (V15.openGsit) V15.openGsit(0);
+        else V12.say('🎓 통대 강좌', '수업 자료에서 열 수 있어요', 2000);
+      } catch (e) {}
+    };
     try { Titles.unlock('anchor'); } catch (e) {}
   }
   V12.openNews = openNews;
@@ -29157,7 +29174,7 @@ const BIZ_PLAN = [
       legs: [legL, legR], body, home: { x: o.x, z: o.z }, _lt: Math.random() * 4,
     };
     crowd.push(npc);
-    if (window.npcs && o.name && window.Talk && Talk.lines[o.name]) {
+    if (typeof npcs !== 'undefined' && npcs && o.name && typeof Talk !== 'undefined' && Talk.lines[o.name]) {
       npcs.push({ avatar: { name: o.name, root: g }, kind: 'stand', seat: null });
     }
     return npc;
@@ -29285,7 +29302,7 @@ const BIZ_PLAN = [
   };
   function addLines(obj) {
     try {
-      if (!window.Talk) return;
+      if (typeof Talk === 'undefined') return;
       Object.keys(obj).forEach((k) => { if (!Talk.lines[k]) Talk.lines[k] = obj[k]; });
     } catch (e) { err('lines:' + e.message); }
   }
@@ -29297,7 +29314,7 @@ const BIZ_PLAN = [
 
   function hookRole() {
     try {
-      if (!window.Talk || Talk.roleOf.__v14) return;
+      if (typeof Talk === 'undefined' || Talk.roleOf.__v14) return;
       const old = Talk.roleOf.bind(Talk);
       const GNAMES = Object.keys(LINES_G), YNAMES = Object.keys(LINES_Y);
       const fn = function (av) {
@@ -34542,7 +34559,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   V15.registerTalker = function (name, root, npc) {
     try {
       if (!name || !root) return;
-      if (window.Talk) {
+      if (typeof Talk !== 'undefined') {
         if (!Talk.lines[name]) Talk.lines[name] = linesFor(name);
       }
       root.userData.talkHit = root.userData.talkHit || 'crowd';
@@ -34563,7 +34580,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   V15.linesFor = linesFor;
   /* 역할 이름 — 기존 roleOf 확장 위에 한 겹 더 */
   try {
-    if (window.Talk && !Talk.roleOf.__v154) {
+    if (typeof Talk !== 'undefined' && !Talk.roleOf.__v154) {
       const old = Talk.roleOf.bind(Talk);
       const fn = function (av) {
         const n = av && av.name;
@@ -34675,7 +34692,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     ],
   };
   try {
-    if (window.Talk) {
+    if (typeof Talk !== 'undefined') {
       Object.keys(LINES_BUKCHON).forEach((k) => { if (!Talk.lines[k]) Talk.lines[k] = LINES_BUKCHON[k]; });
       if (!Talk.roleOf.__v15) {
         const old = Talk.roleOf.bind(Talk);
@@ -37286,7 +37303,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
 
   /* --- NPC 세우기 --- */
   const GREETERS = [
-    { name: '리리', x: -7.6, z: 7.4, yaw: Math.PI * 0.15, shirt: 0xe8a0b4, pants: 0x5a4a6a },
+    { name: '리리', x: -6.4, z: 6.2, yaw: Math.PI * 0.15, shirt: 0xe8a0b4, pants: 0x5a4a6a },
     { name: '밍밍', x: 14.5, z: 29.0, yaw: Math.PI, shirt: 0x8ab4d8, pants: 0x3f4a58 },
   ];
   let built = false;
@@ -37294,6 +37311,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (built) return;
     built = true;
     try {
+      if (typeof createAvatar !== 'function') { console.warn('[greet] no createAvatar'); return; }
       GREETERS.forEach((c, i) => {
         let av;
         try {
@@ -37301,7 +37319,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
             name: c.name, shirt: c.shirt, pants: c.pants, hair: 0x2b211d,
             hairStyle: i ? 'long' : 'bun', longHair: !!i,
           });
-        } catch (e) { return; }
+        } catch (e) { try { console.warn('[greet-av]', e && e.message); } catch (e2) {} return; }
         av.root.position.set(c.x, 0, c.z);
         av.root.rotation.y = c.yaw;
         av.label.position.y = 1.74;
@@ -37309,7 +37327,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         av.update(0.016, false);
         /* 대화 등록 — 대사는 열 때마다 최신 시간/날씨로 갱신 */
         try {
-          if (window.Talk) Talk.lines[c.name] = greetLines(c.name);
+          if (typeof Talk !== 'undefined') Talk.lines[c.name] = greetLines(c.name);
           if (typeof npcs !== 'undefined' && npcs) npcs.push({ avatar: av, kind: 'stand', seat: null, greet: true });
         } catch (e) {}
         /* 머리 위 표지 */
@@ -37324,17 +37342,30 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       /* 시간대·날씨가 바뀌면 대사 갱신 (1분마다) */
       setInterval(() => {
         GREETERS.forEach((c) => {
-          try { if (window.Talk) Talk.lines[c.name] = greetLines(c.name); } catch (e) {}
+          try { if (typeof Talk !== 'undefined') Talk.lines[c.name] = greetLines(c.name); } catch (e) {}
         });
       }, 60000);
-    } catch (e) { err('greet:' + e.message); }
+    } catch (e) { try { console.warn('[greet-err]', e && e.message); } catch (e2) {} err('greet:' + e.message); }
   }
-  V15.buildGreeters = build;
+  V15.buildGreeters = function () { built = false; build(); };
+  /* 역할 이름 */
+  try {
+    if (typeof Talk !== 'undefined' && !Talk.roleOf.__v154greet) {
+      const old = Talk.roleOf.bind(Talk);
+      const fn = function (av) {
+        const n = av && av.name;
+        if (n === '리리' || n === '밍밍') return '시간·날씨 인사 도우미 · 问候老师';
+        return old(av);
+      };
+      fn.__v154greet = true;
+      Talk.roleOf = fn;
+    }
+  } catch (e) {}
   V14.lazyBuild(build, 0, 10, 40);
   setTimeout(() => { try { build(); } catch (e) {} }, 5200);
   /* 대화 열 때 즉시 최신 대사로 */
   try {
-    if (window.Talk && !Talk.open.__v154g) {
+    if (typeof Talk !== 'undefined' && !Talk.open.__v154g) {
       const prev = Talk.open;
       const fn = function (av) {
         if (av && GREETERS.some((c) => c.name === av.name)) {
@@ -40684,6 +40715,11 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     } catch (e) { err('lib:deck:' + e.message); }
   }
 
+  V15.addBook = function (b) {
+    try { BOOKS.push(b); if (V15.renderBooks) V15.renderBooks(); } catch (e) {}
+  };
+  V15.booksRef = BOOKS;
+
   const PDF6 = [
     { ic: '📗', t: '현지에서 바로 쓰는 중국어 기초회화 22단원', go: () => V15.basicShow() },
     { ic: '📝', t: 'HSK 3.0 5급 종합워크북 + 모의고사 5세트', go: () => openStudy('hsk') },
@@ -40937,6 +40973,804 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   });
 })();
 
+
+/* =====================================================================
+   v15.4 LEARN — ✈️ 항공편 지연·취소 100문장 · 🎓 통대 뉴스 시사통역 · 🦉 영중한 기초회화
+   ===================================================================== */
+(function () {
+  const V15 = window.V15;
+  if (!V15) return;
+  const err = V15.err;
+
+  /* ==================================================================
+     1) ✈️ 항공편 지연·취소 실용 단문 100 (航班延误取消实用短句一百句)
+     ================================================================== */
+  const FLIGHT = [
+    {
+      id: 1, name: '① 지연 조회', hz: '延误查询', range: '1~20',
+      items: [
+        [1, 'Is my flight delayed?', '我的航班延误了吗？', 'wǒ de hángbān yánwù le ma?', '제 항공편이 지연됐나요?'],
+        [2, 'How long is the delay?', '延误多久？', 'yánwù duōjiǔ?', '얼마나 지연되나요?'],
+        [3, 'What is the new departure time?', '新的起飞时间是什么？', 'xīn de qǐfēi shíjiān shì shénme?', '새 출발 시간은 언제인가요?'],
+        [4, 'What time will we board?', '我们几点登机？', 'wǒmen jǐ diǎn dēngjī?', '몇 시에 탑승하나요?'],
+        [5, 'Has the gate changed?', '登机口变了吗？', 'dēngjīkǒu biàn le ma?', '탑승구가 바뀌었나요?'],
+        [6, 'Which gate should I go to?', '现在该去哪个登机口？', 'xiànzài gāi qù nǎ ge dēngjīkǒu?', '지금 어느 탑승구로 가야 하나요?'],
+        [7, 'Where can I check the flight status?', '我在哪里查航班状态？', 'wǒ zài nǎlǐ chá hángbān zhuàngtài?', '어디서 항공편 상태를 확인하나요?'],
+        [8, 'Is there any update on the delay?', '延误有新消息吗？', 'yánwù yǒu xīn xiāoxi ma?', '지연 관련 새 소식이 있나요?'],
+        [9, 'Why is the flight delayed?', '为什么航班延误了？', 'wèishénme hángbān yánwù le?', '왜 항공편이 지연됐나요?'],
+        [10, 'Is it because of the weather?', '是因为天气吗？', 'shì yīnwèi tiānqì ma?', '날씨 때문인가요?'],
+        [11, 'Is the flight still operating today?', '今天航班还会飞吗？', 'jīntiān hángbān hái huì fēi ma?', '오늘 항공편이 그래도 운항하나요?'],
+        [12, 'Will we miss our connection?', '我们会错过转机吗？', 'wǒmen huì cuòguò zhuǎnjī ma?', '환승을 놓치게 되나요?'],
+        [13, 'Do I need to stay near the gate?', '我需要在登机口附近等吗？', 'wǒ xūyào zài dēngjīkǒu fùjìn děng ma?', '탑승구 근처에서 기다려야 하나요?'],
+        [14, 'Will there be an announcement?', '会有广播通知吗？', 'huì yǒu guǎngbō tōngzhī ma?', '안내 방송이 나오나요?'],
+        [15, 'Should I wait here or go to the service desk?', '我该在这里等还是去服务台？', 'wǒ gāi zài zhèlǐ děng háishi qù fúwùtái?', '여기서 기다릴까요, 서비스 데스크로 갈까요?'],
+        [16, 'Can you notify me when boarding starts?', '开始登机时能通知我吗？', 'kāishǐ dēngjī shí néng tōngzhī wǒ ma?', '탑승 시작 때 알려 주실 수 있나요?'],
+        [17, 'Is the delay more than two hours?', '延误超过两小时了吗？', 'yánwù chāoguò liǎng xiǎoshí le ma?', '지연이 두 시간을 넘었나요?'],
+        [18, 'Can I get a written delay notice?', '我能拿到延误证明吗？', 'wǒ néng nádào yánwù zhèngmíng ma?', '지연 증명서를 받을 수 있나요?'],
+        [19, 'Can I use the lounge during the delay?', '延误期间我能使用休息室吗？', 'yánwù qījiān wǒ néng shǐyòng xiūxi shì ma?', '지연 중 라운지를 이용할 수 있나요?'],
+        [20, 'Where is the airline service counter?', '航空公司服务柜台在哪里？', 'hángkōng gōngsī fúwù guìtái zài nǎlǐ?', '항공사 서비스 카운터가 어디인가요?'],
+      ],
+    },
+    {
+      id: 2, name: '② 취소·개표', hz: '取消&改签', range: '21~40',
+      items: [
+        [21, 'My flight was cancelled.', '我的航班被取消了。', 'wǒ de hángbān bèi qǔxiāo le.', '제 항공편이 취소됐어요.'],
+        [22, 'Why was it cancelled?', '为什么被取消了？', 'wèishénme bèi qǔxiāo le?', '왜 취소됐나요?'],
+        [23, 'What are my options now?', '我现在有哪些选择？', 'wǒ xiànzài yǒu nǎxiē xuǎnzé?', '지금 어떤 선택지가 있나요?'],
+        [24, 'Can you put me on the next flight?', '能安排我坐下一班飞机吗？', 'néng ānpái wǒ zuò xià yì bān fēijī ma?', '다음 편에 태워 주실 수 있나요?'],
+        [25, 'Is there another flight today?', '今天还有别的航班吗？', 'jīntiān hái yǒu bié de hángbān ma?', '오늘 다른 항공편이 있나요?'],
+        [26, 'Can you rebook me for tomorrow morning?', '能改签到明天早上吗？', 'néng gǎiqiān dào míngtiān zǎoshang ma?', '내일 아침으로 변경할 수 있나요?'],
+        [27, 'I need the earliest available flight.', '我需要最早的可用航班。', 'wǒ xūyào zuì zǎo de kěyòng hángbān.', '가장 이른 항공편이 필요해요.'],
+        [28, 'Do I need to pay a change fee?', '我需要付改签费吗？', 'wǒ xūyào fù gǎiqiān fèi ma?', '변경 수수료를 내야 하나요?'],
+        [29, 'Can you waive the change fee?', '能免掉改签费吗？', 'néng miǎndiào gǎiqiān fèi ma?', '변경 수수료를 면제해 주실 수 있나요?'],
+        [30, 'Can I choose a different route?', '我可以改走别的路线吗？', 'wǒ kěyǐ gǎi zǒu bié de lùxiàn ma?', '다른 경로로 바꿀 수 있나요?'],
+        [31, 'Can you rebook my connecting flight too?', '能把我的联程航班也一起改吗？', 'néng bǎ wǒ de liánchéng hángbān yě yìqǐ gǎi ma?', '연결 항공편도 함께 변경해 주실 수 있나요?'],
+        [32, 'I need to arrive tonight.', '我今晚必须到达。', 'wǒ jīnwǎn bìxū dàodá.', '오늘 밤에 꼭 도착해야 해요.'],
+        [33, 'Is there a flight with another airline?', '有其他航空公司的航班吗？', 'yǒu qítā hángkōng gōngsī de hángbān ma?', '다른 항공사 편이 있나요?'],
+        [34, 'Can you transfer my ticket to that flight?', '能把我的机票转到那班吗？', 'néng bǎ wǒ de jīpiào zhuǎn dào nà bān ma?', '제 티켓을 그 편으로 옮길 수 있나요?'],
+        [35, 'Will my checked bag be moved automatically?', '我的托运行李会自动转过去吗？', 'wǒ de tuōyùn xíngli huì zìdòng zhuǎn guòqù ma?', '위탁 수하물도 자동으로 옮겨지나요?'],
+        [36, 'Can I keep the same seat?', '我能保留原来的座位吗？', 'wǒ néng bǎoliú yuánlái de zuòwèi ma?', '원래 좌석을 유지할 수 있나요?'],
+        [37, 'Can I get a window seat again?', '我还能要靠窗座位吗？', 'wǒ hái néng yào kàochuāng zuòwèi ma?', '창가 좌석을 다시 받을 수 있나요?'],
+        [38, 'Please print my new boarding pass.', '请打印我的新登机牌。', 'qǐng dǎyìn wǒ de xīn dēngjīpái.', '새 탑승권을 출력해 주세요.'],
+        [39, 'Can you send the new itinerary to my email?', '能把新行程发到我邮箱吗？', 'néng bǎ xīn xíngchéng fā dào wǒ yóuxiāng ma?', '새 일정을 제 이메일로 보내 주실 수 있나요?'],
+        [40, 'What time should I come back tomorrow?', '我明天几点回来？', 'wǒ míngtiān jǐ diǎn huílái?', '내일 몇 시에 다시 와야 하나요?'],
+      ],
+    },
+    {
+      id: 3, name: '③ 환불·대기', hz: '退票&候补', range: '41~60',
+      items: [
+        [41, "I'd like to request a refund.", '我想申请退款。', 'wǒ xiǎng shēnqǐng tuìkuǎn.', '환불을 신청하고 싶어요.'],
+        [42, 'Is the refund full or partial?', '退款是全额还是部分？', 'tuìkuǎn shì quán\'é háishi bùfèn?', '전액 환불인가요, 부분 환불인가요?'],
+        [43, 'How long will the refund take?', '退款要多久？', 'tuìkuǎn yào duōjiǔ?', '환불은 얼마나 걸리나요?'],
+        [44, 'Will the refund go back to my card?', '退款会退回原卡吗？', 'tuìkuǎn huì tuìhuí yuán kǎ ma?', '환불이 원래 카드로 돌아오나요?'],
+        [45, 'Can I cancel this booking now?', '我现在可以取消这个预订吗？', 'wǒ xiànzài kěyǐ qǔxiāo zhège yùdìng ma?', '지금 이 예약을 취소할 수 있나요?'],
+        [46, 'Is there a travel voucher instead?', '可以改成旅行代金券吗？', 'kěyǐ gǎichéng lǚxíng dàijīnquàn ma?', '여행 바우처로 바꿀 수 있나요?'],
+        [47, 'How long is the voucher valid?', '代金券有效期多久？', 'dàijīnquàn yǒuxiàoqī duōjiǔ?', '바우처 유효기간은 얼마인가요?'],
+        [48, 'Can I join the standby list?', '我可以排候补吗？', 'wǒ kěyǐ pái hòubǔ ma?', '대기 명단에 오를 수 있나요?'],
+        [49, 'How many people are ahead of me?', '前面还有多少人？', 'qiánmiàn hái yǒu duōshao rén?', '앞에 몇 명이나 있나요?'],
+        [50, 'What are my chances of getting a seat?', '我补到座位的机会大吗？', 'wǒ bǔdào zuòwèi de jīhuì dà ma?', '좌석을 받을 가능성이 큰가요?'],
+        [51, 'Can you prioritize my booking?', '能优先处理我的预订吗？', 'néng yōuxiān chǔlǐ wǒ de yùdìng ma?', '제 예약을 우선 처리해 주실 수 있나요?'],
+        [52, 'I have a connecting reservation.', '我后续还有联程预订。', 'wǒ hòuxù hái yǒu liánchéng yùdìng.', '뒤에 연결 예약이 있어요.'],
+        [53, "I'll miss my hotel check-in.", '我会错过酒店入住。', 'wǒ huì cuòguò jiǔdiàn rùzhù.', '호텔 체크인을 놓치겠어요.'],
+        [54, 'Can I get proof of cancellation?', '能给我一份取消证明吗？', 'néng gěi wǒ yí fèn qǔxiāo zhèngmíng ma?', '취소 증명서를 받을 수 있나요?'],
+        [55, 'I need this for insurance.', '我需要这个给保险使用。', 'wǒ xūyào zhège gěi bǎoxiǎn shǐyòng.', '보험 청구에 필요해요.'],
+        [56, 'Can you change the destination airport?', '能改到另一个到达机场吗？', 'néng gǎi dào lìng yí ge dàodá jīchǎng ma?', '다른 도착 공항으로 바꿀 수 있나요?'],
+        [57, 'Can I leave from a different airport?', '我能从另一个机场出发吗？', 'wǒ néng cóng lìng yí ge jīchǎng chūfā ma?', '다른 공항에서 출발할 수 있나요?'],
+        [58, 'Can I split the passengers on this booking?', '同一订单的乘客可以分开改吗？', 'tóng yī dìngdān de chéngkè kěyǐ fēnkāi gǎi ma?', '같은 예약의 승객을 따로 변경할 수 있나요?'],
+        [59, 'Please keep us on the same flight.', '请把我们安排在同一班航班上。', 'qǐng bǎ wǒmen ānpái zài tóng yì bān hángbān shàng.', '우리를 같은 편에 배정해 주세요.'],
+        [60, 'Can I check the rebooking online too?', '我也能在线查看改签结果吗？', 'wǒ yě néng zàixiàn chákàn gǎiqiān jiéguǒ ma?', '온라인으로도 변경 결과를 확인할 수 있나요?'],
+      ],
+    },
+    {
+      id: 4, name: '④ 식사·호텔·수하물', hz: '餐宿&行李', range: '61~80',
+      items: [
+        [61, 'Will the airline provide meal vouchers?', '航空公司会提供餐券吗？', 'hángkōng gōngsī huì tígōng cānquàn ma?', '항공사가 식사 쿠폰을 주나요?'],
+        [62, 'Where can I use this meal voucher?', '这张餐券可以在哪里使用？', 'zhè zhāng cānquàn kěyǐ zài nǎlǐ shǐyòng?', '이 식사 쿠폰은 어디서 쓸 수 있나요?'],
+        [63, 'How much is the voucher worth?', '这张餐券面额是多少？', 'zhè zhāng cānquàn miàn\'é shì duōshao?', '쿠폰 금액은 얼마인가요?'],
+        [64, 'Can I get some drinking water?', '我能领一些饮用水吗？', 'wǒ néng lǐng yìxiē yǐnyòngshuǐ ma?', '생수를 받을 수 있나요?'],
+        [65, 'Will the airline provide a hotel?', '航空公司会安排酒店吗？', 'hángkōng gōngsī huì ānpái jiǔdiàn ma?', '항공사가 호텔을 잡아 주나요?'],
+        [66, 'Is the hotel near the airport?', '酒店在机场附近吗？', 'jiǔdiàn zài jīchǎng fùjìn ma?', '호텔이 공항 근처인가요?'],
+        [67, 'How do I get to the hotel?', '我怎么去酒店？', 'wǒ zěnme qù jiǔdiàn?', '호텔에 어떻게 가나요?'],
+        [68, 'Is there a shuttle bus?', '有接驳车吗？', 'yǒu jiēbó chē ma?', '셔틀버스가 있나요?'],
+        [69, 'What time does the shuttle leave?', '接驳车几点发车？', 'jiēbó chē jǐ diǎn fāchē?', '셔틀버스는 몇 시에 출발하나요?'],
+        [70, 'Where is the pickup point?', '上车点在哪里？', 'shàngchē diǎn zài nǎlǐ?', '승차 지점이 어디인가요?'],
+        [71, 'Will you cover the taxi fare?', '你们会报销打车费吗？', 'nǐmen huì bàoxiāo dǎchē fèi ma?', '택시비를 정산해 주시나요?'],
+        [72, 'Do you provide transport back to the airport?', '还会安排回机场的交通吗？', 'hái huì ānpái huí jīchǎng de jiāotōng ma?', '공항으로 돌아가는 교통편도 마련해 주나요?'],
+        [73, 'What should I do with my baggage?', '我的行李要怎么处理？', 'wǒ de xíngli yào zěnme chǔlǐ?', '제 짐은 어떻게 처리해야 하나요?'],
+        [74, 'Do I need to collect my checked bag?', '我需要取回托运行李吗？', 'wǒ xūyào qǔhuí tuōyùn xíngli ma?', '위탁 수하물을 찾아야 하나요?'],
+        [75, 'Will my bag stay on the plane?', '行李会留在飞机上吗？', 'xíngli huì liú zài fēijī shàng ma?', '짐이 비행기에 그대로 있나요?'],
+        [76, 'Can I access my suitcase tonight?', '我今晚能拿到行李吗？', 'wǒ jīnwǎn néng nádào xíngli ma?', '오늘 밤에 짐을 받을 수 있나요?'],
+        [77, 'I have medication in my checked bag.', '我的托运行李里有药物。', 'wǒ de tuōyùn xíngli lǐ yǒu yàowù.', '위탁 짐 안에 약이 있어요.'],
+        [78, 'Can you help me retrieve it?', '你能帮我取出来吗？', 'nǐ néng bāng wǒ qǔ chūlái ma?', '꺼내 주실 수 있나요?'],
+        [79, 'Will my hotel and meal costs be reimbursed?', '酒店和餐食费用能报销吗？', 'jiǔdiàn hé cānshí fèiyòng néng bàoxiāo ma?', '호텔·식사비를 보상받을 수 있나요?'],
+        [80, 'Please give me the reimbursement instructions.', '请给我报销说明。', 'qǐng gěi wǒ bàoxiāo shuōmíng.', '보상 안내문을 주세요.'],
+      ],
+    },
+    {
+      id: 5, name: '⑤ 보상·후속 조치', hz: '补偿&跟进', range: '81~100',
+      items: [
+        [81, 'Am I eligible for compensation?', '我有资格获得补偿吗？', 'wǒ yǒu zīgé huòdé bǔcháng ma?', '보상 대상인가요?'],
+        [82, 'How much compensation can I get?', '我能获得多少补偿？', 'wǒ néng huòdé duōshao bǔcháng?', '얼마나 보상받을 수 있나요?'],
+        [83, 'What documents do I need to submit?', '我需要提交哪些材料？', 'wǒ xūyào tíjiāo nǎxiē cáiliào?', '어떤 서류를 제출해야 하나요?'],
+        [84, 'Where can I file a complaint?', '我在哪里可以投诉？', 'wǒ zài nǎlǐ kěyǐ tóusù?', '어디에 불만을 접수하나요?'],
+        [85, 'Can I speak to a supervisor?', '我能和主管谈谈吗？', 'wǒ néng hé zhǔguǎn tántan ma?', '책임자와 이야기할 수 있나요?'],
+        [86, 'I need a formal explanation in writing.', '我需要一份正式的书面说明。', 'wǒ xūyào yí fèn zhèngshì de shūmiàn shuōmíng.', '정식 서면 설명이 필요해요.'],
+        [87, 'This delay caused me extra expenses.', '这次延误让我产生了额外费用。', 'zhè cì yánwù ràng wǒ chǎnshēng le éwài fèiyòng.', '이번 지연으로 추가 비용이 생겼어요.'],
+        [88, 'I missed an important meeting.', '我错过了一个重要会议。', 'wǒ cuòguò le yí ge zhòngyào huìyì.', '중요한 회의를 놓쳤어요.'],
+        [89, 'I need a receipt for everything.', '我需要所有费用的收据。', 'wǒ xūyào suǒyǒu fèiyòng de shōujù.', '모든 비용의 영수증이 필요해요.'],
+        [90, 'Can I claim compensation online?', '我能在线上申请补偿吗？', 'wǒ néng zài xiànshàng shēnqǐng bǔcháng ma?', '온라인으로 보상을 신청할 수 있나요?'],
+        [91, 'When will I receive a response?', '我什么时候会收到回复？', 'wǒ shénme shíhou huì shōudào huífù?', '언제 답변을 받을 수 있나요?'],
+        [92, 'Can you give me a case number?', '能给我一个案件编号吗？', 'néng gěi wǒ yí ge ànjiàn biānhào ma?', '케이스 번호를 받을 수 있나요?'],
+        [93, 'Who should I contact later?', '之后我该联系谁？', 'zhīhòu wǒ gāi liánxì shéi?', '이후에 누구에게 연락해야 하나요?'],
+        [94, 'What is the customer service email?', '客服邮箱是什么？', 'kèfú yóuxiāng shì shénme?', '고객센터 이메일은 무엇인가요?'],
+        [95, 'Can you write down the website for me?', '能帮我写下网站吗？', 'néng bāng wǒ xiěxià wǎngzhàn ma?', '웹사이트 주소를 적어 주실 수 있나요?'],
+        [96, 'I need help in Chinese.', '我需要中文协助。', 'wǒ xūyào zhōngwén xiézhù.', '중국어 도움이 필요해요.'],
+        [97, 'Could you speak more slowly, please?', '请你说慢一点，好吗？', 'qǐng nǐ shuō màn yìdiǎn, hǎo ma?', '조금 천천히 말씀해 주시겠어요?'],
+        [98, 'Please confirm everything again.', '请再确认一遍全部信息。', 'qǐng zài quèrèn yí biàn quánbù xìnxī.', '모든 정보를 다시 확인해 주세요.'],
+        [99, 'Thank you for your help today.', '谢谢你今天的帮助。', 'xièxie nǐ jīntiān de bāngzhù.', '오늘 도와주셔서 고마워요.'],
+        [100, 'I hope my next flight goes smoothly.', '希望我下一班航班一切顺利。', 'xīwàng wǒ xià yí bān hángbān yíqiè shùnlì.', '다음 항공편이 순조롭길 바라요.'],
+      ],
+    },
+  ];
+  V15.FLIGHT100 = FLIGHT;
+  const allFlight = () => FLIGHT.reduce((a, s) => a.concat(s.items), []);
+
+  /* --- 수업 듣기 코스로 등록 (섹션별 20장) --- */
+  try {
+    if (typeof COURSES !== 'undefined' && Array.isArray(COURSES) && !window.__v154flightCourse) {
+      window.__v154flightCourse = 1;
+      FLIGHT.forEach((sec) => {
+        COURSES.push({
+          name: '✈️ 항공 ' + sec.range,
+          sub: '航班延误取消' + sec.range,
+          kicker: 'FLIGHT · ' + sec.hz,
+          desc: sec.name + ' · 중국어 · 병음 · 한국어 · 🔊',
+          slides: sec.items.map((it) => ({
+            hz: it[2], py: it[3], ko: it[4],
+            ex: it[1], exko: '',
+            note: '#' + it[0] + ' · ' + sec.name,
+          })),
+        });
+      });
+    }
+  } catch (e) { err('flight:course:' + e.message); }
+
+  /* --- 항공 100 전용 화면 --- */
+  function openFlight(secIdx) {
+    let el = document.getElementById('v154FlightModal');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'modal';
+      el.id = 'v154FlightModal';
+      document.body.appendChild(el);
+      const st = document.createElement('style');
+      st.textContent = `
+        #v154FlightModal .fl-tabs{display:flex;gap:5px;overflow-x:auto;padding:2px 0 6px;-webkit-overflow-scrolling:touch}
+        #v154FlightModal .fl-tabs button{flex:0 0 auto;padding:7px 11px;border-radius:99px;border:1px solid rgba(120,100,70,.2);
+          background:#fdfaf4;font-size:11px;font-weight:800;color:#6b6252}
+        #v154FlightModal .fl-tabs button.on{background:#2f5b86;color:#fff;border-color:#2f5b86}
+        #v154FlightModal .fl-row{display:flex;gap:8px;align-items:flex-start;padding:9px 8px;border-bottom:1px dashed rgba(120,100,70,.16)}
+        #v154FlightModal .fl-n{flex:0 0 26px;height:22px;border-radius:7px;background:#eef3f8;color:#2f5b86;
+          font-size:10.5px;font-weight:900;display:flex;align-items:center;justify-content:center}
+        #v154FlightModal .fl-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+        #v154FlightModal .fl-tx b{font-size:14.5px;color:#2f2a22;line-height:1.3}
+        #v154FlightModal .fl-tx small{font-size:11px;color:#8a6a3a;font-weight:700}
+        #v154FlightModal .fl-tx em{font-size:11.5px;color:#6b6252;font-style:normal}
+        #v154FlightModal .fl-tx i{font-size:10px;color:#9a9a92;font-style:normal}
+        #v154FlightModal .fl-row button{flex:0 0 auto;width:34px;height:34px;border-radius:11px;border:0;
+          background:#eef6f0;color:#2f6b4f;font-size:15px}
+        #v154FlightModal .fl-head{font-size:11px;color:#8a7a63;margin:2px 0 4px}`;
+      document.head.appendChild(st);
+    }
+    let sec = typeof secIdx === 'number' ? secIdx : 0;
+    const render = () => {
+      const s = FLIGHT[sec];
+      el.innerHTML = `
+        <div class="sheet v15-sheet" style="max-width:520px">
+          <button class="v12-x" data-close aria-label="닫기">✕</button>
+          <h2>✈️ 항공편 지연·취소 100문장 <span style="font-size:11px;color:#9a8d79">航班延误取消</span></h2>
+          <p class="v12-sub">${s.name} · ${s.hz} (${s.range}) · 중국어 · 병음 · 한국어 · 🔊</p>
+          <div class="fl-tabs">${FLIGHT.map((x, i) => `<button data-s="${i}" class="${i === sec ? 'on' : ''}">${x.range} ${x.hz}</button>`).join('')}</div>
+          <div class="fl-head">${s.items.length}문장 · 🔊 눌러 듣기 · 문장을 누르면 전체 발음</div>
+          ${s.items.map((it) => `<div class="fl-row" data-row="${it[0]}">
+            <span class="fl-n">${it[0]}</span>
+            <span class="fl-tx"><b>${it[2]}</b><small>${it[3]}</small><em>${it[4]}</em><i>${it[1]}</i></span>
+            <button type="button" data-say="${it[2].replace(/"/g, '')}">🔊</button>
+          </div>`).join('')}
+          <div class="v12-row" style="margin-top:10px">
+            <button class="v12-btn" id="flPrev">◀ 이전 섹션</button>
+            <button class="v12-btn primary" id="flAll">🔊 섹션 전체 듣기</button>
+            <button class="v12-btn" id="flNext">다음 섹션 ▶</button>
+          </div>
+          <div class="small-note">교재: 《航班延误取消实用短句一百句》 · 영어 원문까지 함께 익혀요.</div>
+        </div>`;
+      el.classList.add('show');
+      if (V12.syncModalState) V12.syncModalState();
+      el.querySelector('[data-close]').onclick = close;
+      el.addEventListener('click', (ev) => { if (ev.target === el) close(); });
+      el.querySelectorAll('[data-s]').forEach((b) => { b.onclick = () => { sec = Number(b.dataset.s); render(); }; });
+      el.querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => { try { speak(b.dataset.say); } catch (e) {} }; });
+      el.querySelectorAll('[data-row]').forEach((r) => {
+        r.onclick = (ev) => { if (ev.target.tagName === 'BUTTON') return; try { speak(r.querySelector('b').textContent); } catch (e) {} };
+      });
+      const pv = el.querySelector('#flPrev'); if (pv) pv.onclick = () => { sec = Math.max(0, sec - 1); render(); };
+      const nx = el.querySelector('#flNext'); if (nx) nx.onclick = () => { sec = Math.min(FLIGHT.length - 1, sec + 1); render(); };
+      const al = el.querySelector('#flAll'); if (al) al.onclick = () => { try { speak(s.items.map((i) => i[2]).join(' ')); } catch (e) {} };
+    };
+    const close = () => { el.classList.remove('show'); if (V12.syncModalState) V12.syncModalState(); };
+    render();
+  }
+  V15.openFlight100 = openFlight;
+
+  /* ==================================================================
+     2) 🎓 통번역 대학원 · 실시간 뉴스 시사 통번역 (GSIT 스타일)
+     ================================================================== */
+  const GSIT_VOCAB = [
+    { hz: '会谈', py: 'huìtán', ko: '회담' }, { hz: '磋商', py: 'cuōshāng', ko: '협의하다' },
+    { hz: '共识', py: 'gòngshí', ko: '공감대' }, { hz: '制裁', py: 'zhìcái', ko: '제재' },
+    { hz: '供应链', py: 'gōngyìngliàn', ko: '공급망' }, { hz: '关税', py: 'guānshuì', ko: '관세' },
+    { hz: '刺激消费', py: 'cìjī xiāofèi', ko: '소비를 진작하다' }, { hz: '内需', py: 'nèixū', ko: '내수' },
+    { hz: '通胀率', py: 'tōngzhànglǜ', ko: '인플레이션율' }, { hz: '基准利率', py: 'jīzhǔn lìlǜ', ko: '기준금리' },
+    { hz: '半导体', py: 'bàndǎotǐ', ko: '반도체' }, { hz: '出口管制', py: 'chūkǒu guǎnzhì', ko: '수출 통제' },
+    { hz: '碳中和', py: 'tànzhōnghé', ko: '탄소중립' }, { hz: '可再生能源', py: 'kězàishēng néngyuán', ko: '재생에너지' },
+    { hz: '免签', py: 'miǎnqiān', ko: '무비자' }, { hz: '游客', py: 'yóukè', ko: '관광객' },
+    { hz: '航空', py: 'hángkōng', ko: '항공' }, { hz: '恢复航班', py: 'huīfù hángbān', ko: '항공편을 재개하다' },
+    { hz: '声明', py: 'shēngmíng', ko: '성명' }, { hz: '发言人', py: 'fāyánrén', ko: '대변인' },
+    { hz: '失业率', py: 'shīyèlǜ', ko: '실업률' }, { hz: '物价', py: 'wùjià', ko: '물가' },
+    { hz: '投资', py: 'tóuzī', ko: '투자' }, { hz: '协定', py: 'xiédìng', ko: '협정' },
+  ];
+  const GSIT_IDIOM = [
+    { hz: '一举两得', py: 'yī jǔ liǎng dé', ko: '일석이조', use: '한 번의 조치로 두 가지 효과' },
+    { hz: '相辅相成', py: 'xiāng fǔ xiāng chéng', ko: '상부상조하다', use: '서로 보완하며 함께 발전' },
+    { hz: '循序渐进', py: 'xún xù jiàn jìn', ko: '순서를 따라 점진적으로', use: '단계적 추진' },
+    { hz: '举世瞩目', py: 'jǔ shì zhǔ mù', ko: '온 세계가 주목하다', use: '국제적 관심' },
+    { hz: '见微知著', py: 'jiàn wēi zhī zhù', ko: '작은 것에서 큰 것을 알다', use: '징후로 본질 파악' },
+    { hz: '化危为机', py: 'huà wēi wéi jī', ko: '위기를 기회로 바꾸다', use: '위기 대응' },
+  ];
+  /* 큐레이션 기사 4편 — 통대식 4단계 훈련 */
+  const GSIT = [
+    {
+      id: 'econ', tag: '경제', title: '중국 3분기 성장률과 내수 부양',
+      hz: [
+        '中国今年第三季度国内生产总值同比增长百分之四点九。',
+        '分析人士指出，消费对经济增长的贡献率明显回升。',
+        '为了进一步刺激内需，有关部门将出台一系列稳增长措施。',
+      ],
+      py: [
+        'zhōngguó jīnnián dì sān jìdù guónèi shēngchǎn zǒngzhí tóngbǐ zēngzhǎng bǎifēn zhī sì diǎn jiǔ.',
+        'fēnxī rénshì zhǐchū, xiāofèi duì jīngjì zēngzhǎng de gòngxiànlǜ míngxiǎn huíshēng.',
+        'wèile jìnyíbù cìjī nèixū, yǒuguān bùmén jiāng chūtái yí xìliè wěn zēngzhǎng cuòshī.',
+      ],
+      literal: [
+        '중국은 올해 3분기 국내총생산이 전년 동기 대비 4.9% 성장했다.',
+        '분석 인사는 지적했다, 소비가 경제 성장에 대한 기여율이 뚜렷하게 회복했다.',
+        '더 나아가 내수를 자극하기 위해, 관련 부서는 일련의 성장 안정 조치를 내놓을 것이다.',
+      ],
+      model: [
+        '중국은 올해 3분기 국내총생산(GDP)이 전년 동기 대비 4.9% 증가했다.',
+        '전문가들은 소비가 성장에 기여한 비중이 뚜렷이 반등했다고 분석했다.',
+        '내수 진작을 한층 강화하기 위해 관계 당국은 성장 안정을 위한 일련의 대책을 내놓을 예정이다.',
+      ],
+      keys: [
+        { hz: '国内生产总值', py: 'guónèi shēngchǎn zǒngzhí', ko: '국내총생산(GDP)' },
+        { hz: '同比增长', py: 'tóngbǐ zēngzhǎng', ko: '전년 동기 대비 증가' },
+        { hz: '贡献率', py: 'gòngxiànlǜ', ko: '기여율' },
+        { hz: '稳增长', py: 'wěn zēngzhǎng', ko: '성장 안정(의)' },
+        { hz: '刺激内需', py: 'cìjī nèixū', ko: '내수 진작' },
+      ],
+      rev: [
+        { ko: '전문가들은 소비 회복세가 뚜렷하다고 분석했습니다.', hz: '专家认为消费回升明显。', py: 'zhuānjiā rènwéi xiāofèi huíshēng míngxiǎn.' },
+        { ko: '당국은 경기 부양책을 내놓을 예정입니다.', hz: '当局将出台经济刺激措施。', py: 'dāngjú jiāng chūtái jīngjì cìjī cuòshī.' },
+        { ko: '내수가 성장의 주요 동력이 되었습니다.', hz: '内需已成为增长的主要动力。', py: 'nèixū yǐ chéngwéi zēngzhǎng de zhǔyào dònglì.' },
+      ],
+      idiom: { hz: '一举两得', py: 'yī jǔ liǎng dé', ko: '일석이조', note: '소비 진작과 고용 안정을 함께 노린 정책을 설명할 때.' },
+    },
+    {
+      id: 'tech', tag: '기술', title: 'AI 반도체 수출 규제와 공급망',
+      hz: [
+        '美国最近收紧了对高端半导体的出口管制。',
+        '这一举措可能对全球供应链产生深远影响。',
+        '多家企业表示，将重新评估在当地的产能布局。',
+      ],
+      py: [
+        'měiguó zuìjìn shōujǐn le duì gāoduān bàndǎotǐ de chūkǒu guǎnzhì.',
+        'zhè yì jǔcuò kěnéng duì quánqiú gōngyìngliàn chǎnshēng shēnyuǎn yǐngxiǎng.',
+        'duō jiā qǐyè biǎoshì, jiāng chóngxīn pínggū zài dāngdì de chánnéng bùjú.',
+      ],
+      literal: [
+        '미국은 최근 고급 반도체에 대한 수출 관리를 조였다.',
+        '이 조치는 아마도 글로벌 공급망에 깊고 먼 영향을 낳을 것이다.',
+        '많은 기업이 표시했다, 당지에서의 생산능력 배치를 다시 평가할 것이다.',
+      ],
+      model: [
+        '미국이 최근 첨단 반도체 수출 통제를 강화했다.',
+        '이번 조치는 글로벌 공급망에 적지 않은 파장을 미칠 전망이다.',
+        '다수 기업은 현지 생산능력 재배치를 재검토하겠다고 밝혔다.',
+      ],
+      keys: [
+        { hz: '高端半导体', py: 'gāoduān bàndǎotǐ', ko: '첨단(고급) 반도체' },
+        { hz: '收紧管制', py: 'shōujǐn guǎnzhì', ko: '통제를 강화하다' },
+        { hz: '深远影响', py: 'shēnyuǎn yǐngxiǎng', ko: '심원한 영향' },
+        { hz: '产能布局', py: 'chánnéng bùjú', ko: '생산능력 배치' },
+        { hz: '重新评估', py: 'chóngxīn pínggū', ko: '재평가하다' },
+      ],
+      rev: [
+        { ko: '이번 조치로 공급망 불확실성이 커졌습니다.', hz: '此举加大了供应链的不确定性。', py: 'cǐ jǔ jiādà le gōngyìngliàn de bù quèdìngxìng.' },
+        { ko: '기업들은 대체 공급처를 모색하고 있습니다.', hz: '企业正在寻找替代供应商。', py: 'qǐyè zhèngzài xúnzhǎo tìdài gōngyìngshāng.' },
+        { ko: '정부는 영향을 면밀히 주시하고 있습니다.', hz: '政府正在密切关注影响。', py: 'zhèngfǔ zhèngzài mìqiè guānzhù yǐngxiǎng.' },
+      ],
+      idiom: { hz: '化危为机', py: 'huà wēi wéi jī', ko: '위기를 기회로', note: '규제 강화 속 국산화 기회를 말할 때.' },
+    },
+    {
+      id: 'tour', tag: '관광', title: '한중 관광 회복과 무비자',
+      hz: [
+        '随着签证政策的放宽，来韩中国游客明显增加。',
+        '航空公司陆续恢复了多条航线。',
+        '业内人士预计，下半年旅游收入将继续回升。',
+      ],
+      py: [
+        'suízhe qiānzhèng zhèngcè de fàngkuān, lái hán zhōngguó yóukè míngxiǎn zēngjiā.',
+        'hángkōng gōngsī lùxù huīfù le duō tiáo hángxiàn.',
+        'yènèi rénshì yùjì, xià bànnián lǚyóu shōurù jiāng jìxù huíshēng.',
+      ],
+      literal: [
+        '비자 정책의 완화를 따라, 한국에 오는 중국 관광객이 뚜렷하게 증가했다.',
+        '항공 회사들이 잇달아 여러 노선을 회복했다.',
+        '업계 인사는 예상한다, 하반기 여행 수입은 계속 회복할 것이다.',
+      ],
+      model: [
+        '비자 정책이 완화되면서 한국을 찾는 중국인 관광객이 눈에 띄게 늘었다.',
+        '항공사들도 다수의 노선을 잇따라 재개했다.',
+        '업계는 하반기에도 관광 수입이 회복세를 이어갈 것으로 내다봤다.',
+      ],
+      keys: [
+        { hz: '签证政策', py: 'qiānzhèng zhèngcè', ko: '비자 정책' },
+        { hz: '放宽', py: 'fàngkuān', ko: '완화하다' },
+        { hz: '航线', py: 'hángxiàn', ko: '노선' },
+        { hz: '业内', py: 'yènèi', ko: '업계' },
+        { hz: '回升', py: 'huíshēng', ko: '반등하다' },
+      ],
+      rev: [
+        { ko: '중국인 관광객이 다시 늘고 있습니다.', hz: '中国游客再次增加。', py: 'zhōngguó yóukè zàicì zēngjiā.' },
+        { ko: '항공사들은 증편을 검토하고 있습니다.', hz: '航空公司正在考虑增加航班。', py: 'hángkōng gōngsī zhèngzài kǎolǜ zēngjiā hángbān.' },
+        { ko: '관광업계는 기대감을 나타냈습니다.', hz: '旅游业界表示期待。', py: 'lǚyóu yèjiè biǎoshì qīdài.' },
+      ],
+      idiom: { hz: '循序渐进', py: 'xún xù jiàn jìn', ko: '점진적으로', note: '단계적 회복을 설명할 때.' },
+    },
+    {
+      id: 'climate', tag: '기후', title: '탄소중립과 재생에너지 투자',
+      hz: [
+        '两国决定扩大在可再生能源领域的合作。',
+        '双方将共同推进碳中和技术的研发。',
+        '专家认为，这有助于稳定长期能源价格。',
+      ],
+      py: [
+        'liǎng guó juédìng kuòdà zài kězàishēng néngyuán lǐngyù de hézuò.',
+        'shuāngfāng jiāng gòngtóng tuījìn tànzhōnghé jìshù de yánfā.',
+        'zhuānjiā rènwéi, zhè yǒuzhùyú wěndìng chángqī néngyuán jiàgé.',
+      ],
+      literal: [
+        '두 나라는 재생 에너지 영역에서의 협력을 확대하기로 결정했다.',
+        '쌍방은 공동으로 탄소중립 기술의 연구개발을 추진할 것이다.',
+        '전문가는 여긴다, 이는 장기 에너지 가격을 안정시키는 데 도움이 된다.',
+      ],
+      model: [
+        '양국은 재생에너지 분야 협력을 확대하기로 했다.',
+        '양측은 탄소중립 기술 공동 연구개발도 함께 추진한다.',
+        '전문가들은 이번 협력이 장기적인 에너지 가격 안정에 기여할 것으로 평가했다.',
+      ],
+      keys: [
+        { hz: '可再生能源', py: 'kězàishēng néngyuán', ko: '재생에너지' },
+        { hz: '领域', py: 'lǐngyù', ko: '분야·영역' },
+        { hz: '研发', py: 'yánfā', ko: '연구개발' },
+        { hz: '有助于', py: 'yǒuzhùyú', ko: '~에 도움이 되다' },
+        { hz: '能源价格', py: 'néngyuán jiàgé', ko: '에너지 가격' },
+      ],
+      rev: [
+        { ko: '양국은 기후 변화에 공동 대응하기로 했습니다.', hz: '两国决定共同应对气候变化。', py: 'liǎng guó juédìng gòngtóng yìngduì qìhòu biànhuà.' },
+        { ko: '재생에너지 투자가 확대될 전망입니다.', hz: '可再生能源投资有望扩大。', py: 'kězàishēng néngyuán tóuzī yǒuwàng kuòdà.' },
+        { ko: '기술 협력이 핵심입니다.', hz: '技术合作是关键。', py: 'jìshù hézuò shì guānjiàn.' },
+      ],
+      idiom: { hz: '相辅相成', py: 'xiāng fǔ xiāng chéng', ko: '상호 보완', note: '기술 협력과 시장 확대의 관계를 설명할 때.' },
+    },
+  ];
+
+  function speakSlow(text) {
+    try {
+      if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(String(text));
+        u.lang = 'zh-CN'; u.rate = 0.62; u.pitch = 1;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+        return true;
+      }
+    } catch (e) {}
+    try { return speak(text); } catch (e) { return false; }
+  }
+
+  let gsTab = 'vocab';
+  function openGsit(idx) {
+    let el = document.getElementById('v154GsitModal');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'modal';
+      el.id = 'v154GsitModal';
+      document.body.appendChild(el);
+      const st = document.createElement('style');
+      st.textContent = `
+        #v154GsitModal .gs-tabs{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px}
+        #v154GsitModal .gs-tabs button{flex:0 0 auto;padding:7px 10px;border-radius:99px;border:1px solid rgba(90,110,140,.25);
+          background:#f7f9fc;font-size:10.5px;font-weight:800;color:#4a5a70}
+        #v154GsitModal .gs-tabs button.on{background:#2f4a6a;color:#fff;border-color:#2f4a6a}
+        #v154GsitModal .gs-narr{background:#f6f2e8;border:1px solid rgba(150,130,90,.2);border-radius:12px;padding:9px 10px;margin-bottom:8px}
+        #v154GsitModal .gs-narr b{font-size:14px;color:#2f2a22;line-height:1.45}
+        #v154GsitModal .gs-narr small{display:block;font-size:11px;color:#8a6a3a;font-weight:700;margin-top:2px}
+        #v154GsitModal .gs-narr em{display:block;font-size:11.5px;color:#6b6252;font-style:normal;margin-top:3px}
+        #v154GsitModal .gs-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+        #v154GsitModal .gs-row button{min-height:34px;padding:0 10px;border-radius:10px;border:0;background:#eef3f8;color:#2f4a6a;font-size:11px;font-weight:800}
+        #v154GsitModal .gs-note{width:100%;min-height:84px;border-radius:12px;border:1px dashed rgba(90,110,140,.4);
+          padding:8px;font-size:12px;line-height:1.5;color:#3f3428;background:#fcfdff;font-family:inherit}
+        #v154GsitModal .gs-v{display:flex;gap:7px;align-items:flex-start;padding:7px 8px;border-bottom:1px dashed rgba(120,110,90,.16)}
+        #v154GsitModal .gs-v b{font-size:13.5px;color:#2f2a22;min-width:86px}
+        #v154GsitModal .gs-v small{font-size:11px;color:#8a6a3a;font-weight:700;flex:1}
+        #v154GsitModal .gs-v em{font-size:11.5px;color:#6b6252;font-style:normal}
+        #v154GsitModal .gs-cmp{display:grid;gap:7px;margin-bottom:8px}
+        #v154GsitModal .gs-cmp div{border-radius:11px;padding:8px 9px;font-size:11.5px;line-height:1.5}
+        #v154GsitModal .gs-cmp .lit{background:#fdf3f0;border:1px solid rgba(190,120,90,.25);color:#7a4a34}
+        #v154GsitModal .gs-cmp .mdl{background:#eef6f0;border:1px solid rgba(70,140,100,.28);color:#24503a;font-weight:700}
+        #v154GsitModal .gs-cmp span{display:block;font-size:9.5px;font-weight:900;letter-spacing:.08em;margin-bottom:3px;opacity:.75}`;
+      document.head.appendChild(st);
+    }
+    const it = GSIT[Math.max(0, Math.min(GSIT.length - 1, typeof idx === 'number' ? idx : 0))];
+    const noteKey = 'rtb_v154_gsit_note_' + it.id;
+    const render = () => {
+      const note = (() => { try { return localStorage.getItem(noteKey) || ''; } catch (e) { return ''; } })();
+      const body = gsTab === 'vocab' ? `
+        <div class="gs-v" style="border-bottom:2px solid rgba(90,110,140,.25)"><b>표현</b><small>병음</small><em>뜻</em></div>
+        ${it.keys.map((k) => `<div class="gs-v"><b>${k.hz}</b><small>${k.py}</small><em>${k.ko}</em></div>`).join('')}
+        <div class="gs-v" style="margin-top:8px;border-top:2px solid rgba(90,110,140,.25)"><b>사자성어</b><small>${it.idiom.py}</small><em>${it.idiom.ko}</em></div>
+        <div class="small-note" style="margin-top:4px">${it.idiom.hz} — ${it.idiom.note}</div>
+        <div class="small-note" style="margin-top:8px">고급 시사 어휘 ${GSIT_VOCAB.length}개 · 4자성어 ${GSIT_IDIOM.length}개도 함께 익혀 보세요.</div>
+        <div class="gs-cmp" style="margin-top:6px">${GSIT_IDIOM.slice(0, 3).map((x) => `<div class="lit" style="background:#f7f9fc;color:#3f4a5a"><span>${x.hz}</span>${x.py} · ${x.ko}</div>`).join('')}</div>
+      ` : gsTab === 'listen' ? `
+        ${it.hz.map((h, i) => `<div class="gs-narr"><b>${h}</b><small>${it.py[i]}</small>
+          <div class="gs-row" style="margin-top:6px"><button data-say="${i}">🔊 기본</button><button data-slow="${i}">🐢 느리게</button></div></div>`).join('')}
+        <div class="small-note">노트테이킹 — 숫자·고유명사·논점을 키워드로 받아 적으세요 (자동 저장)</div>
+        <textarea class="gs-note" id="gsNote" placeholder="예: 3분기 GDP 4.9% / 소비 기여율 ↑ / 내수 대책">${note}</textarea>
+      ` : gsTab === 'compare' ? `
+        ${it.hz.map((h, i) => `<div class="gs-cmp">
+          <div class="lit"><span>직역 · LITERAL</span>${it.literal[i]}</div>
+          <div class="mdl"><span>모범 번역 · MODEL</span>${it.model[i]}</div>
+        </div>`).join('')}
+        <div class="small-note">통대식 포인트 — 수치·기관명은 앞에, 어순은 한국어 정보 구조로 재배열합니다.</div>
+      ` : `
+        ${it.rev.map((r) => `<div class="gs-narr"><b>${r.ko}</b><small>${r.hz}</small><em>${r.py}</em>
+          <div class="gs-row" style="margin-top:6px"><button data-z="${r.hz.replace(/"/g, '')}">🔊 중국어</button></div></div>`).join('')}
+        <div class="small-note">한→중 역방향 — 위 한국어를 보고 중국어로 즉시 옮겨 말해 보세요.</div>
+      `;
+      el.innerHTML = `
+        <div class="sheet v15-sheet" style="max-width:560px">
+          <button class="v12-x" data-close aria-label="닫기">✕</button>
+          <h2>🎓 통번역 대학원 · 뉴스 시사 통번역</h2>
+          <p class="v12-sub">${it.tag} · ${it.title} — 청해 · 시역 · 노트테이킹 · 모범 번역 비교</p>
+          <div class="gs-tabs">
+            <button data-g="vocab" class="${gsTab === 'vocab' ? 'on' : ''}">① 어휘·사자성어</button>
+            <button data-g="listen" class="${gsTab === 'listen' ? 'on' : ''}">② 청해·시역</button>
+            <button data-g="compare" class="${gsTab === 'compare' ? 'on' : ''}">③ 번역 비교</button>
+            <button data-g="rev" class="${gsTab === 'rev' ? 'on' : ''}">④ 한→중</button>
+          </div>
+          ${body}
+          <div class="v12-row" style="margin-top:9px">
+            <button class="v12-btn" id="gsArt">🔄 다른 기사</button>
+            <button class="v12-btn primary" id="gsAll">🔊 원문 전체 듣기</button>
+            <button class="v12-btn" id="gsNews">📺 실시간 뉴스</button>
+          </div>
+          <div class="small-note">교재: 실시간 중국어 뉴스를 통대 훈련 4단계로 재구성했습니다.</div>
+        </div>`;
+      el.classList.add('show');
+      if (V12.syncModalState) V12.syncModalState();
+      el.querySelector('[data-close]').onclick = close;
+      el.addEventListener('click', (ev) => { if (ev.target === el) close(); });
+      el.querySelectorAll('[data-g]').forEach((b) => { b.onclick = () => { gsTab = b.dataset.g; render(); }; });
+      el.querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => { try { speak(it.hz[Number(b.dataset.say)]); } catch (e) {} }; });
+      el.querySelectorAll('[data-slow]').forEach((b) => { b.onclick = () => { speakSlow(it.hz[Number(b.dataset.slow)]); }; });
+      el.querySelectorAll('[data-z]').forEach((b) => { b.onclick = () => { try { speak(b.dataset.z); } catch (e) {} }; });
+      const nt = document.getElementById('gsNote');
+      if (nt) nt.oninput = () => { try { localStorage.setItem(noteKey, nt.value); } catch (e) {} };
+      const a1 = el.querySelector('#gsAll'); if (a1) a1.onclick = () => { try { speak(it.hz.join(' ')); } catch (e) {} };
+      const a2 = el.querySelector('#gsArt'); if (a2) a2.onclick = () => { openGsit((GSIT.indexOf(it) + 1) % GSIT.length); };
+      const a3 = el.querySelector('#gsNews'); if (a3) a3.onclick = () => { close(); try { V12.openNews(); } catch (e) {} };
+    };
+    const close = () => { el.classList.remove('show'); if (V12.syncModalState) V12.syncModalState(); };
+    render();
+  }
+  V15.openGsit = openGsit;
+  V15.gsitInfo = () => ({ articles: GSIT.length, vocab: GSIT_VOCAB.length, idioms: GSIT_IDIOM.length, tab: gsTab });
+
+  /* ==================================================================
+     3) 🦉 영·중·한 듀오링고 기초회화
+     ================================================================== */
+  const DUO_SEG = ('我|你|他|她|我们|你们|他们|要|想|可以|请|请问|谢谢|不客气|对不起|没关系|多少钱|在哪里|哪儿|这个|那个|什么|几个|几|咖啡|茶|水|饭|面条|苹果|啤酒|一杯|两杯|一个|两个|张|机票|票|洗手间|地铁站|这里|那里|左边|右边|直走|右转|左转|你好|再见|早上好|晚上好|喜欢|很|太|了|吗|呢|的|是|有|在|去|来|买|吃|喝|找|帮|说|一点|慢|快|今天|明天|天气|好|冷|热|雨|伞|可以|给|我一下').split('|');
+  function segZh(hz) {
+    const S = DUO_SEG.slice().sort((a, b) => b.length - a.length);
+    const out = [];
+    let i = 0;
+    while (i < hz.length) {
+      let hit = '';
+      for (const w of S) { if (hz.startsWith(w, i)) { hit = w; break; } }
+      if (!hit) hit = hz.slice(i, i + 2);
+      out.push(hit);
+      i += hit.length;
+    }
+    /* 문장부호는 앞 블록에 붙인다 */
+    const merged = [];
+    out.forEach((w) => {
+      if (/^[，。！？、；：,.!?]+$/.test(w) && merged.length) merged[merged.length - 1] += w;
+      else merged.push(w);
+    });
+    return merged;
+  }
+  const DUO_STAGES = [
+    { id: 'hi', name: '① 인사', icon: '👋', items: [
+      ['Hello!', '你好！', 'nǐ hǎo!', '안녕하세요!'],
+      ['Good morning!', '早上好！', 'zǎo shang hǎo!', '좋은 아침이에요!'],
+      ['Thank you very much.', '非常感谢。', 'fēicháng gǎnxiè.', '정말 감사합니다.'],
+      ['Nice to meet you.', '很高兴认识你。', 'hěn gāoxìng rènshi nǐ.', '만나서 반가워요.'],
+      ['See you tomorrow.', '明天见。', 'míngtiān jiàn.', '내일 봐요.'],
+    ]},
+    { id: 'cafe', name: '② 카페', icon: '☕', items: [
+      ['I would like a cup of coffee.', '我要一杯咖啡。', 'wǒ yào yì bēi kāfēi.', '커피 한 잔 주세요.'],
+      ['Iced Americano, please.', '请给我一杯冰美式。', 'qǐng gěi wǒ yì bēi bīng měishì.', '아이스 아메리카노 주세요.'],
+      ['How much is it?', '多少钱？', 'duōshao qián?', '얼마예요?'],
+      ['Can I pay by card?', '可以刷卡吗？', 'kěyǐ shuākǎ ma?', '카드로 결제할 수 있나요?'],
+      ['No sugar, please.', '不要糖，谢谢。', 'bú yào táng, xièxie.', '설탕은 빼 주세요.'],
+    ]},
+    { id: 'food', name: '③ 식당', icon: '🍜', items: [
+      ['A table for two, please.', '两个人的位子，谢谢。', 'liǎng ge rén de wèizi, xièxie.', '두 명 자리 부탁해요.'],
+      ['What do you recommend?', '你推荐什么？', 'nǐ tuījiàn shénme?', '뭘 추천하시나요?'],
+      ['A little less spicy, please.', '请少放一点儿辣。', 'qǐng shǎo fàng yìdiǎnr là.', '조금 덜 맵게 해 주세요.'],
+      ['This is delicious!', '这个很好吃！', 'zhège hěn hǎochī!', '이거 정말 맛있어요!'],
+      ['The bill, please.', '请结账。', 'qǐng jiézhàng.', '계산해 주세요.'],
+    ]},
+    { id: 'way', name: '④ 길찾기', icon: '🗺️', items: [
+      ['Where is the subway station?', '地铁站在哪儿？', 'dìtiě zhàn zài nǎr?', '지하철역이 어디예요?'],
+      ['Go straight and turn right.', '直走，然后右转。', 'zhí zǒu, ránhòu yòu zhuǎn.', '직진하고 오른쪽으로 도세요.'],
+      ['Is it far from here?', '离这儿远吗？', 'lí zhèr yuǎn ma?', '여기서 먼가요?'],
+      ['Where is the restroom?', '洗手间在哪儿？', 'xǐshǒujiān zài nǎr?', '화장실이 어디예요?'],
+      ['Please take me to this address.', '请带我去这个地址。', 'qǐng dài wǒ qù zhège dìzhǐ.', '이 주소로 가 주세요.'],
+    ]},
+    { id: 'shop', name: '⑤ 쇼핑', icon: '🛍️', items: [
+      ['How much is this?', '这个多少钱？', 'zhège duōshao qián?', '이거 얼마예요?'],
+      ['Can I try it on?', '可以试穿吗？', 'kěyǐ shìchuān ma?', '입어 봐도 되나요?'],
+      ['Do you have a bigger size?', '有大一点儿的吗？', 'yǒu dà yìdiǎnr de ma?', '더 큰 사이즈 있나요?'],
+      ['It is too expensive.', '太贵了。', 'tài guì le.', '너무 비싸요.'],
+      ['I will take this one.', '我要这个。', 'wǒ yào zhège.', '이걸로 할게요.'],
+    ]},
+    { id: 'air', name: '⑥ 공항', icon: '✈️', items: [
+      ['Where is the check-in counter?', '值机柜台在哪儿？', 'zhí jī guìtái zài nǎr?', '체크인 카운터가 어디예요?'],
+      ['My flight is delayed.', '我的航班延误了。', 'wǒ de hángbān yánwù le.', '제 항공편이 지연됐어요.'],
+      ['Is the gate changed?', '登机口变了吗？', 'dēngjīkǒu biàn le ma?', '탑승구가 바뀌었나요?'],
+      ['I have one suitcase.', '我有一个行李箱。', 'wǒ yǒu yí ge xínglixiāng.', '가방 하나 있어요.'],
+      ['Where can I get my luggage?', '在哪儿取行李？', 'zài nǎr qǔ xíngli?', '어디서 짐을 찾나요?'],
+    ]},
+  ];
+  const DUO = { stage: 0, q: 0, hearts: 5, combo: 0, best: 0, xp: 0, right: 0, wrong: 0, list: [], order: [], phase: 'q', feedback: '' };
+  try {
+    const s = JSON.parse(localStorage.getItem('rtb_v154_duo') || 'null');
+    if (s) { DUO.best = s.best || 0; }
+  } catch (e) {}
+
+  function duoQs(stageIdx) {
+    const st = DUO_STAGES[stageIdx];
+    const qs = [];
+    st.items.forEach((it, i) => {
+      const [en, hz, py, ko] = it;
+      const type = ['order', 'match', 'listen'][i % 3];
+      if (type === 'order') {
+        qs.push({ type, en, hz, py, ko, words: segZh(hz) });
+      } else if (type === 'match') {
+        const others = st.items.filter((x) => x[1] !== hz);
+        const pick = [others[0], others[1]].filter(Boolean);
+        qs.push({ type, en, hz, py, ko, opts: [hz].concat(pick.map((o) => o[1])).sort(() => Math.random() - 0.5) });
+      } else {
+        const others = st.items.filter((x) => x[1] !== hz).slice(0, 2).map((o) => ({ hz: o[1], ko: o[3] }));
+        qs.push({ type, en, hz, py, ko, opts: [{ hz, ko }].concat(others).sort(() => Math.random() - 0.5) });
+      }
+    });
+    return qs;
+  }
+
+  function openDuo(stageIdx) {
+    let el = document.getElementById('v154DuoModal');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'modal';
+      el.id = 'v154DuoModal';
+      document.body.appendChild(el);
+      const st = document.createElement('style');
+      st.textContent = `
+        #v154DuoModal .duo-top{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#3f7f4a}
+        #v154DuoModal .duo-bar{flex:1;height:12px;border-radius:99px;background:#e6efe6;overflow:hidden}
+        #v154DuoModal .duo-bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#7ed957,#39c46a);transition:width .35s}
+        #v154DuoModal .duo-h{color:#e8556d}
+        #v154DuoModal .duo-q{font-size:15px;font-weight:900;color:#2f2a22;margin:12px 0 4px}
+        #v154DuoModal .duo-sub{font-size:11.5px;color:#8a7a63;margin-bottom:10px}
+        #v154DuoModal .duo-tiles{display:flex;flex-wrap:wrap;gap:6px;min-height:52px;padding:8px;border-radius:13px;
+          border:1.5px dashed rgba(90,140,100,.4);background:#f8fdf8;margin-bottom:8px}
+        #v154DuoModal .duo-bank{display:flex;flex-wrap:wrap;gap:6px}
+        #v154DuoModal .duo-t{min-height:38px;padding:0 12px;border-radius:11px;border:1.5px solid rgba(90,140,100,.35);
+          background:#fff;font-size:14px;font-weight:800;color:#2f4a34;box-shadow:0 2px 0 rgba(90,140,100,.2)}
+        #v154DuoModal .duo-t.used{opacity:.25}
+        #v154DuoModal .duo-opt{display:block;width:100%;text-align:left;margin-bottom:7px;padding:11px;border-radius:13px;
+          border:1.5px solid rgba(120,120,120,.22);background:#fff;font-size:13.5px;font-weight:800;color:#2f3a2f}
+        #v154DuoModal .duo-opt.ok{border-color:#39c46a;background:#eefaf0}
+        #v154DuoModal .duo-opt.no{border-color:#e8556d;background:#fdeef0}
+        #v154DuoModal .duo-fb{margin-top:10px;padding:11px;border-radius:13px;font-size:12.5px;font-weight:800;display:none}
+        #v154DuoModal .duo-fb.ok{display:block;background:#e6f7ec;color:#2f7a4a}
+        #v154DuoModal .duo-fb.no{display:block;background:#fdebed;color:#b53a52}
+        #v154DuoModal .duo-actions{display:flex;gap:7px;margin-top:9px}
+        #v154DuoModal .duo-actions button{flex:1;min-height:44px;border-radius:13px;border:0;font-size:13px;font-weight:900;
+          background:linear-gradient(150deg,#7ed957,#39c46a);color:#0f2a18}
+        #v154DuoModal .duo-stages{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        #v154DuoModal .duo-st{display:flex;flex-direction:column;gap:2px;padding:11px;border-radius:14px;border:1.5px solid rgba(90,140,100,.28);
+          background:#f8fdf8;text-align:left;font-size:12.5px;font-weight:900;color:#2f4a34}
+        #v154DuoModal .duo-st small{font-size:10px;color:#8a7a63;font-weight:700}`;
+      document.head.appendChild(st);
+    }
+    if (typeof stageIdx === 'number') {
+      DUO.stage = stageIdx; DUO.q = 0; DUO.hearts = 5; DUO.combo = 0; DUO.xp = 0; DUO.right = 0; DUO.wrong = 0;
+      DUO.list = duoQs(stageIdx); DUO.phase = 'q'; DUO.feedback = ''; DUO.picked = [];
+    }
+    const st = DUO_STAGES[DUO.stage];
+    const total = DUO.list.length;
+    const q = DUO.list[Math.min(DUO.q, total - 1)];
+
+    const top = () => `<div class="duo-top"><span class="duo-h">${'❤️'.repeat(Math.max(0, DUO.hearts))}${'🤍'.repeat(Math.max(0, 5 - DUO.hearts))}</span>
+        <div class="duo-bar"><i style="width:${Math.round((DUO.q / total) * 100)}%"></i></div>
+        <span>🔥${DUO.combo}</span></div>`;
+
+    let inner = '';
+    if (!q) inner = '<div class="duo-sub">스테이지를 골라 주세요.</div>';
+    else if (q.type === 'order') {
+      inner = `<div class="duo-q">${q.ko}</div><div class="duo-sub">${q.en} — 단어 블록을 순서대로 눌러 중국어 문장을 만드세요</div>
+        <div class="duo-tiles" id="duoTiles"></div>
+        <div class="duo-bank" id="duoBank">${q.words.map((w, i) => `<button class="duo-t" data-w="${i}">${w}</button>`).join('')}</div>`;
+    } else if (q.type === 'match') {
+      inner = `<div class="duo-q">${q.ko}</div><div class="duo-sub">${q.en} — 알맞은 중국어를 고르세요</div>
+        ${q.opts.map((o, i) => `<button class="duo-opt" data-o="${i}">${o}</button>`).join('')}`;
+    } else {
+      inner = `<div class="duo-q">🔊 듣고 알맞은 문장 고르기</div><div class="duo-sub">버튼을 누르면 다시 들려요</div>
+        <div class="duo-actions" style="margin-bottom:8px"><button id="duoPlay" style="background:#eef3f8;color:#2f4a6a">🔊 다시 듣기</button></div>
+        ${q.opts.map((o, i) => `<button class="duo-opt" data-o="${i}"><b>${o.hz}</b><br><small>${o.ko}</small></button>`).join('')}`;
+    }
+
+    el.innerHTML = `<div class="sheet v15-sheet" style="max-width:480px">
+        <button class="v12-x" data-close aria-label="닫기">✕</button>
+        <h2>🦉 영·중·한 기초회화 <span style="font-size:11px;color:#9a8d79">Duolingo style</span></h2>
+        <p class="v12-sub">${st.icon} ${st.name} · ${DUO.q + 1} / ${total} 문제 · 정답 +10 XP · +2G</p>
+        ${top()}
+        ${DUO.phase === 'done' ? `<div class="duo-q">🏁 스테이지 완료!</div>
+          <div class="duo-sub">정답 ${DUO.right} · 오답 ${DUO.wrong} · 획득 ${DUO.xp} XP${DUO.hearts <= 0 ? ' · 하트 소진' : ''}</div>
+          <div class="duo-actions"><button id="duoAgain">다시 도전</button><button id="duoBack" style="background:#eef3f8;color:#2f4a6a">스테이지 선택</button></div>`
+        : inner + `<div class="duo-fb ${DUO.feedback === 'ok' ? 'ok' : DUO.feedback === 'no' ? 'no' : ''}" id="duoFb">${DUO.feedback === 'ok' ? '✅ 정답! ' + q.hz + ' — ' + q.py : DUO.feedback === 'no' ? '❌ 아쉬워요. 정답: ' + q.hz + ' (' + q.py + ')' : ''}</div>
+        <div class="duo-actions">
+          ${DUO.feedback ? `<button id="duoNext">계속 →</button>` : `<button id="duoCheck">확인</button>`}
+          <button id="duoQuit" style="background:#eef3f8;color:#2f4a6a">나가기</button>
+        </div>`}
+        <div class="small-note" style="margin-top:8px">최고 연속 콤보 ${DUO.best} · ❤️ 5개를 모두 잃으면 다시 시작해요.</div>
+      </div>`;
+    el.classList.add('show');
+    if (V12.syncModalState) V12.syncModalState();
+    const close = () => { el.classList.remove('show'); if (V12.syncModalState) V12.syncModalState(); };
+    el.querySelector('[data-close]').onclick = close;
+    el.addEventListener('click', (ev) => { if (ev.target === el) close(); });
+    const quit = el.querySelector('#duoQuit'); if (quit) quit.onclick = close;
+    const again = el.querySelector('#duoAgain'); if (again) again.onclick = () => openDuo(DUO.stage);
+    const back = el.querySelector('#duoBack'); if (back) back.onclick = () => openDuo();
+
+    /* --- 문제 상호작용 --- */
+    if (q && DUO.phase !== 'done') {
+      if (q.type === 'order') {
+        DUO.picked = DUO.picked || [];
+        const tiles = el.querySelector('#duoTiles'), bank = el.querySelector('#duoBank');
+        const paint = () => {
+          tiles.innerHTML = DUO.picked.map((i) => `<button class="duo-t" data-p="${i}">${q.words[i]}</button>`).join('');
+          tiles.querySelectorAll('[data-p]').forEach((b) => {
+            b.onclick = () => { DUO.picked = DUO.picked.filter((x) => x !== Number(b.dataset.p)); paint(); paintBank(); };
+          });
+          paintBank();
+        };
+        const paintBank = () => {
+          bank.querySelectorAll('[data-w]').forEach((b) => {
+            const i = Number(b.dataset.w);
+            b.classList.toggle('used', DUO.picked.indexOf(i) >= 0);
+            b.onclick = () => { if (DUO.picked.indexOf(i) >= 0) return; DUO.picked.push(i); paint(); };
+          });
+        };
+        paint();
+      } else if (q.type === 'match') {
+        el.querySelectorAll('[data-o]').forEach((b) => {
+          b.onclick = () => { DUO.selected = q.opts[Number(b.dataset.o)]; el.querySelectorAll('[data-o]').forEach((x) => x.classList.remove('ok', 'no')); b.classList.add('ok'); };
+        });
+      } else {
+        const play = el.querySelector('#duoPlay');
+        if (play) play.onclick = () => { try { speak(q.hz); } catch (e) {} };
+        try { setTimeout(() => speak(q.hz), 260); } catch (e) {}
+        el.querySelectorAll('[data-o]').forEach((b) => {
+          b.onclick = () => { DUO.selected = q.opts[Number(b.dataset.o)].hz; el.querySelectorAll('[data-o]').forEach((x) => x.classList.remove('ok', 'no')); b.classList.add('ok'); };
+        });
+      }
+      const check = el.querySelector('#duoCheck');
+      if (check) check.onclick = () => {
+        let ok = false;
+        if (q.type === 'order') {
+          ok = (DUO.picked || []).length === q.words.length && (DUO.picked || []).map((i) => q.words[i]).join('') === q.hz;
+        } else if (q.type === 'match') ok = DUO.selected === q.hz;
+        else ok = DUO.selected === q.hz;
+        if (ok) {
+          DUO.right++; DUO.combo++; DUO.xp += 10;
+          DUO.best = Math.max(DUO.best, DUO.combo);
+          try { Gold.add(2); } catch (e) {}
+          try { Level.add(10, 'duo'); } catch (e) {}
+          try { Sound.coin(); } catch (e) {}
+          try { speak(q.hz); } catch (e) {}
+          DUO.feedback = 'ok';
+        } else {
+          DUO.wrong++; DUO.combo = 0; DUO.hearts = Math.max(0, DUO.hearts - 1);
+          try { Sound.wrong(); } catch (e) {}
+          DUO.feedback = 'no';
+        }
+        try { localStorage.setItem('rtb_v154_duo', JSON.stringify({ best: DUO.best })); } catch (e) {}
+        DUO.selected = null;
+        const keep = { s: DUO.stage, q: DUO.q, h: DUO.hearts, c: DUO.combo, x: DUO.xp, r: DUO.right, w: DUO.wrong, list: DUO.list, fb: DUO.feedback, ph: DUO.phase };
+        renderSame(keep);
+      };
+      const next = el.querySelector('#duoNext');
+      if (next) next.onclick = () => {
+        DUO.q++;
+        DUO.feedback = '';
+        DUO.picked = [];
+        if (DUO.hearts <= 0 || DUO.q >= DUO.list.length) DUO.phase = 'done';
+        openDuo();
+      };
+    }
+    function renderSame(k) {
+      DUO.stage = k.s; DUO.q = k.q; DUO.hearts = k.h; DUO.combo = k.c; DUO.xp = k.x;
+      DUO.right = k.r; DUO.wrong = k.w; DUO.list = k.list; DUO.feedback = k.fb; DUO.phase = k.ph;
+      openDuo();
+    }
+  }
+  V15.openDuo = openDuo;
+  V15.duoInfo = () => ({ stage: DUO.stage, q: DUO.q, hearts: DUO.hearts, combo: DUO.combo, best: DUO.best, stages: DUO_STAGES.length });
+
+  /* ---- 수업 자료 · 수업 듣기 · 공부하기 연결 ---- */
+  try {
+    if (typeof V15.addBook === 'function') {
+      V15.addBook({ ic: '✈️', t: '항공편 지연·취소 100문장', s: '5섹션 · 100문장 · 병음·뜻·🔊', tag: 'NEW', go: () => openFlight(0) });
+      V15.addBook({ ic: '🎓', t: '통대 뉴스 시사 통역', s: '청해·시역·노트테이킹·모범 번역', tag: '고급', go: () => openGsit(0) });
+      V15.addBook({ ic: '🦉', t: '영·중·한 기초회화', s: '듀오링고식 6스테이지 · 조립·매칭·듣기', tag: 'NEW', go: () => openDuo() });
+    }
+  } catch (e) { err('learn:book:' + e.message); }
+  /* 수업 듣기 목록에도 코스 추가 (슬라이드 형식) */
+  try {
+    if (typeof COURSES !== 'undefined' && Array.isArray(COURSES) && !window.__v154gsitCourse) {
+      window.__v154gsitCourse = 1;
+      GSIT.forEach((g) => {
+        COURSES.push({
+          name: '🎓 통대 · ' + g.tag, sub: g.title, kicker: 'GSIT · ' + g.tag,
+          desc: '통번역 대학원식 뉴스 시사 통역 — 시역·노트테이킹·모범 번역',
+          slides: g.hz.map((h, i) => ({ hz: h, py: g.py[i], ko: g.model[i], ex: g.literal[i], exko: '', note: '직역 → 모범 번역 비교 · ' + g.tag })),
+        });
+      });
+      COURSES.push({
+        name: '🦉 영·중·한', sub: '기초회화 · Duolingo style', kicker: 'EN · ZH · KO',
+        desc: '영어·중국어·한국어를 함께 익히는 기초회화 6스테이지',
+        slides: DUO_STAGES.reduce((a, s) => a.concat(s.items.map((it) => ({ hz: it[1], py: it[2], ko: it[3], ex: it[0], exko: '', note: s.icon + ' ' + s.name }))), []),
+      });
+    }
+    if (typeof renderLecTabs === 'function') setTimeout(() => { try { renderLecTabs(); } catch (e) {} }, 3000);
+  } catch (e) { err('learn:course:' + e.message); }
+})();
 
 /* =====================================================================
    v15.4 PREVIEW — 👁 아이템 미리보기 (구매·착용 전에 3D 로 입어보기)
