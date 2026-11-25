@@ -18244,7 +18244,7 @@ const V10 = {
     try { Shop.close(); } catch (e) {}
     try {
       if (it.corner === 'fashion') {
-        const map = { qipaoDress: 'goldQipao', scarf: 'scarf', bag: null, fan: null };
+        const map = { qipaoDress: null, scarf: 'scarf', bag: null, fan: null };
         const eq = map[id];
         if (eq && window.Bag && Bag.owned) { if (!Bag.owned.includes(eq)) Bag.owned.push(eq); Bag.equip(eq); Bag.save(); applyLook(false); }
         if (window.FX) FX.petals(10, 0xf3d9a8);
@@ -38024,7 +38024,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         const it = MAP[id];
         if (!it) return;
         if (BUILT_IN.indexOf(id) >= 0) return;
-        if (LUX_HANDLED.indexOf(id) >= 0) return;   /* v13 attachLux 가 처리 */
+        /* v13 attachLux 가 그 슬롯을 이미 그렸으면 중복 방지, 아니면 옷장에서 직접 그린다 */
+        if (LUX_HANDLED.indexOf(id) >= 0) {
+          try { const L = window.V13 && V13.Lux; if (L && L.wear && L.wear[it.slot] === id) return; } catch (e) {}
+        }
         try { build(av, it, add); } catch (e) { err('wear:' + id + ':' + e.message); }
       });
       av.__v15wear = added;
@@ -38855,7 +38858,80 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     return out;
   }
 
+  /* ================= 마이크 녹음 (MediaRecorder → WAV 폴백) ================= */
+  const MIME_CANDS = ['audio/mp4', 'audio/mp4;codecs=mp4a.40.2', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
+  let recT0 = 0, recTimer = 0, wavNode = null, wavSrc = null;
+
+  function setNote(t) { const el = document.getElementById('pronNote'); if (el) el.textContent = t; }
+  function setMeter(v) { const w = document.getElementById('pronWave'); if (w) w.style.width = Math.max(2, Math.min(100, Math.round(v * 420))) + '%'; }
+  function setDur(s) { const d = document.getElementById('pronDur'); if (d) d.textContent = s; }
+
+  function styleOnce() {
+    if (document.getElementById('v15PronStyle')) return;
+    const st = document.createElement('style');
+    st.id = 'v15PronStyle';
+    st.textContent = `
+      .pron-meter{height:10px;border-radius:99px;background:#eef3ee;overflow:hidden;margin:7px 0 3px}
+      .pron-meter i{display:block;height:100%;width:2%;border-radius:99px;background:linear-gradient(90deg,#7ed957,#39c46a);transition:width .08s linear}
+      .pron-timer{font-size:11px;color:#8a7a63;font-weight:800;text-align:right}`;
+    document.head.appendChild(st);
+  }
+
+  function audioTeardown() {
+    try { if (recTimer) { clearTimeout(recTimer); recTimer = 0; } } catch (e) {}
+    try { if (wavNode) { wavNode.disconnect(); wavNode = null; } } catch (e) {}
+    try { if (wavSrc) { wavSrc.disconnect(); wavSrc = null; } } catch (e) {}
+  }
+
+  function micMsgFor(e) {
+    const n = (e && e.name) || '';
+    if (n === 'NotAllowedError' || n === 'SecurityError') return '마이크 권한이 꺼져 있어요. 주소창 옆 🔒 → 마이크 → 허용 후 다시 눌러 주세요.';
+    if (n === 'NotFoundError' || n === 'DevicesNotFoundError') return '마이크를 찾지 못했어요. 이어폰 마이크가 연결돼 있는지 확인해 주세요.';
+    if (n === 'NotReadableError' || n === 'TrackStartError') return '다른 앱(통화·녹음)이 마이크를 쓰고 있어요. 잠시 뒤 다시 눌러 주세요.';
+    if (n === 'OverconstrainedError') return '마이크 설정을 열지 못했어요. 다시 눌러 주세요.';
+    return '마이크를 열지 못했어요. Safari·Chrome에서 다시 시도해 주세요.';
+  }
+
+  /* --- WAV 저장 (MediaRecorder 가 없는 브라우저: iOS 구버전·인앱) --- */
+  function encodeWav(chunks, rate) {
+    let len = 0;
+    chunks.forEach((c) => { len += c.length; });
+    const buf = new ArrayBuffer(44 + len * 2);
+    const v = new DataView(buf);
+    const ws = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+    ws(0, 'RIFF'); v.setUint32(4, 36 + len * 2, true); ws(8, 'WAVE'); ws(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    ws(36, 'data'); v.setUint32(40, len * 2, true);
+    let off = 44;
+    for (let k = 0; k < chunks.length; k++) {
+      const c = chunks[k];
+      for (let i = 0; i < c.length; i++) {
+        const s = Math.max(-1, Math.min(1, c[i]));
+        v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+        off += 2;
+      }
+    }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
+  function finishBlob(blob) {
+    try {
+      if (!blob || !blob.size) { setNote('녹음된 소리가 없어요. 마이크에 조금 더 가까이서 다시 해 보세요.'); return; }
+      if (R.url) { try { URL.revokeObjectURL(R.url); } catch (e) {} }
+      R.url = URL.createObjectURL(blob);
+      const au = document.getElementById('pronAudio');
+      if (au) { try { au.src = R.url; au.load(); } catch (e) {} }
+      const mi = document.getElementById('pronMine');
+      if (mi) { mi.disabled = false; mi.style.opacity = '1'; }
+      setNote('✅ 녹음 완료 · ▶️ 내 목소리 버튼으로 들어 보세요');
+    } catch (e) { setNote('녹음 파일을 만들지 못했어요. 다시 시도해 주세요.'); }
+  }
+
   function render(pane) {
+    styleOnce();
+    if (!pane) pane = document.getElementById('paneTone');
+    if (!pane) return;
     const p = PHRASES[R.idx];
     pane.innerHTML = `
       <div class="v15-hsk-top">
@@ -38875,7 +38951,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         <button class="v12-btn" id="pronStop" disabled>⏹ 멈추기</button>
         <button class="v12-btn" id="pronMine" disabled>▶️ 내 목소리</button>
       </div>
-      <div class="v15-mic-note" id="pronNote">마이크를 허용하면 내 성조 곡선이 표준과 겹쳐 보여요.</div>
+      <div class="pron-meter"><i id="pronWave"></i></div>
+      <div class="pron-timer" id="pronDur">${R.recording ? '녹음 중…' : '녹음 대기'}</div>
+      <audio id="pronAudio" playsinline preload="auto" style="display:none"></audio>
+      <div class="v15-mic-note" id="pronNote">${R.micError ? '⚠️ ' + R.micError : '마이크를 허용하면 내 성조 곡선이 표준과 겹쳐 보여요.'}</div>
       <div class="v15-row" style="margin-top:8px">
         <button class="v12-btn gold" id="pronDone">✅ 연습 완료 (+8G)</button>
       </div>
@@ -38890,8 +38969,23 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     document.getElementById('pronRec').onclick = () => startRec(pane, p);
     document.getElementById('pronStop').onclick = () => stopRec(pane, p);
     const mi = document.getElementById('pronMine');
-    if (R.url) mi.disabled = false;
-    mi.onclick = () => { try { const a = new Audio(R.url); a.play(); } catch (e) {} };
+    const au = document.getElementById('pronAudio');
+    if (R.url) { mi.disabled = false; if (au) { au.src = R.url; } }
+    mi.onclick = () => {
+      if (!R.url) { setNote('먼저 🎙️ 녹음하기를 눌러 주세요.'); return; }
+      try {
+        const a = document.getElementById('pronAudio') || au;
+        if (!a) { new Audio(R.url).play(); return; }
+        a.currentTime = 0;
+        const pr = a.play();
+        if (pr && pr.catch) {
+          pr.catch(() => {
+            try { new Audio(R.url).play(); } catch (e) { setNote('재생이 막혔어요. ▶️ 버튼을 한 번 더 눌러 주세요.'); }
+          });
+        }
+        setNote('🔊 내 목소리를 재생하고 있어요…');
+      } catch (e) { setNote('재생을 시작하지 못했어요. ▶️ 버튼을 한 번 더 눌러 주세요.'); }
+    };
     document.getElementById('pronDone').onclick = () => {
       if (!R.url && !R.micError) { try { V12.say('먼저 녹음해 보세요', '🎙️ 녹음하기를 눌러 주세요', 2000); } catch (e) {} return; }
       R.recs += 1; R.save();
@@ -38900,36 +38994,94 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       try { speak(p.hz); } catch (e) {}
       try { V12.say('🎙️ 성조 연습 완료!', `${p.hz} · 🪙 +8G`, 2600); } catch (e) {}
       try { if (window.FX) FX.petals(8, 0x9fd8c0); } catch (e) {}
+      R.micError = '';
       render(pane);
     };
   }
 
   async function startRec(pane, p) {
+    if (R.recording) return;
+    R.micError = '';
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      R.micError = '이 브라우저에서는 마이크 녹음을 지원하지 않아요. 아이폰은 Safari, 갤럭시는 Chrome에서 열어 주세요.';
+      setNote('⚠️ ' + R.micError); return;
+    }
+    if (window.isSecureContext === false) {
+      R.micError = '마이크는 https 주소에서만 열려요. 주소창에 https:// 주소로 다시 접속해 주세요.';
+      setNote('⚠️ ' + R.micError); return;
+    }
+    const recBtn = document.getElementById('pronRec');
+    if (recBtn) { recBtn.disabled = true; recBtn.textContent = '🎙️ 준비 중…'; }
+    setNote('🎙️ 마이크 권한을 확인하고 있어요… (허용을 눌러 주세요)');
+    let guard = setTimeout(() => { if (!R.recording) setNote('⚠️ 마이크 응답이 없어요. 권한 창의 “허용”을 눌렀는지 확인하고 다시 시도해 주세요.'); }, 12000);
     try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        R.micError = '이 브라우저에서는 마이크 녹음을 지원하지 않아요.';
-        setNote(R.micError); return;
-      }
-      R.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      R.chunks = [];
-      R.myCurve = [];
+      R.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    } catch (e) {
+      try { clearTimeout(guard); } catch (er) {}
+      if (recBtn) { recBtn.disabled = false; recBtn.textContent = '🎙️ 녹음하기'; }
+      R.micError = micMsgFor(e);
+      setNote('⚠️ ' + R.micError);
+      return;
+    }
+    try { clearTimeout(guard); } catch (e) {}
+    R.chunks = []; R.pcm = []; R.myCurve = []; R.level = 0;
+    R.recording = true;
+    recT0 = performance.now();
+    /* 오디오 컨텍스트(아이폰은 사용자 제스처 뒤 resume 필요) */
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) {
       try {
-        R.recorder = new MediaRecorder(R.stream);
+        R.ctx = new AC();
+        if (R.ctx.state === 'suspended' && R.ctx.resume) { try { await R.ctx.resume(); } catch (e) {} }
+      } catch (e) { R.ctx = null; }
+    }
+    /* 1순위: MediaRecorder */
+    R.mode = '';
+    if (typeof MediaRecorder !== 'undefined') {
+      try {
+        let mime = '';
+        try { mime = MIME_CANDS.find((m) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || ''; } catch (e) {}
+        R.recorder = mime ? new MediaRecorder(R.stream, { mimeType: mime, audioBitsPerSecond: 128000 }) : new MediaRecorder(R.stream);
         R.recorder.ondataavailable = (e) => { if (e.data && e.data.size) R.chunks.push(e.data); };
+        R.recorder.onerror = () => { if (R.mode === 'mr') { R.mode = ''; } };
         R.recorder.onstop = () => {
-          try {
-            const blob = new Blob(R.chunks, { type: R.chunks[0] ? R.chunks[0].type : 'audio/webm' });
-            if (R.url) URL.revokeObjectURL(R.url);
-            R.url = URL.createObjectURL(blob);
-            document.getElementById('pronMine').disabled = false;
-          } catch (e) {}
+          if (R.mode !== 'mr') return;
+          const type = (R.chunks[0] && R.chunks[0].type) || 'audio/mp4';
+          finishBlob(new Blob(R.chunks, { type }));
         };
         R.recorder.start();
-      } catch (e) { /* MediaRecorder 미지원 : 피치 분석만 */ }
-      /* 피치 추적 */
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) {
-        R.ctx = new AC();
+        R.mode = 'mr';
+      } catch (e) { R.recorder = null; R.mode = ''; }
+    }
+    /* 2순위: WAV (ScriptProcessor) */
+    if (!R.mode && R.ctx) {
+      try {
+        wavSrc = R.ctx.createMediaStreamSource(R.stream);
+        wavNode = R.ctx.createScriptProcessor(4096, 1, 1);
+        R.sampleRate = R.ctx.sampleRate;
+        wavNode.onaudioprocess = (ev) => {
+          if (!R.recording) return;
+          try { R.pcm.push(new Float32Array(ev.inputBuffer.getChannelData(0))); } catch (e) {}
+        };
+        wavSrc.connect(wavNode);
+        const mute = R.ctx.createGain(); mute.gain.value = 0;
+        wavNode.connect(mute); mute.connect(R.ctx.destination);
+        R.mode = 'wav';
+      } catch (e) { R.mode = ''; }
+    }
+    if (!R.mode) {
+      R.recording = false;
+      try { R.stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+      try { if (R.ctx) R.ctx.close(); } catch (e) {}
+      R.stream = null; R.ctx = null;
+      R.micError = '이 브라우저에서는 녹음 저장이 안 돼요. Safari에서 다시 열어 주세요.';
+      setNote('⚠️ ' + R.micError);
+      if (recBtn) { recBtn.disabled = false; recBtn.textContent = '🎙️ 녹음하기'; }
+      return;
+    }
+    /* 분석 + 파형 */
+    if (R.ctx) {
+      try {
         const src = R.ctx.createMediaStreamSource(R.stream);
         R.analyser = R.ctx.createAnalyser();
         R.analyser.fftSize = 2048;
@@ -38937,58 +39089,76 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         const buf = new Float32Array(R.analyser.fftSize);
         const loop = () => {
           if (!R.recording) return;
-          R.analyser.getFloatTimeDomainData(buf);
-          let rms = 0;
-          for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
-          rms = Math.sqrt(rms / buf.length);
-          const f0 = pitch(buf, R.ctx.sampleRate);
-          if (f0 > 70 && f0 < 500 && rms > 0.008) R.myCurve.push(f0);
+          try {
+            R.analyser.getFloatTimeDomainData(buf);
+            let rms = 0;
+            for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+            rms = Math.sqrt(rms / buf.length);
+            R.level = rms;
+            setMeter(rms);
+            const f0 = pitch(buf, R.ctx.sampleRate);
+            if (f0 > 70 && f0 < 600 && rms > 0.006) R.myCurve.push(f0);
+            setDur('🔴 녹음 중 ' + ((performance.now() - recT0) / 1000).toFixed(1) + '초');
+          } catch (e) {}
           R.raf = requestAnimationFrame(loop);
         };
         loop();
-      }
-      R.recording = true;
-      document.getElementById('pronRec').disabled = true;
-      document.getElementById('pronStop').disabled = false;
-      setNote('🔴 녹음 중… 단어를 또박또박 읽어 보세요 (3~5초)');
-      try { V12.say('🎙️ 녹음 중', p.hz, 4000); } catch (e) {}
-      setTimeout(() => { if (R.recording) stopRec(pane, p); }, 6000);
-    } catch (e) {
-      R.micError = e && e.name === 'NotAllowedError' ? '마이크 권한이 꺼져 있어요. 브라우저 설정에서 허용해 주세요.' : '마이크를 열 수 없어요. 다른 앱이 쓰고 있는지 확인해 주세요.';
-      setNote(R.micError);
-      R.recording = false;
+      } catch (e) {}
     }
+    R.recording = true;
+    recT0 = performance.now();
+    if (recBtn) { recBtn.disabled = true; recBtn.textContent = '🎙️ 녹음 중…'; }
+    const stopBtn = document.getElementById('pronStop');
+    if (stopBtn) stopBtn.disabled = false;
+    setMeter(0.02);
+    setNote('🔴 녹음 중… 단어를 또박또박 읽어 보세요 (최대 8초)');
+    recTimer = setTimeout(() => { if (R.recording) stopRec(pane, p); }, 8000);
   }
+
   function stopRec(pane, p) {
+    if (!R.recording) return;
     R.recording = false;
     try { cancelAnimationFrame(R.raf); } catch (e) {}
-    try { if (R.recorder && R.recorder.state !== 'inactive') R.recorder.stop(); } catch (e) {}
-    try { if (R.stream) R.stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
-    try { if (R.ctx) R.ctx.close(); } catch (e) {}
-    R.stream = null; R.ctx = null;
-    const b1 = document.getElementById('pronRec'), b2 = document.getElementById('pronStop');
-    if (b1) b1.disabled = false;
-    if (b2) b2.disabled = true;
+    audioTeardown();
+    setMeter(0.02);
+    const dur = (performance.now() - recT0) / 1000;
+    setDur('⏹ ' + dur.toFixed(1) + '초 녹음');
+    const recBtn = document.getElementById('pronRec');
+    if (recBtn) { recBtn.disabled = false; recBtn.textContent = '🎙️ 다시 녹음'; }
+    const stopBtn = document.getElementById('pronStop');
+    if (stopBtn) stopBtn.disabled = true;
+    /* 저장 */
+    if (R.mode === 'mr' && R.recorder && R.recorder.state !== 'inactive') {
+      try { R.recorder.stop(); } catch (e) { R.mode = ''; }
+    } else if (R.mode === 'wav') {
+      try { finishBlob(encodeWav(R.pcm || [], R.sampleRate || 44100)); } catch (e) { setNote('녹음 저장에 실패했어요.'); }
+    } else if (R.chunks && R.chunks.length) {
+      try { finishBlob(new Blob(R.chunks, { type: R.chunks[0].type || 'audio/mp4' })); } catch (e) {}
+    }
+    const stream = R.stream;
+    const ctx = R.ctx;
+    R.stream = null;
+    setTimeout(() => {
+      try { if (stream) stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+      try { if (ctx && ctx.state !== 'closed') ctx.close(); } catch (e) {}
+    }, 500);
+    R.ctx = null;
     /* 피치 → 0~1 곡선 */
     let curve = [];
     if (R.myCurve.length > 4) {
-      const lo = Math.min(...R.myCurve), hi = Math.max(...R.myCurve);
+      const lo = Math.min.apply(null, R.myCurve), hi = Math.max.apply(null, R.myCurve);
       const span = Math.max(1, hi - lo);
-      curve = R.myCurve.map((f) => (f - lo) / span);
-      /* 20개로 다운샘플 */
-      const out = [];
-      for (let i = 0; i < 20; i++) out.push(curve[Math.floor(i / 20 * curve.length)]);
-      curve = out;
-      setNote('✅ 녹음 완료! 표준(하늘)과 내 곡선(노랑)을 비교해 보세요.');
-    } else {
-      curve = [];
+      const norm = R.myCurve.map((f) => (f - lo) / span);
+      for (let i = 0; i < 20; i++) curve.push(norm[Math.floor(i / 20 * norm.length)]);
+      if (!R.url) setNote('✅ 녹음 완료! 표준(하늘)과 내 곡선(노랑)을 비교해 보세요.');
+    } else if (!R.url) {
       setNote(R.micError || '소리가 작았어요. 마이크에 조금 더 가까이서 다시 해 보세요.');
     }
     R.myCurve = curve;
     const cv = document.getElementById('pronCanvas');
     if (cv) drawCurve(cv, stdCurveFor(p), curve);
   }
-  function setNote(t) { const el = document.getElementById('pronNote'); if (el) el.textContent = t; }
+
 
   /* 자동 상관(autocorrelation) 기반 피치 추정 */
   function pitch(buf, rate) {
@@ -39014,7 +39184,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     return rate / T0;
   }
 
-  V15.Pron = { render, info: () => ({ recs: R.recs, micError: R.micError }) };
+  V15.Pron = { render, info: () => ({ recs: R.recs, micError: R.micError, mode: R.mode, recording: !!R.recording, hasCtx: !!R.ctx, level: R.level || 0, curve: (R.myCurve || []).length, url: !!R.url, dur: R.dur || 0 }) };
   window.V15Pron = V15.Pron;
 })();
 
@@ -41615,10 +41785,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       ['Where can I get my luggage?', '在哪儿取行李？', 'zài nǎr qǔ xíngli?', '어디서 짐을 찾나요?'],
     ]},
   ];
-  const DUO = { stage: 0, q: 0, hearts: 5, combo: 0, best: 0, xp: 0, right: 0, wrong: 0, list: [], order: [], phase: 'q', feedback: '' };
+  const DUO = { stage: 0, q: 0, hearts: 5, combo: 0, best: 0, xp: 0, right: 0, wrong: 0, list: [], order: [], phase: 'select', feedback: '', picked: [], cleared: [] };
   try {
     const s = JSON.parse(localStorage.getItem('rtb_v154_duo') || 'null');
-    if (s) { DUO.best = s.best || 0; }
+    if (s) { DUO.best = s.best || 0; DUO.cleared = Array.isArray(s.cleared) ? s.cleared : []; }
   } catch (e) {}
 
   function duoQs(stageIdx) {
@@ -41672,7 +41842,9 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         #v154DuoModal .duo-actions{display:flex;gap:7px;margin-top:9px}
         #v154DuoModal .duo-actions button{flex:1;min-height:44px;border-radius:13px;border:0;font-size:13px;font-weight:900;
           background:linear-gradient(150deg,#7ed957,#39c46a);color:#0f2a18}
-        #v154DuoModal .duo-stages{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        #v154DuoModal .duo-st b{font-size:12.5px;line-height:1.2}
+        #v154DuoModal .duo-st:active{transform:scale(.98)}
+        #v154DuoModal .duo-stages{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
         #v154DuoModal .duo-st{display:flex;flex-direction:column;gap:2px;padding:11px;border-radius:14px;border:1.5px solid rgba(90,140,100,.28);
           background:#f8fdf8;text-align:left;font-size:12.5px;font-weight:900;color:#2f4a34}
         #v154DuoModal .duo-st small{font-size:10px;color:#8a7a63;font-weight:700}`;
@@ -41681,18 +41853,25 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (typeof stageIdx === 'number') {
       DUO.stage = stageIdx; DUO.q = 0; DUO.hearts = 5; DUO.combo = 0; DUO.xp = 0; DUO.right = 0; DUO.wrong = 0;
       DUO.list = duoQs(stageIdx); DUO.phase = 'q'; DUO.feedback = ''; DUO.picked = [];
+    } else if (stageIdx !== 'keep') {
+      /* 교재/책장에서 새로 들어올 때는 항상 스테이지 선택부터 */
+      DUO.list = []; DUO.phase = 'select'; DUO.feedback = ''; DUO.picked = [];
     }
     const st = DUO_STAGES[DUO.stage];
     const total = DUO.list.length;
     const q = DUO.list[Math.min(DUO.q, total - 1)];
 
     const top = () => `<div class="duo-top"><span class="duo-h">${'❤️'.repeat(Math.max(0, DUO.hearts))}${'🤍'.repeat(Math.max(0, 5 - DUO.hearts))}</span>
-        <div class="duo-bar"><i style="width:${Math.round((DUO.q / total) * 100)}%"></i></div>
+        <div class="duo-bar"><i style="width:${total ? Math.round((DUO.q / total) * 100) : 0}%"></i></div>
         <span>🔥${DUO.combo}</span></div>`;
 
     let inner = '';
-    if (!q) inner = '<div class="duo-sub">스테이지를 골라 주세요.</div>';
-    else if (q.type === 'order') {
+    const sel = DUO.phase === 'select' || !q;
+    if (sel) {
+      inner = `<div class="duo-sub">스테이지를 골라 시작하세요 · 스테이지마다 5문제 (조립 · 매칭 · 듣기)</div>
+        <div class="duo-stages">${DUO_STAGES.map((s, i) => `<button class="duo-st" data-st="${i}"><b>${s.icon} ${s.name}</b>
+          <small>${s.items.length}문제${DUO.cleared.indexOf(i) >= 0 ? ' · ✅ 완료' : ' · 조립/매칭/듣기'}</small></button>`).join('')}</div>`;
+    } else if (q.type === 'order') {
       inner = `<div class="duo-q">${q.ko}</div><div class="duo-sub">${q.en} — 단어 블록을 순서대로 눌러 중국어 문장을 만드세요</div>
         <div class="duo-tiles" id="duoTiles"></div>
         <div class="duo-bank" id="duoBank">${q.words.map((w, i) => `<button class="duo-t" data-w="${i}">${w}</button>`).join('')}</div>`;
@@ -41708,11 +41887,17 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     el.innerHTML = `<div class="sheet v15-sheet" style="max-width:480px">
         <button class="v12-x" data-close aria-label="닫기">✕</button>
         <h2>🦉 영·중·한 기초회화 <span style="font-size:11px;color:#9a8d79">Duolingo style</span></h2>
-        <p class="v12-sub">${st.icon} ${st.name} · ${DUO.q + 1} / ${total} 문제 · 정답 +10 XP · +2G</p>
+        <p class="v12-sub">${sel ? '🦉 6스테이지 · 스테이지를 골라 시작하세요' : `${st.icon} ${st.name} · ${DUO.q + 1} / ${total} 문제`} · 정답 +10 XP · +2G</p>
         ${top()}
         ${DUO.phase === 'done' ? `<div class="duo-q">🏁 스테이지 완료!</div>
           <div class="duo-sub">정답 ${DUO.right} · 오답 ${DUO.wrong} · 획득 ${DUO.xp} XP${DUO.hearts <= 0 ? ' · 하트 소진' : ''}</div>
-          <div class="duo-actions"><button id="duoAgain">다시 도전</button><button id="duoBack" style="background:#eef3f8;color:#2f4a6a">스테이지 선택</button></div>`
+          <div class="duo-actions">
+            <button id="duoAgain">다시 도전</button>
+            ${DUO.hearts > 0 && DUO.stage < DUO_STAGES.length - 1 ? '<button id="duoNextStage" style="background:#eef3f8;color:#2f4a6a">다음 스테이지 →</button>' : ''}
+          </div>
+          <div class="duo-actions"><button id="duoBack" style="background:#eef3f8;color:#2f4a6a">스테이지 선택</button>
+          <button id="duoQuit" style="background:#eef3f8;color:#2f4a6a">나가기</button></div>`
+        : sel ? inner + `<div class="duo-actions"><button id="duoQuit" style="background:#eef3f8;color:#2f4a6a">나가기</button></div>`
         : inner + `<div class="duo-fb ${DUO.feedback === 'ok' ? 'ok' : DUO.feedback === 'no' ? 'no' : ''}" id="duoFb">${DUO.feedback === 'ok' ? '✅ 정답! ' + q.hz + ' — ' + q.py : DUO.feedback === 'no' ? '❌ 아쉬워요. 정답: ' + q.hz + ' (' + q.py + ')' : ''}</div>
         <div class="duo-actions">
           ${DUO.feedback ? `<button id="duoNext">계속 →</button>` : `<button id="duoCheck">확인</button>`}
@@ -41727,7 +41912,9 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     el.addEventListener('click', (ev) => { if (ev.target === el) close(); });
     const quit = el.querySelector('#duoQuit'); if (quit) quit.onclick = close;
     const again = el.querySelector('#duoAgain'); if (again) again.onclick = () => openDuo(DUO.stage);
-    const back = el.querySelector('#duoBack'); if (back) back.onclick = () => openDuo();
+    const nxs = el.querySelector('#duoNextStage'); if (nxs) nxs.onclick = () => openDuo(Math.min(DUO_STAGES.length - 1, DUO.stage + 1));
+    const back = el.querySelector('#duoBack'); if (back) back.onclick = () => { DUO.list = []; DUO.phase = 'select'; DUO.feedback = ''; DUO.picked = []; openDuo(); };
+    el.querySelectorAll('[data-st]').forEach((b) => { b.onclick = () => openDuo(Number(b.dataset.st)); });
 
     /* --- 문제 상호작용 --- */
     if (q && DUO.phase !== 'done') {
@@ -41791,18 +41978,22 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         DUO.q++;
         DUO.feedback = '';
         DUO.picked = [];
-        if (DUO.hearts <= 0 || DUO.q >= DUO.list.length) DUO.phase = 'done';
-        openDuo();
+        if (DUO.hearts <= 0 || DUO.q >= DUO.list.length) {
+          DUO.phase = 'done';
+          if (DUO.hearts > 0 && DUO.cleared.indexOf(Number(DUO.stage)) < 0) DUO.cleared.push(Number(DUO.stage));
+          try { localStorage.setItem('rtb_v154_duo', JSON.stringify({ best: DUO.best, cleared: DUO.cleared })); } catch (e) {}
+        }
+        openDuo('keep');
       };
     }
     function renderSame(k) {
       DUO.stage = k.s; DUO.q = k.q; DUO.hearts = k.h; DUO.combo = k.c; DUO.xp = k.x;
       DUO.right = k.r; DUO.wrong = k.w; DUO.list = k.list; DUO.feedback = k.fb; DUO.phase = k.ph;
-      openDuo();
+      openDuo('keep');
     }
   }
   V15.openDuo = openDuo;
-  V15.duoInfo = () => ({ stage: DUO.stage, q: DUO.q, hearts: DUO.hearts, combo: DUO.combo, best: DUO.best, stages: DUO_STAGES.length });
+  V15.duoInfo = () => ({ stage: DUO.stage, q: DUO.q, hearts: DUO.hearts, combo: DUO.combo, best: DUO.best, stages: DUO_STAGES.length, phase: DUO.phase, cleared: DUO.cleared.slice() });
 
   /* ---- 수업 자료 · 수업 듣기 · 공부하기 연결 ---- */
   try {
@@ -41875,6 +42066,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     document.body.appendChild(el);
     const st = document.createElement('style');
     st.textContent = `
+      #v15PrevModal{z-index:400}
       #v15PrevModal .vp-stage{position:relative;height:270px;border-radius:16px;overflow:hidden;
         background:radial-gradient(120% 90% at 50% 20%,#f6efe2,#e2d6c2 70%,#d3c5ae)}
       #v15PrevModal #vpCanvas{width:100%;height:100%;display:block}
@@ -41989,6 +42181,8 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       acts.appendChild(b);
     }
     el.classList.add('show');
+    /* 상점 모달보다 항상 위에 보이도록 맨 뒤로 옮긴다 */
+    try { document.body.appendChild(el); el.style.zIndex = '400'; } catch (e) {}
     if (V12.syncModalState) V12.syncModalState();
     loco();
     if (raf) cancelAnimationFrame(raf);
@@ -42026,6 +42220,232 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       },
     });
   }, true);
+})();
+
+/* =====================================================================
+   v15.5 SHOPFIX — 🛍️ 상점에서 산 옷·가방·한복을 어디서든 바로 입기
+   ---------------------------------------------------------------------
+   · 구매 버튼([data-buy] / [data-v10-buy])을 누르면 곧바로 옷장(WARD)에
+     등록하고, 입을 수 있는 아이템이면 그 자리에서 3D 캐릭터에 입힌다
+   · 백화점 · 부티크 · 명품관 · 지하상가 · 한복집 · 매점의 아이템 카드를
+     눌러도 👁 3D 미리보기가 뜨게 한다 (버튼 클릭은 원래 동작 유지)
+   · 미리보기 모달은 어떤 상점 모달보다도 위(z=400)에 뜬다
+   ===================================================================== */
+(function () {
+  const V15 = window.V15;
+  if (!V15 || !V15.WARD) return;
+  const MAP = V15.WARD.map;
+  const W = V15.Wear;
+  function note(m) { try { if (V15.err) V15.err(m); } catch (e) {} }
+  function whisper(t, ms) { try { toast(t, ms || 2600); } catch (e) {} }
+  /* 일부 상점 모듈이 전역 say() 를 부르다 ReferenceError 로 멈추는 문제 방지 */
+  try {
+    if (typeof window.say !== 'function') {
+      window.say = function (a, b, ms) { try { V12.say(a, b, ms); } catch (e) {} };
+    }
+  } catch (e) {}
+  function avatarNow() { try { return (typeof playerAvatar !== 'undefined' && playerAvatar) || window.playerAvatar || null; } catch (e) { return window.playerAvatar || null; } }
+  const wearable = (it) => !!it && it.slot !== 'food' && it.slot !== 'drink'
+    && it.shape !== 'cup' && it.shape !== 'food' && it.shape !== 'base' && it.slot !== 'badge';
+
+  /* 옷장에 확실히 등록 */
+  function adopt(id) {
+    if (!MAP[id]) return false;
+    try { V15.syncWardrobe(true); } catch (e) {}
+    if (!W.owned[id]) { try { W.owned[id] = 1; W.save(); } catch (e) {} }
+    return !!W.owned[id];
+  }
+
+  /* 그 자리에서 3D 착용 */
+  function wearNow(id) {
+    const it = MAP[id];
+    if (!it) return false;
+    try { if (!V15.Wear.equip(id)) return false; } catch (e) { return false; }
+    try { V15.refreshAvatar(); } catch (e) {}
+    try { const a = avatarNow(); if (a && V15.wardrobeAttach) V15.wardrobeAttach(a); } catch (e) {}
+    return true;
+  }
+  V15.adoptItem = adopt;
+  V15.wearItemNow = wearNow;
+
+  /* ---------------- 1) 구매 → 옷장 + 즉시 착용 ---------------- */
+  const last = { id: '', adopted: false, worn: false, err: '' };
+  V15.shopfixInfo = () => ({ last: last.id, adopted: last.adopted, worn: last.worn, err: last.err });
+  document.addEventListener('click', (ev) => {
+    const t = ev.target;
+    const b = t && t.closest ? t.closest('[data-buy],[data-v10-buy],[data-shop-buy],[data-mart-buy]') : null;
+    if (!b) return;
+    const id = b.dataset.buy || b.dataset.v10Buy || b.dataset.shopBuy || b.dataset.martBuy;
+    if (!id || !MAP[id]) return;
+    /* 상점 핸들러는 이미 실행된 뒤이므로 바로 옷장에 등록 */
+    let had = false;
+    last.id = id; last.adopted = false; last.worn = false; last.err = '';
+    try { had = !!W.owned[id]; last.adopted = adopt(id); } catch (e) { last.err = 'adopt:' + e.message; }
+    setTimeout(() => {
+      try {
+        const it = MAP[id];
+        if (wearable(it) && wearNow(id)) {
+          last.worn = true;
+          if (!had) whisper(`${it.icon} ${it.name} · 옷장에 담고 바로 입었어요! (내 캐릭터 → 옷장)`, 3200);
+        } else if (!had) {
+          whisper(`${it.icon} ${it.name} · 옷장(소지품)에 담겼어요`, 2400);
+        }
+      } catch (e) { last.err = 'wear:' + e.message; note('shopfix:buy:' + e.message); }
+    }, 160);
+  }, false);
+
+  /* ---------------- 2) 카드 클릭 = 👁 3D 미리보기 ---------------- */
+  function idFromCard(node) {
+    let n = node;
+    for (let i = 0; i < 5 && n && n !== document.body; i++, n = n.parentElement) {
+      if (!n.querySelector) continue;
+      if (n.classList && (n.classList.contains('modal') || n.classList.contains('sheet'))) return '';
+      const b = n.querySelector('[data-prev],[data-buy],[data-wear],[data-v10-buy],[data-mart-buy]');
+      if (b) {
+        const id = b.dataset.prev || b.dataset.buy || b.dataset.wear || b.dataset.v10Buy || b.dataset.martBuy;
+        if (id && MAP[id]) return id;
+      }
+    }
+    return '';
+  }
+  document.addEventListener('click', (ev) => {
+    const t = ev.target;
+    if (!t || !t.closest) return;
+    if (t.closest('button,a,input,select,textarea,label')) return;
+    if (!t.closest('.modal.show')) return;
+    const id = idFromCard(t);
+    if (!id) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    try { openPrev(id); } catch (e) { note('shopfix:card:' + e.message); }
+  }, true);
+
+  function openPrev(id) {
+    const it = MAP[id];
+    const own = !!(W && W.owned && W.owned[id]);
+    const opt = {
+      sub: own ? '내 캐릭터가 실제로 입은 모습 (3D) · 바로 착용할 수 있어요'
+               : '구매 전 미리 입어 보는 3D 모습 · 사면 바로 입을 수 있어요',
+    };
+    if (own && wearable(it)) {
+      opt.actLabel = '착용하기';
+      opt.act = () => { wearNow(id); whisper(`${it.icon} ${it.name} 착용!`, 2000); };
+    }
+    return V15.showItemPreview(id, opt);
+  }
+  V15.previewItem = openPrev;
+
+  /* ---------------- 3) 미리보기 모달은 항상 맨 위 + 안 샀어도 몸에 입혀 보여주기 ---------------- */
+  let curPrev = '';
+  const show0 = V15.showItemPreview;
+  if (typeof show0 === 'function') {
+    V15.showItemPreview = function (id, o) {
+      curPrev = id;
+      const r = show0.apply(this, arguments);
+      try {
+        const el = document.getElementById('v15PrevModal');
+        if (el) { el.style.zIndex = '400'; document.body.appendChild(el); }
+      } catch (e) {}
+      return r;
+    };
+  }
+  const close0 = V15.previewClose;
+  if (typeof close0 === 'function') {
+    V15.previewClose = function () {
+      curPrev = '';
+      return close0.apply(this, arguments);
+    };
+  }
+  /* 미리보기용 임시 착용 : 보유하지 않은 아이템도 3D 로 보여 준다 */
+  const attach0 = V15.wardrobeAttach;
+  if (typeof attach0 === 'function') {
+    /* 옷장 attach 는 extraWear() 를 항상 포함하므로, 미리보기 중인 id 만 잠시 끼워 넣는다.
+       (보유/착용 상태는 절대 건드리지 않는다) */
+    V15.extraWear = function () { return curPrev && MAP[curPrev] ? [curPrev] : []; };
+  }
+
+  /* ---------------- 4) 백화점·매점 카드에도 👁 / 착용 버튼 ---------------- */
+  function addButtons(row, id) {
+    try {
+      if (!MAP[id] || row.dataset.qdone === '1' || row.querySelector('[data-prev]')) return;
+      row.dataset.qdone = '1';
+      const box = document.createElement('div');
+      box.style.cssText = 'display:flex;gap:4px;margin-top:5px';
+      const mk = (label) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = label;
+        b.style.cssText = 'min-height:30px;padding:0 9px;border-radius:9px;border:1px solid rgba(120,120,120,.3);background:#fff;font-size:12px;font-weight:800';
+        return b;
+      };
+      const eye = mk('👁 미리보기');
+      eye.dataset.prev = id;
+      const wr = mk('착용');
+      wr.dataset.qbtn = 'wear:' + id;
+      box.append(eye, wr);
+      (row.querySelector('.side') || row).appendChild(box);
+    } catch (e) {}
+  }
+  try {
+    if (typeof window.v10ShopRow === 'function' && !window.v10ShopRow.__v155) {
+      const old = window.v10ShopRow;
+      const f = function (it) {
+        const row = old.apply(this, arguments);
+        try { if (it && it.id) addButtons(row, it.id); } catch (e) {}
+        return row;
+      };
+      f.__v155 = true;
+      window.v10ShopRow = f;
+    }
+  } catch (e) { note('shopfix:row:' + e.message); }
+
+  /* 백화점·매점 패널이 다시 그려질 때마다 👁 / 착용 버튼을 붙인다 */
+  function decoratePanel(root) {
+    try {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll('.shop-row[data-v10-item],.shop-row[data-mart]').forEach((row) => addButtons(row, row.dataset.v10Item || row.dataset.mart));
+    } catch (e) {}
+  }
+  let decoQueued = 0;
+  function queueDecorate(root) {
+    if (decoQueued) return;
+    decoQueued = 1;
+    const run = () => { decoQueued = 0; decoratePanel(root); };
+    try { if (window.requestAnimationFrame) requestAnimationFrame(run); else setTimeout(run, 60); } catch (e) { run(); }
+  }
+  try {
+    ['shopDept', 'shopMart', 'shopResto', 'shopGrid'].forEach((id) => {
+      const host = document.getElementById(id);
+      if (!host) return;
+      decoratePanel(host);
+      const mo = new MutationObserver(() => queueDecorate(host));
+      mo.observe(host, { childList: true, subtree: true });
+    });
+  } catch (e) { note('shopfix:mo:' + e.message); }
+
+  document.addEventListener('click', (ev) => {
+    const b = ev.target && ev.target.closest ? ev.target.closest('[data-qbtn]') : null;
+    if (!b) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const v = b.dataset.qbtn || '';
+    if (v.indexOf('wear:') === 0) {
+      const id = v.slice(5);
+      if (!adopt(id)) { whisper('먼저 구매하면 바로 입을 수 있어요', 2200); return; }
+      if (wearNow(id)) { const it = MAP[id]; whisper(`${it.icon} ${it.name} 착용! 내 캐릭터에서 바로 보여요`, 2600); }
+      else whisper('지금은 입을 수 없는 아이템이에요', 2000);
+      return;
+    }
+    try { openPrev(v); } catch (e) {}
+  }, true);
+
+  /* ---------------- 5) 옷장 착용이 곧바로 3D 반영되는지 보증 ---------------- */
+  try {
+    const before = V15.refreshAvatar;
+    V15.refreshAvatar = function () {
+      try { before.apply(this, arguments); } catch (e) {}
+      try { const a = avatarNow(); if (a && V15.wardrobeAttach) V15.wardrobeAttach(a); } catch (e) {}
+    };
+  } catch (e) {}
 })();
 
 /* =====================================================================
