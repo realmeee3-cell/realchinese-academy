@@ -40131,6 +40131,36 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   }
   V15.rideCamBoat = rideCamBoat;
 
+  /* 한강 물 — 유람선이 실제로 물 위를 달리는 것이 보이도록 수면을 깐다 */
+  try {
+    setTimeout(function () {
+      if (window.__v154water) return;
+      window.__v154water = 1;
+      const g = new THREE.PlaneGeometry(110, 22, 1, 1);
+      const m = new THREE.MeshStandardMaterial({ color: 0x2e6f97, roughness: .18, metalness: .32, transparent: true, opacity: .93 });
+      const w = new THREE.Mesh(g, m);
+      w.rotation.x = -Math.PI / 2;
+      w.position.set(68, 0.06, -60);
+      w.name = 'v154water';
+      scene.add(w);
+      /* 잔물결 */
+      try {
+        const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256;
+        const c2 = cv.getContext('2d');
+        c2.fillStyle = '#2e6f97'; c2.fillRect(0, 0, 256, 256);
+        for (let i = 0; i < 160; i++) {
+          c2.strokeStyle = 'rgba(190,225,245,' + (0.05 + Math.random() * 0.18) + ')';
+          c2.lineWidth = 1 + Math.random() * 1.6;
+          const y = Math.random() * 256, x = Math.random() * 256, len = 10 + Math.random() * 26;
+          c2.beginPath(); c2.moveTo(x, y); c2.quadraticCurveTo(x + len / 2, y - 2, x + len, y); c2.stroke();
+        }
+        const tx = new THREE.CanvasTexture(cv);
+        tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(9, 3);
+        m.map = tx; m.needsUpdate = true;
+      } catch (e) {}
+    }, 3600);
+  } catch (e) {}
+
   /* updateCamera 최상단에 우리 훅을 보장 (다른 모듈이 덮어써도 복구) */
   function installTop() {
     try {
