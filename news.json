@@ -1,88 +1,88 @@
 {
- "updated": "2026-11-25T04:55:28+09:00",
- "updatedLabel": "2026-11-25 04:55",
+ "updated": "2026-11-26T05:12:19+09:00",
+ "updatedLabel": "2026-11-26 05:12",
  "source": "中新网 (chinanews.com.cn) RSS",
  "count": 8,
  "news": [
   {
    "id": 1,
    "tag": "中新网 即时新闻",
-   "date": "11-25 00:04",
-   "hz": "从“流量依赖”到“内容回归”：AI给影视行业上了一课 近期，“长剧要被AI取代”的话题引发网友热议。不可否认，AI正以极低的成本、极快的速度，率先席卷流水线短剧市场。但是，在需要情感厚度与逻辑纵深的长剧领域，真人表演的“独一份共情”，仍是算法难以逾越的壁垒。",
-   "title": "从“流量依赖”到“内容回归”：AI给影视行业上了一课",
-   "py": "cóng “ liú liàng yī lài ” dào “ nèi róng huí guī ”：AI gěi yǐng shì háng yè shàng le yī kè   jìn qī ，“ zhǎng jù yào bèi AI qǔ dài ” de huà tí yǐn fā wǎng yǒu rè yì 。 bù kě fǒu rèn ，AI zhèng yǐ jí dī de chéng běn 、 jí kuài de sù dù ， shuài xiān xí juǎn liú shuǐ xiàn duǎn jù shì chǎng 。 dàn shì ， zài xū yào qíng gǎn hòu dù yǔ luó jí zòng shēn de zhǎng jù lǐng yù ， zhēn rén biǎo yǎn de “ dú yī fèn gòng qíng ”， réng shì suàn fǎ nán yǐ yú yuè de bì lěi 。",
-   "ko": "“AI가 장편 드라마를 대체할 것”이라는 논쟁이 뜨겁습니다. 짧은 숏드라마 시장은 AI가 이미 빠르고 싸게 밀어내고 있지만, 감정의 깊이와 탄탄한 서사가 필요한 장편에서는 배우의 연기가 여전히 알고리즘이 넘기 어려운 벽이라는 분석입니다.",
-   "link": "https://www.chinanews.com.cn/cul/2026/11-25/10737271.shtml"
+   "date": "11-26 00:10",
+   "hz": "中国岭南首次发现丹尼索瓦人和10.1万年前未知古人类 (记者 孙自法)作为古人类演化、迁徙和扩散的关键地区之一，中国岭南是否生活过丹尼索瓦人？同期还有无其他古人类共存？这些议题一直因缺乏化石记录悬而未决，也备受关注。",
+   "title": "中国岭南首次发现丹尼索瓦人和10.1万年前未知古人类",
+   "py": "zhōng guó lǐng nán shǒu cì fā xiàn dān ní suǒ wǎ rén hé 10.1 wàn nián qián wèi zhī gǔ rén lèi  ( jì zhě   sūn zì fǎ ) zuò wéi gǔ rén lèi yǎn huà 、 qiān xǐ hé kuò sàn de guān jiàn dì qū zhī yī ， zhōng guó lǐng nán shì fǒu shēng huó guò dān ní suǒ wǎ rén ？ tóng qī hái yǒu wú qí tā gǔ rén lèi gòng cún ？ zhè xiē yì tí yì zhí yīn quē fá huà shí jì lù xuán ér wèi jué ， yě bèi shòu guān zhù 。",
+   "ko": "중국 링난(岭南) 지역에서 처음으로 데니소바인과 약 10만 1천 년 전 미지 고인류의 흔적이 발견됐습니다. 11월 26일 발표에 따르면 그동안 화석 기록이 없어 풀리지 않던 \"링난에 데니소바인이 살았는지, 같은 시기에 다른 고인류가 함께 있었는지\"라는 숙제에 실마리가 열렸습니다.",
+   "link": "https://www.chinanews.com.cn/gn/2026/11-26/10737857.shtml"
   },
   {
    "id": 2,
    "tag": "中新网 即时新闻",
-   "date": "11-24 23:00",
-   "hz": "王毅同英国外交大臣米利班德通电话 2026年11月24日，中共中央政治局委员、外交部长王毅应约同英国外交大臣米利班德通电话。",
-   "title": "王毅同英国外交大臣米利班德通电话",
-   "py": "wáng yì tóng yīng guó wài jiāo dà chén mǐ lì bān dé tōng diàn huà  2026 nián 11 yuè 24 rì ， zhōng gòng zhōng yāng zhèng zhì jú wěi yuán 、 wài jiāo bù zhǎng wáng yì yìng yuē tóng yīng guó wài jiāo dà chén mǐ lì bān dé tōng diàn huà 。",
-   "ko": "왕이(王毅) 중국 외교부장이 11월 24일 영국 외무장관 밀리밴드와 전화 통화를 했습니다. 양국 관계와 주요 현안을 논의한 것으로 전해졌습니다.",
-   "link": "https://www.chinanews.com.cn/gn/2026/11-24/10737270.shtml"
+   "date": "11-25 23:24",
+   "hz": "图说百科｜流感防治8问8答 急性呼吸道传染病已进入流行季。呼吸道感染可谓“多毒并存”，患者在出现相关症状后，除了要及时就诊，更要明确感染背后的“元凶”，做到有针对性治疗。",
+   "title": "图说百科｜流感防治8问8答",
+   "py": "tú shuō bǎi kē ｜ liú gǎn fáng zhì 8 wèn 8 dá   jí xìng hū xī dào chuán rǎn bìng yǐ jìn rù liú xíng jì 。 hū xī dào gǎn rǎn kě wèi “ duō dú bìng cún ”， huàn zhě zài chū xiàn xiāng guān zhèng zhuàng hòu ， chú le yào jí shí jiù zhěn ， gèng yào míng què gǎn rǎn bèi hòu de “ yuán xiōng ”， zuò dào yǒu zhēn duì xìng zhì liáo 。",
+   "ko": "급성 호흡기 감염병이 유행철에 들어섰습니다. 독감 예방과 대처를 8문 8답으로 정리했습니다. 호흡기 감염은 여러 병원체가 함께 도는 경우가 많아, 증상이 나오면 진료를 받는 것과 함께 어떤 병원체인지 확인해 맞춤 치료를 하는 것이 중요하다고 설명합니다.",
+   "link": "https://www.chinanews.com.cn/life/2026/11-25/10737850.shtml"
   },
   {
    "id": 3,
    "tag": "中新网 即时新闻",
-   "date": "11-24 22:55",
-   "hz": "“1991年的张大爷”“1988年的张奶奶”刷屏！玩梗之外，别让事实输给流量 最近，“1991年出生的张大爷”“1988年出生的张奶奶”等相关所谓小学生试题，在网上传得沸沸扬扬。",
-   "title": "“1991年的张大爷”“1988年的张奶奶”刷屏！玩梗之外，别让事实输给流量",
-   "py": "“1991 nián de zhāng dà yé ”“1988 nián de zhāng nǎi nǎi ” shuā píng ！ wán gěng zhī wài ， bié ràng shì shí shū gěi liú liàng   zuì jìn ，“1991 nián chū shēng de zhāng dà yé ”“1988 nián chū shēng de zhāng nǎi nǎi ” děng xiāng guān suǒ wèi xiǎo xué shēng shì tí ， zài wǎng shàng chuán dé fèi fèi yáng yáng 。",
-   "ko": "“1991년생 장 아저씨”, “1988년생 장 할머니” 같은 초등학교 시험 문제가 온라인에서 화제가 됐습니다. 밈으로 소비되는 사이 사실 확인이 뒷전으로 밀렸다는 지적입니다.",
-   "link": "https://www.chinanews.com.cn/sh/2026/11-24/10737269.shtml"
+   "date": "11-25 22:14",
+   "hz": "中外旅行商携手开发内蒙古冰雪旅游市场 (记者 张玮)“你好！中国”——2027冰雪主题旅游海外推广活动洽谈会25日晚在内蒙古自治区兴安盟阿尔山市举办。中外旅行商签署合作协议，携手开发内蒙古冰雪旅游市场。",
+   "title": "中外旅行商携手开发内蒙古冰雪旅游市场",
+   "py": "zhōng wài lǚ xíng shāng xié shǒu kāi fā nèi méng gǔ bīng xuě lǚ yóu shì chǎng  ( jì zhě   zhāng wěi )“ nǐ hǎo ！ zhōng guó ”——2027 bīng xuě zhǔ tí lǚ yóu hǎi wài tuī guǎng huó dòng qià tán huì 25 rì wǎn zài nèi méng gǔ zì zhì qū xīng ān méng ā ěr shān shì jǔ bàn 。 zhōng wài lǚ xíng shāng qiān shǔ hé zuò xié yì ， xié shǒu kāi fā nèi méng gǔ bīng xuě lǚ yóu shì chǎng 。",
+   "ko": "\"안녕! 중국\" 2027 겨울 테마 관광 해외 홍보 설명회가 25일 저녁 내몽골 자치구 싱안멍 아얼산시에서 열렸습니다. 중국과 외국 여행사들이 협력 협약을 맺고 내몽골의 겨울 관광 시장을 함께 개발하기로 했습니다.",
+   "link": "https://www.chinanews.com.cn/cj/2026/11-25/10737841.shtml"
   },
   {
    "id": 4,
    "tag": "中新网 即时新闻",
-   "date": "11-24 22:04",
-   "hz": "日本今年1至9月出生人口同比减少0.3% (记者 朱晨曦)日本厚生劳动省24日公布的人口动态统计显示，今年1至9月，包括外国人在内的日本出生人口为52.3304万人，与去年同期相比减少1760人，降幅为0.3%。",
-   "title": "日本今年1至9月出生人口同比减少0.3%",
-   "py": "rì běn jīn nián 1 zhì 9 yuè chū shēng rén kǒu tóng bǐ jiǎn shǎo 0.3% ( jì zhě   zhū chén xī ) rì běn hòu shēng láo dòng shěng 24 rì gōng bù de rén kǒu dòng tài tǒng jì xiǎn shì ， jīn nián 1 zhì 9 yuè ， bāo kuò wài guó rén zài nèi de rì běn chū shēng rén kǒu wèi 52.3304 wàn rén ， yǔ qù nián tóng qī xiāng bǐ jiǎn shǎo 1760 rén ， jiàng fú wèi 0.3%。",
-   "ko": "일본 후생노동성 통계에 따르면 올해 1~9월 일본 출생아 수는 52만 3304명으로 지난해 같은 기간보다 0.3%(1760명) 줄었습니다. 인구 감소 흐름이 이어지고 있습니다.",
-   "link": "https://www.chinanews.com.cn/gj/2026/11-24/10737230.shtml"
+   "date": "11-25 21:55",
+   "hz": "英国能源限价2027年将大幅上调 (记者 欧阳开宇)英国能源监管机构天然气和电力市场办公室25日宣布，受中东地缘冲突持续扰动国际能源供应链、天然气价格走高影响，英国居民能源价格上限将自2027年1月起大幅上调26%，全国约2000万户家庭将面临冬季用能成本显著上涨。",
+   "title": "英国能源限价2027年将大幅上调",
+   "py": "yīng guó néng yuán xiàn jià 2027 nián jiāng dà fú shàng diào  ( jì zhě   ōu yáng kāi yǔ ) yīng guó néng yuán jiān guǎn jī gòu tiān rán qì hé diàn lì shì chǎng bàn gōng shì 25 rì xuān bù ， shòu zhōng dōng dì yuán chōng tū chí xù rǎo dòng guó jì néng yuán gōng yìng liàn 、 tiān rán qì jià gé zǒu gāo yǐng xiǎng ， yīng guó jū mín néng yuán jià gé shàng xiàn jiāng zì 2027 nián 1 yuè qǐ dà fú shàng diào 26%， quán guó yuē 2000 wàn hù jiā tíng jiāng miàn lín dōng jì yòng néng chéng běn xiǎn zhù shàng zhǎng 。",
+   "ko": "영국 에너지 규제기관 오프젬이 2027년 1월부터 가정용 에너지 가격 상한을 26% 올린다고 발표했습니다. 중동 정세로 국제 에너지 공급망이 흔들리고 가스 가격이 오른 영향으로, 약 2000만 가구가 겨울철 에너지 비용 부담을 크게 지게 됩니다.",
+   "link": "https://www.chinanews.com.cn/gj/2026/11-25/10737822.shtml"
   },
   {
    "id": 5,
    "tag": "中新网 即时新闻",
-   "date": "11-24 22:04",
-   "hz": "哈尔滨市宾县：整合冰雪、温泉、民俗优质资源 培育三大特色冰雪体验 (李香梅 刘锡菊)24日，记者从哈尔滨市人民政府新闻办公室主办的“约会哈尔滨冰雪暖世界”2026—2027年哈尔滨冰雪季系列新闻发布会(第二场)上获悉，这个冬季，哈尔滨市宾县深度整合冰雪、温泉、民俗优质资源，精心培育三大特色冰雪体验，配套文体旅系列活动，全力开发冬日冰雪新场景、新业态、新玩法。",
-   "title": "哈尔滨市宾县：整合冰雪、温泉、民俗优质资源 培育三大特色冰雪体验",
-   "py": "hā ěr bīn shì bīn xiàn ： zhěng hé bīng xuě 、 wēn quán 、 mín sú yōu zhì zī yuán   péi yù sān dà tè sè bīng xuě tǐ yàn  ( lǐ xiāng méi   liú xī jú )24 rì ， jì zhě cóng hā ěr bīn shì rén mín zhèng fǔ xīn wén bàn gōng shì zhǔ bàn de “ yuē huì hā ěr bīn bīng xuě nuǎn shì jiè ”2026—2027 nián hā ěr bīn bīng xuě jì xì liè xīn wén fā bù huì ( dì èr chǎng ) shàng huò xī ， zhè ge dōng jì ， hā ěr bīn shì bīn xiàn shēn dù zhěng hé bīng xuě 、 wēn quán 、 mín sú yōu zhì zī yuán ， jīng xīn péi yù sān dà tè sè bīng xuě tǐ yàn ， pèi tào wén tǐ lǚ xì liè huó dòng ， quán lì kāi fā dōng rì bīng xuě xīn chǎng jǐng 、 xīn yè tài 、 xīn wán fǎ 。",
-   "ko": "하얼빈 빈현이 이번 겨울 빙설·온천·민속 자원을 묶어 세 가지 특색 겨울 체험을 선보입니다. 2026~2027 하얼빈 빙설 시즌 행사의 하나로 소개됐습니다.",
-   "link": "https://www.chinanews.com.cn/sh/2026/11-24/10737264.shtml"
+   "date": "11-25 21:52",
+   "hz": "谷爱凌训练受伤肩膀脱臼：参加云顶世界杯站可能性较小 11月25日，谷爱凌发文，称前几天在奥地利训练中不幸受伤肩膀脱臼。“开车路程一小时后到达医院，立刻拍片子正骨位。我还在等待医生的判断，但目前能参加云顶世界杯站比赛的可能性较小。",
+   "title": "谷爱凌训练受伤肩膀脱臼：参加云顶世界杯站可能性较小",
+   "py": "gǔ ài líng xùn liàn shòu shāng jiān bǎng tuō jiù ： cān jiā yún dǐng shì jiè bēi zhàn kě néng xìng jiào xiǎo  11 yuè 25 rì ， gǔ ài líng fā wén ， chēng qián jǐ tiān zài ào dì lì xùn liàn zhōng bù xìng shòu shāng jiān bǎng tuō jiù 。“ kāi chē lù chéng yī xiǎo shí hòu dào dá yī yuàn ， lì kè pāi piān zi zhèng gǔ wèi 。 wǒ hái zài děng dài yī shēng de pàn duàn ， dàn mù qián néng cān jiā yún dǐng shì jiè bēi zhàn bǐ sài de kě néng xìng jiào xiǎo 。",
+   "ko": "아이린 구(谷爱凌)가 25일 오스트리아 훈련 중 어깨가 탈구되는 부상을 입었다고 밝혔습니다. 병원에서 곧바로 엑스레이 촬영과 정골 치료를 받고 의사 판단을 기다리고 있지만, 윈딩 월드컵 출전 가능성은 작다고 전했습니다. 티켓을 예매하고 응원을 준비한 팬들에게 미안하다고 덧붙였습니다.",
+   "link": "https://www.chinanews.com.cn/ty/2026/11-25/10737834.shtml"
   },
   {
    "id": 6,
    "tag": "中新网 即时新闻",
-   "date": "11-24 22:04",
-   "hz": "印度阿约提亚至尼泊尔贾纳克布尔新开直达客运列车抵尼 (记者 崔楠)首班从印度阿约提亚开往尼泊尔贾纳克布尔的直达客运列车当地时间24日上午9时许抵达贾纳克布尔火车站。",
-   "title": "印度阿约提亚至尼泊尔贾纳克布尔新开直达客运列车抵尼",
-   "py": "yìn dù ā yuē tí yà zhì ní pō ěr jiǎ nà kè bù ěr xīn kāi zhí dá kè yùn liè chē dǐ ní  ( jì zhě   cuī nán ) shǒu bān cóng yìn dù ā yuē tí yà kāi wǎng ní pō ěr jiǎ nà kè bù ěr de zhí dá kè yùn liè chē dāng dì shí jiān 24 rì shàng wǔ 9 shí xǔ dǐ dá jiǎ nà kè bù ěr huǒ chē zhàn 。",
-   "ko": "인도 아요디야에서 네팔 자나크푸르로 가는 첫 직행 여객열차가 24일 오전 9시께 자나크푸르역에 도착했습니다. 양국을 잇는 새 철도 노선이 열렸습니다.",
-   "link": "https://www.chinanews.com.cn/gj/2026/11-24/10737211.shtml"
+   "date": "11-25 21:46",
+   "hz": "黑龙江迎大范围降雪 局地暴雪伴雨夹雪 (记者 王妮娜)黑龙江省气象台25日发布消息，26日夜间至27日，黑龙江全省大部将出现降雪天气，东北部地区有大雪、局地暴雪，东南部地区有短时间雨夹雪，道路冰雪对交通影响较大。",
+   "title": "黑龙江迎大范围降雪 局地暴雪伴雨夹雪",
+   "py": "hēi lóng jiāng yíng dà fàn wéi jiàng xuě   jú dì bào xuě bàn yǔ jiā xuě  ( jì zhě   wáng nī nà ) hēi lóng jiāng shěng qì xiàng tái 25 rì fā bù xiāo xī ，26 rì yè jiān zhì 27 rì ， hēi lóng jiāng quán shěng dà bù jiāng chū xiàn jiàng xuě tiān qì ， dōng běi bù dì qū yǒu dà xuě 、 jú dì bào xuě ， dōng nán bù dì qū yǒu duǎn shí jiān yǔ jiā xuě ， dào lù bīng xuě duì jiāo tōng yǐng xiǎng jiào dà 。",
+   "ko": "헤이룽장성 기상대는 26일 밤부터 27일까지 성 대부분 지역에 눈이 내리고, 동북부는 큰 눈과 국지적 폭설, 동남부는 짧은 진눈깨비가 예상된다고 밝혔습니다. 도로 결빙으로 교통에 미치는 영향이 클 것으로 보여 주의가 필요합니다.",
+   "link": "https://www.chinanews.com.cn/sh/2026/11-25/10737825.shtml"
   },
   {
    "id": 7,
    "tag": "中新网 即时新闻",
-   "date": "11-24 22:04",
-   "hz": "韩国30至39岁人群未婚比例升至53.1% (金旭 陈艺玲)据韩国国家数据处当地时间24日公布一项调查数据显示，韩国15岁及以上人口中，未婚人数达1388.1万人，其中30至39岁人群的未婚比例达53.1%，较2020年上升10.6个百分点，",
-   "title": "韩国30至39岁人群未婚比例升至53.1%",
-   "py": "hán guó 30 zhì 39 suì rén qún wèi hūn bǐ lì shēng zhì 53.1% ( jīn xù   chén yì líng ) jù hán guó guó jiā shù jù chù dāng dì shí jiān 24 rì gōng bù yī xiàng diào chá shù jù xiǎn shì ， hán guó 15 suì jí yǐ shàng rén kǒu zhōng ， wèi hūn rén shù dá 1388.1 wàn rén ， qí zhōng 30 zhì 39 suì rén qún de wèi hūn bǐ lì dá 53.1%， jiào 2020 nián shàng shēng 10.6 gè bǎi fēn diǎn ，",
-   "ko": "한국 15세 이상 인구 가운데 미혼자가 1388만 1000명으로 집계됐습니다. 특히 30~39세 미혼 비율이 53.1%로 2020년보다 10.6%포인트 올랐습니다.",
-   "link": "https://www.chinanews.com.cn/gj/2026/11-24/10737158.shtml"
+   "date": "11-25 21:45",
+   "hz": "涉130万使用者个人信息！售票网站遭黑客入侵，香港有关部门已报警 香港特区政府康乐及文化事务署(简称“康文署”)25日公布，于24日接获城市售票网的外包承办商通报，发现城市售票网被黑客非法进入。承办商已即时采取措施防止黑客，并全面检视系统，确认系统可继续正常运作。",
+   "title": "涉130万使用者个人信息！售票网站遭黑客入侵，香港有关部门已报警",
+   "py": "shè 130 wàn shǐ yòng zhě gè rén xìn xī ！ shòu piào wǎng zhàn zāo hēi kè rù qīn ， xiāng gǎng yǒu guān bù mén yǐ bào jǐng   xiāng gǎng tè qū zhèng fǔ kāng lè jí wén huà shì wù shǔ ( jiǎn chēng “ kāng wén shǔ ”)25 rì gōng bù ， yú 24 rì jiē huò chéng shì shòu piào wǎng de wài bāo chéng bàn shāng tōng bào ， fā xiàn chéng shì shòu piào wǎng bèi hēi kè fēi fǎ jìn rù 。 chéng bàn shāng yǐ jí shí cǎi qǔ cuò shī fáng zhǐ hēi kè ， bìng quán miàn jiǎn shì xì tǒng ， què rèn xì tǒng kě jì xù zhèng cháng yùn zuò 。",
+   "ko": "홍콩 공연·전시 예매 사이트 어반 티켓팅(URBTIX·城市售票网)이 해커 침입을 당해 이용자 130만 명의 개인정보가 영향을 받았습니다. 홍콩 정부 레저문화서비스서는 24일 외주 운영사로부터 통보받아 즉시 차단 조치와 시스템 점검을 했고, 시스템은 계속 정상 운영된다고 밝혔습니다. 당국은 경찰에 신고했습니다.",
+   "link": "https://www.chinanews.com.cn/dwq/2026/11-25/10737828.shtml"
   },
   {
    "id": 8,
    "tag": "中新网 即时新闻",
-   "date": "11-24 22:03",
-   "hz": "新的社会阶层人士齐聚“世界橙乡”江西赣州 开启“寻美”之旅 (刘力鑫 王禁林)24日，“寻美江西·橙乡有约”新的社会阶层人士助力赣南苏区振兴发展活动在赣州龙南市启动。正值赣南脐橙丰收季，来自全国各地的百余名新的社会阶层人士齐聚“世界橙乡”江西赣州，他们将深入龙南市、上犹县采风，结合所见所闻讲述赣南苏区振兴发展的鲜活故事，借助网络向外界推介赣南脐橙产业、展示赣州农文旅发展成就。",
-   "title": "新的社会阶层人士齐聚“世界橙乡”江西赣州 开启“寻美”之旅",
-   "py": "xīn de shè huì jiē céng rén shì qí jù “ shì jiè chéng xiāng ” jiāng xī gàn zhōu   kāi qǐ “ xún měi ” zhī lǚ  ( liú lì xīn   wáng jìn lín )24 rì ，“ xún měi jiāng xī · chéng xiāng yǒu yuē ” xīn de shè huì jiē céng rén shì zhù lì gàn nán sū qū zhèn xīng fā zhǎn huó dòng zài gàn zhōu lóng nán shì qǐ dòng 。 zhèng zhí gàn nán qí chéng fēng shōu jì ， lái zì quán guó gè dì de bǎi yú míng xīn de shè huì jiē céng rén shì qí jù “ shì jiè chéng xiāng ” jiāng xī gàn zhōu ， tā men jiāng shēn rù lóng nán shì 、 shàng yóu xiàn cǎi fēng ， jié hé suǒ jiàn suǒ wén jiǎng shù gàn nán sū qū zhèn xīng fā zhǎn de xiān huó gù shì ， jiè zhù wǎng luò xiàng wài jiè tuī jiè gàn nán qí chéng chǎn yè 、 zhǎn shì gàn zhōu nóng wén lǚ fā zhǎn chéng jiù 。",
-   "ko": "장시성 간저우에서 ‘아름다움 찾기’ 행사가 열려 전국 각지의 새로운 사회계층 인사 100여 명이 참석했습니다. 이들은 난난시와 상유현을 돌며 간난 오렌지 산업과 농촌 관광을 알릴 예정입니다.",
-   "link": "https://www.chinanews.com.cn/gn/2026/11-24/10737263.shtml"
+   "date": "11-25 21:42",
+   "hz": "（机遇香港）报告预计今年香港IPO集资额居全球第二 “A+H”上市仍为重要动力 (记者 戴小橦)专业服务机构安永25日发布的《中国内地和香港IPO市场》报告显示，2026年香港IPO(首次公开招股)市场表现突出，集资额预计位居全球第二。",
+   "title": "（机遇香港）报告预计今年香港IPO集资额居全球第二 “A+H”上市仍为重要动力",
+   "py": "（ jī yù xiāng gǎng ） bào gào yù jì jīn nián xiāng gǎng IPO jí zī é jū quán qiú dì èr  “A+H” shàng shì réng wèi zhòng yào dòng lì  ( jì zhě   dài xiǎo tóng ) zhuān yè fú wù jī gòu ān yǒng 25 rì fā bù de 《 zhōng guó nèi dì hé xiāng gǎng IPO shì chǎng 》 bào gào xiǎn shì ，2026 nián xiāng gǎng IPO( shǒu cì gōng kāi zhāo gǔ ) shì chǎng biǎo xiàn tū chū ， jí zī é yù jì wèi jū quán qiú dì èr 。",
+   "ko": "회계법인 언스트앤영이 25일 발표한 보고서에 따르면 2026년 홍콩 IPO 시장은 자금 조달액 기준 세계 2위가 될 것으로 예상됩니다. 중국 본토와 홍콩에 동시 상장하는 \"A+H\" 상장이 여전히 중요한 원동력으로 분석됐습니다.",
+   "link": "https://www.chinanews.com.cn/dwq/2026/11-25/10737821.shtml"
   }
  ]
 }

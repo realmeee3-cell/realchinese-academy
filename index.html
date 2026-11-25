@@ -11299,6 +11299,7 @@ function layoutMobileHud() {
 function currentZone() {
   const x = Player.pos.x, z = Player.pos.z;
   if (window.V10) { const zn = V10.zoneName(x, z); if (zn) return zn; }
+  if (x > -1.5 && x < 14 && z > 74 && z < 89.5) return 'MADHOLIC 클럽 · 弘大俱乐部';
   if (z > 10.6) {
     if (z > 26.6) return Math.abs(x) < 2.4 && z < 33.2 ? '산스장 · 산책로 TRAIL' : '야외 산스장 · MOUNTAIN GYM';
     if (typeof MART_POS !== 'undefined' && Math.hypot(x - MART_POS.x, z - MART_POS.z) < 3.4) return '리얼 매점 · MART';
@@ -30826,7 +30827,7 @@ const BIZ_PLAN = [
   } catch (e) {}
 
   /* ---------------- 등록 ---------------- */
-  V14.addWarp({ id: 'yeouido', icon: '📈', name: '여의도역', sub: '汝矣岛 · 증권가·직장인', x: 73.2, z: -10.4, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'yeouido', icon: '📈', name: '여의도역', sub: '汝矣岛 · 증권가·직장인', x: 69.5, z: -10.4, yaw: Math.PI }, build);
   /* 한강공원 잔디 — 한강·한강대교가 정면에 들어오는 방향으로 서 있다 */
   V14.addWarp({ id: 'hangang', icon: '🌊', name: '한강공원', sub: '汉江公园 · 한강·한강대교', x: 16, z: -36, yaw: 2.35 }, build);
   V14.lazyBuild(build, 74, -8, 80);
@@ -31111,7 +31112,7 @@ const BIZ_PLAN = [
     }
   }
 
-  V14.addWarp({ id: 'seongsu', icon: '🧱', name: '성수동', sub: '圣水洞 · 연무장길 카페거리', x: -64, z: -41, yaw: Math.PI }, build);
+  V14.addWarp({ id: 'seongsu', icon: '🧱', name: '성수동', sub: '圣水洞 · 연무장길 카페거리', x: -60, z: -41, yaw: Math.PI }, build);
   V14.lazyBuild(build, -73, -40, 70);
   setTimeout(() => {
     if (V12 && V12.tapHandlers) {
@@ -35201,6 +35202,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         { t: '真实游戏厅', c: '#9ff0ff', s: .13, y: .84 },
       ], { grad: [[0, '#2a1040'], [1, '#0d0a16']], borderColor: '#c45bff' });
       bn.position.set(B.x0 + 1.2, 1.2, B.z0 - 0.7);
+      bn.rotation.y = Math.PI; /* 글자가 거리 쪽에서 바로 읽히게 (거울 반전 방지) */
       g.add(bn);
       /* 외부 자판기 */
       const vm = new THREE.Group();
