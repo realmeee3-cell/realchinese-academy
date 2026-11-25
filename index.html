@@ -11299,7 +11299,7 @@ function layoutMobileHud() {
 function currentZone() {
   const x = Player.pos.x, z = Player.pos.z;
   if (window.V10) { const zn = V10.zoneName(x, z); if (zn) return zn; }
-  if (x > -1.5 && x < 14 && z > 74 && z < 89.5) return 'MADHOLIC 클럽 · 弘大俱乐部';
+  if (x > -1.5 && x < 14 && z > 74 && z < 89.5) return 'MADHOLIC 클럽 · 夜店';
   if (z > 10.6) {
     if (z > 26.6) return Math.abs(x) < 2.4 && z < 33.2 ? '산스장 · 산책로 TRAIL' : '야외 산스장 · MOUNTAIN GYM';
     if (typeof MART_POS !== 'undefined' && Math.hypot(x - MART_POS.x, z - MART_POS.z) < 3.4) return '리얼 매점 · MART';
