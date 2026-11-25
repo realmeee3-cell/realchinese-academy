@@ -42300,9 +42300,9 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     for (let i = 0; i < 5 && n && n !== document.body; i++, n = n.parentElement) {
       if (!n.querySelector) continue;
       if (n.classList && (n.classList.contains('modal') || n.classList.contains('sheet'))) return '';
-      const b = n.querySelector('[data-prev],[data-buy],[data-wear],[data-v10-buy],[data-mart-buy]');
+      const b = n.querySelector('[data-prev],[data-buy],[data-wear],[data-v10-buy],[data-mart-buy],[data-item]');
       if (b) {
-        const id = b.dataset.prev || b.dataset.buy || b.dataset.wear || b.dataset.v10Buy || b.dataset.martBuy;
+        const id = b.dataset.prev || b.dataset.buy || b.dataset.wear || b.dataset.v10Buy || b.dataset.martBuy || b.dataset.item;
         if (id && MAP[id]) return id;
       }
     }
