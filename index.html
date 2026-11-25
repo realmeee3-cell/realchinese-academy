@@ -2067,16 +2067,26 @@ body.modal-open #seatPrompt { display: none !important; }
 .v15-dlv-tabs button.on[data-d="baemin"]{background:linear-gradient(150deg,#2ac1bc,#1a9a96);color:#fff}
 .v15-dlv-tabs button.on[data-d="coupang"]{background:linear-gradient(150deg,#e8483a,#b82a20);color:#fff}
 .v15-dlv-list{display:grid;gap:7px}
-.dl-card{display:grid;grid-template-columns:40px 1fr auto;gap:6px 8px;align-items:center;padding:8px 10px;border-radius:13px;
+.dl-card{display:grid;grid-template-columns:40px minmax(0,1fr) 76px;grid-auto-rows:auto;gap:4px 8px;align-items:center;padding:8px 10px;border-radius:13px;
   background:#fdfaf4;border:1px solid rgba(94,80,62,.14)}
-.dl-card .ic{font-size:23px;text-align:center}
-.dl-card .tx{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.dl-card .ic{font-size:23px;text-align:center;grid-row:1 / span 2}
+.dl-card .tx{display:flex;flex-direction:column;line-height:1.25;min-width:0;grid-row:1 / span 2}
 .dl-card .tx b{font-size:12.5px}
 .dl-card .tx small{font-size:10px;color:#8a7a63}
 .dl-card .tx small.hz{color:#5d5448}
-.dl-card .pr{font-size:12px;font-weight:800;color:#c1704f;text-align:right}
-.dl-card button{min-height:30px;padding:0 12px;border-radius:99px;font-size:11px;font-weight:700}
+.dl-card .pr{font-size:12px;font-weight:800;color:#c1704f;text-align:right;grid-column:3;grid-row:1}
+.dl-card button{min-height:32px;padding:0 8px;border-radius:99px;font-size:11px;font-weight:800;white-space:nowrap;
+  grid-column:3;grid-row:2;width:100%}
 .v15-dlv-track{margin:10px 0 6px;padding:10px 12px;border-radius:14px;background:#101820;color:#eaf6ff;font-size:11.5px}
+/* 🛵 화면 위에 뜨는 배달 추적 카드 (모바일에서도 가려지지 않게) */
+#v15Track{position:fixed;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top));
+  width:min(320px,calc(100% - 26px));z-index:57;margin:0;padding:8px 11px;border-radius:13px;
+  background:rgba(16,24,32,.93);color:#eaf6ff;font-size:11px;display:none;box-shadow:0 8px 22px rgba(0,0,0,.3);
+  border:1px solid rgba(255,255,255,.14);pointer-events:none}
+#v15Track.show{display:block}
+#v15Track .tl{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;margin-bottom:5px}
+#v15Track .tl b{color:#ffe9b0}
+#v15Track .st{margin-top:5px;font-size:10px;opacity:.85;line-height:1.35}
 .v15-dlv-track .tl{display:flex;justify-content:space-between;margin-bottom:6px}
 .v15-dlv-track .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden}
 .v15-dlv-track .bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#2ac1bc,#ffe066);transition:width .3s}
@@ -6785,10 +6795,22 @@ function makeAvatarPreview(canvasId, opt = {}) {
       const showName = opt.showLabel ? opt.showLabel() : !!Look.current.showName;
       this.avatar.label.visible = !!showName;
       if (!showName) this.avatar.hideLabel = true;
-      this.avatar.label.position.y = opt.labelY || 1.58;
+      /* 이름표는 모자(갓·베레모)나 큰 액세서리에 가리지 않게 머리 위로 올린다 */
+      let labelY = opt.labelY || 1.58;
+      try {
+        const bb = new THREE.Box3().setFromObject(this.avatar.body || this.avatar.root);
+        if (isFinite(bb.max.y) && bb.max.y + 0.16 > labelY) labelY = bb.max.y + 0.16;
+      } catch (e) {}
+      this.avatar.label.position.y = labelY;
       if (this.avatar.label.scale) this.avatar.label.scale.multiplyScalar(opt.labelScale || 0.82);
       this.avatar.root.rotation.y = this.yaw;
       this.scene.add(this.avatar.root);
+      /* v15.6 LOOKSYNC — 옷장에서 실제로 입고 있는 한복·치파오·패딩·모자·가방·목도리·신발까지
+         미리보기 캐릭터에도 그대로 입혀 그린다 (메인 월드 캐릭터와 똑같은 모습) */
+      try {
+        const V = window.V15;
+        if (V && V.wardrobeAttach) V.wardrobeAttach(this.avatar);
+      } catch (e) {}
       this.avatar.update(0.016, false);
       this.render();
     },
@@ -6824,10 +6846,14 @@ function makeAvatarPreview(canvasId, opt = {}) {
   return api;
 }
 
-const LookView = makeAvatarPreview('lookCanvas');
+const LookView = makeAvatarPreview('lookCanvas', {
+  /* 갓·한복·패딩처럼 키가 큰 착장까지 머리부터 발끝까지 다 보이게 */
+  showLabel: () => false,
+  camY: 1.08, camZ: 3.35, camLookY: 0.90,
+});
 const ShopView = makeAvatarPreview('shopCanvas', {
   yaw: 0.55, autoSpin: true, showLabel: () => false,
-  camY: 0.99, camZ: 2.58, camLookY: 0.76,
+  camY: 1.03, camZ: 3.05, camLookY: 0.84,
 });
 
 // 플레이어 표시 링
@@ -37400,6 +37426,11 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   const SPAWN = { x: 510, z: 3.4 };
   const KEY = 'rtb_v15_delivery_v1';
 
+  /* 배달지 후보 — 주문한 자리에 따라 오토바이 목적지가 달라진다 */
+  const HOME_DROP = { x: DOOR.x, z: DOOR.z, spawn: { x: SPAWN.x, z: SPAWN.z }, label: '집 앞', kind: 'home' };
+  const ACADEMY_DROP = { x: 0.6, z: 13.6, spawn: { x: 1.8, z: 30.0 }, label: '학원 정문 앞', kind: 'academy' };
+  const MALL_DROP = { x: 477.0, z: 0, spawn: { x: 466.5, z: 3.4 }, label: '지하상가 입구', kind: 'mall' };
+
   const BAEMIN = [
     { id: 'malatang', icon: '🌶️', name: '마라탕', hz: '麻辣烫', py: 'má là tàng', price: 22, food: 'bento' },
     { id: 'chicken', icon: '🍗', name: '양념치킨', hz: '调味炸鸡', py: 'tiáo wèi zhà jī', price: 26, food: 'bento' },
@@ -37435,9 +37466,53 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       return this;
     },
     save() { try { localStorage.setItem(KEY, JSON.stringify({ orders: this.orders.slice(0, 20), placed: this.placed })); } catch (e) {} },
-    pending() { return this.orders.filter((o) => o.status === 'driving'); },
+    pending() { return this.orders.filter((o) => o.status === 'driving').sort((a, b) => (a.at || 0) - (b.at || 0)); },
   };
   D.load();
+
+  /* =================================================================
+    배달지 계산 — "학원에서 시키면 학원으로, 집이면 집으로"
+    ================================================================= */
+  function walkableAt(x, z) {
+    try { return (typeof V13 !== 'undefined' && V13.walkable) ? !!V13.walkable(x, z) : true; } catch (e) { return true; }
+  }
+  function dropFor() {
+    let px = -0.9, pz = 4.8;
+    try { px = Player.pos.x; pz = Player.pos.z; } catch (e) {}
+    /* 내 집 안 */
+    try { if (document.body.classList.contains('inHome')) return Object.assign({}, HOME_DROP); } catch (e) {}
+    /* 내 집 · 집 앞 골목 */
+    if (px > 495 && px < 590 && pz > -30 && pz < 30) return Object.assign({}, HOME_DROP);
+    /* 중국 지하상가 */
+    if (px > 470 && px < 530 && pz > -20 && pz < 20) return Object.assign({}, MALL_DROP);
+    /* 학원(로비·강의실·자습실·카페·매점·정원) */
+    if (Math.abs(px) < 20 && pz > -14 && pz < 34) return Object.assign({}, ACADEMY_DROP);
+    /* 그 밖(강남·성수·여의도·북촌 · 운동장 · 아파트 등) — 지금 서 있는 자리 근처 */
+    const dirs = [[0, 1], [1, 0], [-1, 0], [0, -1], [0.7, 0.7], [-0.7, 0.7], [0.7, -0.7], [-0.7, -0.7]];
+    for (let i = 0; i < dirs.length; i++) {
+      const ux = dirs[i][0], uz = dirs[i][1];
+      const dx = px + ux * 2.6, dz = pz + uz * 2.6;
+      if (!walkableAt(dx, dz)) continue;
+      return { x: dx, z: dz, spawn: { x: dx + ux * 13, z: dz + uz * 13 }, label: '지금 자리 근처', kind: 'here' };
+    }
+    return { x: px + 2.0, z: pz, spawn: { x: px + 12, z: pz }, label: '지금 자리 근처', kind: 'here' };
+  }
+  V15.deliveryDrop = dropFor;
+
+  /* 배달지 표시 링 */
+  let dropMark = null;
+  function markAt(x, z, on) {
+    try {
+      if (!dropMark) {
+        dropMark = new THREE.Mesh(new THREE.RingGeometry(0.52, 0.68, 24), basic(0xffd66a, { transparent: true, opacity: .55 }));
+        dropMark.rotation.x = -Math.PI / 2;
+        scene.add(dropMark);
+      }
+      dropMark.position.set(x, 0.05, z);
+      dropMark.visible = !!on;
+    } catch (e) {}
+  }
+  V15.deliveryMark = markAt;
 
   /* =================================================================
      집 앞 골목
@@ -37522,7 +37597,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   /* =================================================================
      오토바이 + 배달원
      ================================================================= */
-  function makeRider(brand) {
+  function makeRider(brand, sp) {
     const g = new THREE.Group();
     const bodyC = brand === 'baemin' ? 0x2ac1bc : 0xe8483a;
     /* 오토바이 */
@@ -37573,10 +37648,11 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     [-1, 1].forEach((s) => {
       g.add(box(0.11, 0.34, 0.13, mat(0x1f2329), 0.2 * s, 0.62, 0.06));
     });
-    g.position.set(SPAWN.x, 0, SPAWN.z);
+    const at = sp || SPAWN;
+    g.position.set(at.x, 0, at.z);
     g.rotation.y = Math.PI / 2;
     scene.add(g);
-    return { g, x: SPAWN.x, z: SPAWN.z, yaw: Math.PI / 2, brand, t: 0 };
+    return { g, x: at.x, z: at.z, yaw: Math.PI / 2, brand, t: 0 };
   }
 
   function order(brand, itemId) {
@@ -37584,24 +37660,32 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (!it) return false;
     try {
       if (Gold.gold < it.price) {
-        V12.say('골드가 부족해요', `${it.price - Gold.gold}G 더 필요해요`, 2400);
+        V12.say('골드가 부족해요', `${it.price - Gold.gold}G 더 필요해요 · 문제·알바·방명록으로 모아요`, 2600);
         try { Sound.wrong(); } catch (e) {}
         return false;
       }
       Gold.spend(it.price);
     } catch (e) {}
     buildStreet();
-    const ord = { id: 'o' + Date.now(), brand, item: itemId, at: Date.now(), eta: Date.now() + 12000, status: 'driving' };
+    /* 주문한 그 자리에 맞춰 배달지·출발지를 정한다 */
+    const dest = dropFor();
+    const spawn = dest.spawn ? { x: dest.spawn.x, z: dest.spawn.z } : { x: dest.x - 12, z: dest.z };
+    const dist = Math.hypot(dest.x - spawn.x, dest.z - spawn.z);
+    const rideMs = Math.max(4200, Math.round((dist / 6.0) * 1000) + 1200);
+    const ord = {
+      id: 'o' + Date.now(), brand, item: itemId, at: Date.now(),
+      eta: Date.now() + rideMs, rideMs, status: 'driving',
+      drop: { x: dest.x, z: dest.z, label: dest.label, kind: dest.kind }, spawn,
+    };
     D.orders.unshift(ord);
     D.save();
-    if (!D.rider) D.rider = makeRider(brand);
-    else { try { scene.remove(D.rider.g); } catch (e) {} D.rider = makeRider(brand); }
-    D.rider.started = Date.now();
-    D.riderX = SPAWN.x;
+    if (D.rider) { try { scene.remove(D.rider.g); } catch (e) {} D.rider = null; }
+    D.riderLeaveAt = 0;
+    try { D.rider = makeRider(brand, spawn); D.rider.started = Date.now(); } catch (e) { err('rider:' + e.message); }
+    try { markAt(dest.x, dest.z, true); } catch (e) {}
     try { Sound.coin(); } catch (e) {}
     try { speak(it.hz); } catch (e) {}
-    try { V12.say(`${brand === 'baemin' ? '🛵 배민' : '📦 쿠팡'} 주문 완료!`, `${it.icon} ${it.name} · 배달원이 출발했어요`, 3000); } catch (e) {}
-    try { if (!document.body.classList.contains('inHome')) { /* 집 앞 골목으로 안내 */ } } catch (e) {}
+    try { V12.say(`${brand === 'baemin' ? '🛵 배민' : '📦 쿠팡'} 주문 완료!`, `${it.icon} ${it.name} · ${dest.label}으로 출발했어요`, 3000); } catch (e) {}
     track();
     return true;
   }
@@ -37619,12 +37703,14 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     }
     const o = p[0];
     const it = MAP[o.item] || {};
+    const total = o.rideMs || 12000;
     const left = Math.max(0, o.eta - Date.now());
-    const pct = Math.min(100, Math.round((1 - left / 12000) * 100));
+    const pct = Math.min(100, Math.round((1 - left / total) * 100));
+    const where = (o.drop && o.drop.label) || '집 앞';
     trackEl.innerHTML = `
       <div class="tl"><b>${o.brand === 'baemin' ? '🛵 배민' : '📦 쿠팡'} 배달 중</b><span>${it.icon || ''} ${it.name || ''}</span></div>
       <div class="bar"><i style="width:${pct}%"></i></div>
-      <div class="st">${left > 0 ? `집 앞 골목까지 ${Math.ceil(left / 1000)}초 · 快到了！` : '곧 도착해요!'}</div>`;
+      <div class="st">${left > 0 ? `${where}까지 ${Math.ceil(left / 1000)}초 · 快到了！` : `${where} 도착!`}</div>`;
     trackEl.classList.add('show');
   }
   V15.deliveryTrack = track;
@@ -37634,17 +37720,20 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     o.status = 'done';
     D.save();
     const it = MAP[o.item] || {};
+    const drop = o.drop || HOME_DROP;
     if (o.brand === 'baemin') {
       try { V15.Food.add(it.food || 'bento', 1); } catch (e) {}
-      try { V12.say(`🛵 딸깍! ${it.name} 도착!`, '현관 앞에서 받았어요 · 옷장에서 먹기 가능', 3200); } catch (e) {}
+      try { V12.say(`🛵 딸깍! ${it.name} 도착!`, `${drop.label}에서 받았어요 · 옷장 → 먹거리에서 먹기`, 3400); } catch (e) {}
     } else {
-      try { placeCoupang(o.item); } catch (e) {}
-      try { V12.say(`📦 ${it.name} 도착!`, '집 안에 놓았어요 · 快递到了！', 3200); } catch (e) {}
+      try { placeCoupang(o.item, drop); } catch (e) {}
+      try { V12.say(`📦 ${it.name} 도착!`, `${drop.label}에 택배를 놓았어요 · 快递到了！`, 3400); } catch (e) {}
     }
     try { Sound.coin(); } catch (e) {}
     try { if (playerAvatar) playerAvatar.say(o.brand === 'baemin' ? '谢谢！' : '收到了！', 4000); } catch (e) {}
     try { FX.petals(10, 0xffd9a0); } catch (e) {}
-    if (D.rider) { try { scene.remove(D.rider.g); } catch (e) {} D.rider = null; }
+    /* 배달원은 도착지에서 잠깐 서 있다가 떠난다 */
+    D.riderLeaveAt = Date.now() + 7000;
+    try { setTimeout(() => markAt(drop.x, drop.z, false), 8000); } catch (e) {}
     track();
   }
 
@@ -37653,13 +37742,16 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     [555.2, 0, -4.2], [556.6, 0, -4.2], [562.4, 0, -4.2], [564.2, 0, -4.2],
     [555.2, 0, 4.2], [556.6, 0, 4.2], [562.4, 0, 4.2], [564.2, 0, 4.2],
   ];
-  function placeCoupang(id) {
+  function placeCoupang(id, drop) {
     const it = MAP[id];
     if (!it) return;
+    const atHome = !drop || drop.kind === 'home';
     const idx = Object.keys(D.placed).length % SLOTS.length;
     D.placed[id] = idx;
     D.save();
-    const [x, , z] = SLOTS[idx];
+    const [sx, , sz] = SLOTS[idx];
+    const px = atHome ? sx : (drop.x + 0.9);
+    const pz = atHome ? sz : (drop.z + 0.7);
     const g = new THREE.Group();
     const c = [0xd8cbb0, 0xe8dccb, 0xb8c8d8, 0xe0b8b0][idx % 4];
     if (it.prop === 'fan') {
@@ -37693,7 +37785,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const tape = box(0.08, 0.43, 0.42, mat(0xe8d8b0), 0, 0.21, 0);
       g.add(tape);
     }
-    g.position.set(x, 0.02, z);
+    g.position.set(px, 0.02, pz);
     scene.add(g);
     D.props = D.props || [];
     D.props.push(g);
@@ -37703,22 +37795,35 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   /* ---------------- 매 프레임 : 배달원 이동 ---------------- */
   function tick(dt) {
     try {
-      if (!D.rider) return;
+      const p = D.pending()[0];
+      if (!p) {
+        if (D.rider && D.riderLeaveAt && Date.now() > D.riderLeaveAt) {
+          try { scene.remove(D.rider.g); } catch (e) {}
+          D.rider = null; D.riderLeaveAt = 0;
+        }
+        track();
+        return;
+      }
+      const drop = p.drop || HOME_DROP;
+      /* 새로고침 후에도 주문 중이면 배달원이 다시 달려온다 */
+      if (!D.rider) {
+        try { D.rider = makeRider(p.brand, p.spawn || drop.spawn || SPAWN); } catch (e) { err('rider:' + e.message); }
+      }
+      if (!D.rider) { track(); return; }
       const r = D.rider;
-      const dx = DOOR.x - r.g.position.x;
-      const dz = DOOR.z - r.g.position.z;
+      const dx = drop.x - r.g.position.x;
+      const dz = drop.z - r.g.position.z;
       const d = Math.hypot(dx, dz);
-      if (d > 0.4) {
-        const sp = 5.2 * dt;
-        r.g.position.x += (dx / d) * Math.min(sp, d);
-        r.g.position.z += (dz / d) * Math.min(sp, d);
+      if (d > 0.7) {
+        const sp = Math.min(6.4 * dt, d);
+        r.g.position.x += (dx / d) * sp;
+        r.g.position.z += (dz / d) * sp;
         const yaw = Math.atan2(dx, dz);
         r.g.rotation.y += (yaw - r.g.rotation.y) * Math.min(1, dt * 8);
-        r.g.position.y = Math.sin(performance.now() * 0.02) * 0.012;
+        r.g.position.y = Math.abs(Math.sin(performance.now() * 0.02)) * 0.012;
       }
-      const p = D.pending()[0];
-      if (p && Date.now() >= p.eta) arrive(p);
-      else if (!p) { try { scene.remove(r.g); } catch (e) {} D.rider = null; }
+      if (Date.now() >= p.eta) arrive(p);
+      if (dropMark && dropMark.visible) dropMark.material.opacity = 0.32 + Math.abs(Math.sin(performance.now() * 0.004)) * 0.38;
       track();
     } catch (e) {}
   }
@@ -37730,11 +37835,16 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     const tab = brand || 'baemin';
     const list = tab === 'baemin' ? BAEMIN : COUPANG;
     const pending = D.pending()[0];
+    const dest = (pending && pending.drop) ? pending.drop : dropFor();
+    const destLabel = dest.label || '집 앞';
     el.innerHTML = `
       <div class="sheet v15-sheet">
         <button class="v12-x" data-close>✕</button>
         <h2>${tab === 'baemin' ? '🛵 배달의민족' : '📦 쿠팡'} <span style="font-size:11px;color:#9a8d79">${tab === 'baemin' ? '外卖' : '火箭配送'}</span></h2>
-        <p class="v12-sub">주문하면 배달원이 집 앞 골목까지 직접 달려와요 · 보유 <b>🪙 ${(Gold.gold || 0).toLocaleString()}G</b></p>
+        <p class="v12-sub">주문하면 배달원이 <b>${destLabel}</b>까지 직접 달려와요 · 보유 <b>🪙 ${(Gold.gold || 0).toLocaleString()}G</b></p>
+        <div class="v15-dlv-note" style="margin:6px 0 8px;padding:8px 10px;border-radius:11px;background:rgba(201,154,63,.12);font-size:11.5px;line-height:1.5;color:#6d5a34">
+          📍 지금 위치 기준 배달지 <b>${destLabel}</b> · 학원에서 시키면 학원 정문 앞, 집에서 시키면 집 앞으로 와요
+        </div>
         <div class="v15-dlv-tabs">
           <button data-d="baemin" class="${tab === 'baemin' ? 'on' : ''}">🛵 배달의민족</button>
           <button data-d="coupang" class="${tab === 'coupang' ? 'on' : ''}">📦 쿠팡</button>
@@ -37748,13 +37858,13 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
           </div>`).join('')}
         </div>
         ${pending ? `<div class="v15-dlv-track"><div class="tl"><b>배달 중</b><span>${(MAP[pending.item] || {}).name || ''}</span></div>
-          <div class="bar"><i style="width:${Math.min(100, Math.round((1 - Math.max(0, pending.eta - Date.now()) / 12000) * 100))}%"></i></div>
-          <div class="st">집 앞 골목으로 오고 있어요 · ${Math.max(0, Math.ceil((pending.eta - Date.now()) / 1000))}초</div></div>` : ''}
+          <div class="bar"><i style="width:${Math.min(100, Math.round((1 - Math.max(0, pending.eta - Date.now()) / (pending.rideMs || 12000)) * 100))}%"></i></div>
+          <div class="st">${(pending.drop && pending.drop.label) || '집 앞'}으로 오고 있어요 · ${Math.max(0, Math.ceil((pending.eta - Date.now()) / 1000))}초</div></div>` : ''}
         <div class="v15-row">
-          <button class="v12-btn" id="v15GoHome">🏠 집 앞 골목으로 가기</button>
-          <button class="v12-btn" id="v15GoHome2">🚪 집 안 들어가기</button>
+          <button class="v12-btn" id="v15GoHome">📍 배달지로 가기</button>
+          <button class="v12-btn" id="v15GoHome2">🏠 집 안 들어가기</button>
         </div>
-        <div class="small-note">배달 음식은 「🎒 내 옷장·소지품 → 먹거리」에서 먹을 수 있어요. 쿠팡 물건은 집 안에 실제로 놓입니다.</div>
+        <div class="small-note">배달 음식은 「🎒 내 옷장·소지품 → 먹거리」에서 먹을 수 있어요. 쿠팡 물건은 배달지에 실제로 놓입니다.</div>
       </div>`;
     el.classList.add('show');
     if (V12.syncModalState) V12.syncModalState();
@@ -37765,7 +37875,22 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       b.onclick = () => { if (order(tab, b.dataset.ord)) open(tab); };
     });
     const go = document.getElementById('v15GoHome');
-    if (go) go.onclick = () => { try { close(); V13.teleport(547.5, 0, 0, Math.PI / 2); buildStreet(); V12.say('🏠 집 앞 골목', '배달원이 오고 있어요', 2200); } catch (e) {} };
+    if (go) go.onclick = () => {
+      try {
+        const t = (pending && pending.drop) ? pending.drop : dest;
+        const spot = t.kind === 'home'
+          ? { x: 547.4, z: 2.6 }
+          : t.kind === 'academy' ? { x: t.x + 2.8, z: t.z + 2.4 }
+            : { x: t.x + 1.6, z: t.z + 1.6 };
+        close();
+        if (t.kind === 'home') { V12.enterHome && V12.enterHome(); setTimeout(() => { try { V13.teleport(spot.x, spot.z, 0, Math.PI / 2); } catch (e) {} }, 700); }
+        else { try { V12.ensureOutside && V12.ensureOutside(); } catch (e) {}
+          V13.teleport(spot.x, spot.z, 0, Math.atan2(t.x - spot.x, t.z - spot.z)); }
+        buildStreet();
+        markAt(t.x, t.z, true);
+        V12.say(`📍 ${t.label}`, pending ? '배달원이 오고 있어요' : '주문하면 이리로 와요', 2400);
+      } catch (e) {}
+    };
     const go2 = document.getElementById('v15GoHome2');
     if (go2) go2.onclick = () => { try { close(); V12.enterHome && V12.enterHome(); } catch (e) {} };
   }
@@ -42447,6 +42572,743 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     };
   } catch (e) {}
 })();
+
+/* =====================================================================
+   v15.6 LOOKSYNC — 🧑‍🎨 내 캐릭터 미리보기가 실제 착용 중인 옷을 그대로 입는다
+   ---------------------------------------------------------------------
+   · 옷장(한복집·백화점·명품관·부티크·지하상가·매점)에서 입은 모든 아이템을
+     [내 캐릭터] 모달 · 상점 미리보기의 3D 캐릭터에도 똑같이 입혀 그린다
+   · 옷을 갈아입거나 벗으면 열려 있는 미리보기도 그 즉시 다시 그린다
+   ===================================================================== */
+(function () {
+  const V15 = window.V15;
+  if (!V15) return;
+
+  /* 열려 있는 미리보기만 다시 그린다 */
+  function liveLook() {
+    try {
+      if (typeof LookView !== 'undefined' && LookView && LookView.avatar
+        && document.getElementById('lookModal') && document.getElementById('lookModal').classList.contains('show')) {
+        LookView.refresh();
+      }
+    } catch (e) {}
+    try {
+      if (typeof ShopView !== 'undefined' && ShopView && ShopView.avatar) {
+        const sm = document.getElementById('shopModal');
+        if (sm && sm.classList.contains('show')) ShopView.refresh();
+      }
+    } catch (e) {}
+  }
+  V15.refreshLookPreview = liveLook;
+
+  /* 옷장 착용 · 해제 · 구매 후 재착용 → 미리보기 즉시 반영 */
+  try {
+    const before = V15.refreshAvatar;
+    if (typeof before === 'function' && !before.__looksync) {
+      const f = function () {
+        try { before.apply(this, arguments); } finally { liveLook(); }
+      };
+      f.__looksync = true;
+      V15.refreshAvatar = f;
+    }
+  } catch (e) {}
+
+  /* refreshAvatar 를 거치지 않고 상태만 바꾸는 경로도 커버 */
+  try {
+    ['equip', 'unequip', 'toggle'].forEach((fn) => {
+      const o = V15.Wear && V15.Wear[fn];
+      if (typeof o !== 'function' || o.__looksync) return;
+      const f = function () {
+        let r;
+        try { r = o.apply(this, arguments); } finally { setTimeout(liveLook, 0); }
+        return r;
+      };
+      f.__looksync = true;
+      V15.Wear[fn] = f;
+    });
+  } catch (e) {}
+
+  /* 불러온 착용 상태가 준비된 뒤 한 번 더 맞춘다 */
+  setTimeout(liveLook, 900);
+})();
+
+/* =====================================================================
+   v15.6 TSC — 🎙️ TSC 시험관 (说话考试 · 口试官)
+   ---------------------------------------------------------------------
+   · 제1~7부분 실전 문제 · 시험관이 질문을 중국어로 읽어 준다 (TTS)
+   · 준비 시간 → 삐 소리 → 답변 제한 시간 카운트다운 → 자동 녹음
+   · 끝나면 내 녹음 다시 듣기 + 모범 답안(중국어·병음·한국어) 확인
+   · 입구: 공부하기 탭 · 수업 듣기 패널 · 퀵바 🎙️ · 수업 자료 카드
+   ===================================================================== */
+(function () {
+  const V15 = window.V15;
+  if (!V15) return;
+
+  const PARTS = [
+    { p: 1, name: '제1부분 · 자기소개', sub: '自我介绍', sec: 10, prep: 0 },
+    { p: 2, name: '제2부분 · 그림 묘사', sub: '看图回答', sec: 6, prep: 3 },
+    { p: 3, name: '제3부분 · 빠른 대답', sub: '快速回答', sec: 15, prep: 5 },
+    { p: 4, name: '제4부분 · 짧은 대답', sub: '简短回答', sec: 25, prep: 5 },
+    { p: 5, name: '제5부분 · 의견 제시', sub: '拓展回答', sec: 50, prep: 10 },
+    { p: 6, name: '제6부분 · 상황 대처', sub: '情景应对', sec: 40, prep: 10 },
+    { p: 7, name: '제7부분 · 그림 이야기', sub: '看图说话', sec: 90, prep: 20 },
+  ];
+
+  const Q = [
+    /* ---------- 제1부분 자기소개 · 10초 ---------- */
+    {
+      p: 1, q: '请做一下自我介绍。', py: 'qǐng zuò yí xià zì wǒ jiè shào.', ko: '자기소개를 해 보세요.',
+      model: {
+        hz: '大家好，我叫金敏秀，今年二十八岁。我在一家贸易公司工作，已经三年了。我平时喜欢看电影和旅行。',
+        py: 'dà jiā hǎo, wǒ jiào jīn mǐn xiù, jīn nián èr shí bā suì. wǒ zài yì jiā mào yì gōng sī gōng zuò, yǐ jīng sān nián le. wǒ píng shí xǐ huan kàn diàn yǐng hé lǚ xíng.',
+        ko: '안녕하세요, 저는 김민수이고 올해 28살입니다. 무역 회사에서 3년째 일하고 있어요. 평소에는 영화 보기와 여행을 좋아합니다.',
+      },
+      tip: '① 이름 ② 나이·직업 ③ 취미 — 세 덩어리면 10초가 정확히 찹니다.',
+    },
+    {
+      p: 1, q: '你叫什么名字？今年多大？', py: 'nǐ jiào shén me míng zi? jīn nián duō dà?', ko: '이름이 뭐예요? 올해 몇 살이에요?',
+      model: {
+        hz: '我叫李娜，今年二十六岁。我是大学生，学的是中国语。',
+        py: 'wǒ jiào lǐ nà, jīn nián èr shí liù suì. wǒ shì dà xué shēng, xué de shì zhōng guó yǔ.',
+        ko: '저는 리나이고 올해 26살입니다. 대학생이고 중국어를 공부하고 있어요.',
+      },
+      tip: '이름 → 나이 → 한 가지 정보. 숫자만 말하고 멈추지 마세요.',
+    },
+    {
+      p: 1, q: '你家有几口人？', py: 'nǐ jiā yǒu jǐ kǒu rén?', ko: '집에 식구가 몇 명이에요?',
+      model: {
+        hz: '我家有四口人，爸爸、妈妈、妹妹和我。我们住在一起。',
+        py: 'wǒ jiā yǒu sì kǒu rén, bà ba, mā ma, mèi mei hé wǒ. wǒ men zhù zài yì qǐ.',
+        ko: '우리 집은 네 식구로 아빠, 엄마, 여동생, 그리고 저입니다. 함께 살고 있어요.',
+      },
+      tip: '식구는 口로 셉니다. 四口人 = 네 식구.',
+    },
+    {
+      p: 1, q: '你的爱好是什么？', py: 'nǐ de ài hào shì shén me?', ko: '취미가 무엇이에요?',
+      model: {
+        hz: '我的爱好是跑步和听音乐。我每天早上跑三十分钟。',
+        py: 'wǒ de ài hào shì pǎo bù hé tīng yīn yuè. wǒ měi tiān zǎo shang pǎo sān shí fēn zhōng.',
+        ko: '제 취미는 달리기와 음악 듣기입니다. 매일 아침 30분씩 달려요.',
+      },
+      tip: '취미 + 빈도(每天·周末·常常)를 붙이면 문장이 길어집니다.',
+    },
+    {
+      p: 1, q: '你平时怎么上班？', py: 'nǐ píng shí zěn me shàng bān?', ko: '평소에 어떻게 출근해요?',
+      model: {
+        hz: '我坐地铁上班。坐地铁比坐出租车快，而且便宜。',
+        py: 'wǒ zuò dì tiě shàng bān. zuò dì tiě bǐ zuò chū zū chē kuài, ér qiě pián yi.',
+        ko: '지하철로 출근합니다. 지하철이 택시보다 빠르고 게다가 저렴해요.',
+      },
+      tip: '比 비교문 + 而且 를 붙이면 5급 어휘처럼 들립니다.',
+    },
+
+    /* ---------- 제2부분 그림 묘사 · 6초 ---------- */
+    {
+      p: 2, q: '请看这张图片，说说图片里有什么。', py: 'qǐng kàn zhè zhāng tú piàn, shuō shuo tú piàn lǐ yǒu shén me.', ko: '이 그림을 보고 무엇이 있는지 말해 보세요.',
+      pic: '☕ 👩‍💼 👨‍💼 🍰', picKo: '카페에서 두 사람이 커피를 마시며 이야기하고 있습니다.',
+      model: {
+        hz: '图片里有两个人在咖啡厅，他们在喝咖啡、聊天，看起来很开心。',
+        py: 'tú piàn lǐ yǒu liǎng ge rén zài kā fēi tīng, tā men zài hē kā fēi, liáo tiān, kàn qǐ lái hěn kāi xīn.',
+        ko: '그림에 카페에서 두 사람이 커피를 마시며 이야기하고 있습니다. 아주 즐거워 보여요.',
+      },
+      tip: '공식 ① 人物 + 在 + 地点 + 动词 + 宾语. 마지막에 看起来… 로 느낌을 붙이면 6초가 찹니다.',
+    },
+    {
+      p: 2, q: '请看这张图片，说说图片里有什么。', py: 'qǐng kàn zhè zhāng tú piàn, shuō shuo tú piàn lǐ yǒu shén me.', ko: '이 그림을 보고 무엇이 있는지 말해 보세요.',
+      pic: '🌧️ ☂️ 🚶‍♀️ 🚶', picKo: '비가 오는 날, 사람들이 우산을 쓰고 걸어갑니다.',
+      model: {
+        hz: '外面正在下雨，一个人打着伞在路上走，路上的人不多。',
+        py: 'wài miàn zhèng zài xià yǔ, yí ge rén dǎ zhe sǎn zài lù shang zǒu, lù shang de rén bù duō.',
+        ko: '밖에 비가 내리고 한 사람이 우산을 쓰고 길을 걷습니다. 길에 사람이 많지 않아요.',
+      },
+      tip: '正在 + 动词 + 着 = 지금 ~하고 있다. 날씨 묘사는 外面正在… 로 시작하세요.',
+    },
+    {
+      p: 2, q: '请看这张图片，说说图片里有什么。', py: 'qǐng kàn zhè zhāng tú piàn, shuō shuo tú piàn lǐ yǒu shén me.', ko: '이 그림을 보고 무엇이 있는지 말해 보세요.',
+      pic: '🍜 👨 🥢 🪑', picKo: '식당에서 한 남자가 혼자 국수를 먹고 있습니다.',
+      model: {
+        hz: '一个男人在餐厅里一个人吃面条，桌子上还有一杯水。',
+        py: 'yí ge nán rén zài cān tīng lǐ yí ge rén chī miàn tiáo, zhuō zi shang hái yǒu yì bēi shuǐ.',
+        ko: '한 남자가 식당에서 혼자 국수를 먹고 있고, 탁자 위에는 물 한 잔도 있습니다.',
+      },
+      tip: '사람 → 장소 → 동작 → 사물 순서. 还有 로 하나 더 붙이면 좋습니다.',
+    },
+    {
+      p: 2, q: '请看这张图片，说说图片里有什么。', py: 'qǐng kàn zhè zhāng tú piàn, shuō shuo tú piàn lǐ yǒu shén me.', ko: '이 그림을 보고 무엇이 있는지 말해 보세요.',
+      pic: '☀️ 🏃‍♀️ 🏃 🌳', picKo: '날씨가 좋은 날, 두 사람이 공원에서 달리고 있습니다.',
+      model: {
+        hz: '天气很好，两个人在公园里跑步，旁边有很多树。',
+        py: 'tiān qì hěn hǎo, liǎng ge rén zài gōng yuán lǐ pǎo bù, páng biān yǒu hěn duō shù.',
+        ko: '날씨가 좋아서 두 사람이 공원에서 달리고 있고, 옆에 나무가 많습니다.',
+      },
+      tip: '날씨 + 사람 수 + 장소 + 동작 — 네 요소만 채우면 안정적입니다.',
+    },
+    {
+      p: 2, q: '请看这张图片，说说图片里有什么。', py: 'qǐng kàn zhè zhāng tú piàn, shuō shuo tú piàn lǐ yǒu shén me.', ko: '이 그림을 보고 무엇이 있는지 말해 보세요.',
+      pic: '📚 🧑‍🎓 📖 🪑', picKo: '도서관에서 학생들이 책을 읽고 있습니다.',
+      model: {
+        hz: '几个学生在图书馆看书，桌子上有很多书和一台电脑。',
+        py: 'jǐ ge xué sheng zài tú shū guǎn kàn shū, zhuō zi shang yǒu hěn duō shū hé yì tái diàn nǎo.',
+        ko: '몇 명의 학생이 도서관에서 책을 읽고 있고, 책상 위에 책이 많고 컴퓨터도 한 대 있습니다.',
+      },
+      tip: '数量 + 量词(个·本·台)를 정확히 쓰면 어휘 점수가 올라갑니다.',
+    },
+
+    /* ---------- 제3부분 빠른 대답 · 15초 ---------- */
+    {
+      p: 3, q: '明天我们一起去吃饭吧。', py: 'míng tiān wǒ men yì qǐ qù chī fàn ba.', ko: '내일 우리 같이 밥 먹으러 가요.',
+      model: {
+        hz: '好啊，我很乐意。你想吃什么？我们几点见面？',
+        py: 'hǎo a, wǒ hěn lè yì. nǐ xiǎng chī shén me? wǒ men jǐ diǎn jiàn miàn?',
+        ko: '좋아요, 기꺼이요. 뭐 먹고 싶어요? 몇 시에 만날까요?',
+      },
+      tip: '제안에는 ① 수락 ② 구체적 질문 두 문장. 我很乐意 = 기꺼이요.',
+    },
+    {
+      p: 3, q: '对不起，我来晚了。', py: 'duì bù qǐ, wǒ lái wǎn le.', ko: '미안해요, 제가 늦었어요.',
+      model: {
+        hz: '没关系，我也刚到。路上堵车了吗？我们开始吧。',
+        py: 'méi guān xi, wǒ yě gāng dào. lù shang dǔ chē le ma? wǒ men kāi shǐ ba.',
+        ko: '괜찮아요, 저도 방금 도착했어요. 길이 막혔어요? 시작하죠.',
+      },
+      tip: '사과에는 没关系 + 배려 한마디. 짧아도 태도 점수가 들어갑니다.',
+    },
+    {
+      p: 3, q: '你能帮我一个忙吗？', py: 'nǐ néng bāng wǒ yí ge máng ma?', ko: '저 좀 도와줄 수 있어요?',
+      model: {
+        hz: '当然可以，你说吧。只要我能做到，一定帮你。',
+        py: 'dāng rán kě yǐ, nǐ shuō ba. zhǐ yào wǒ néng zuò dào, yí dìng bāng nǐ.',
+        ko: '물론이죠, 말해 보세요. 제가 할 수 있는 일이라면 꼭 도와드릴게요.',
+      },
+      tip: '当然可以 + 只要…一定… 패턴이 가장 안전합니다.',
+    },
+    {
+      p: 3, q: '这个多少钱？', py: 'zhè ge duō shao qián?', ko: '이거 얼마예요?',
+      model: {
+        hz: '这个一百二十块。如果您买两个，可以便宜一点儿。',
+        py: 'zhè ge yì bǎi èr shí kuài. rú guǒ nín mǎi liǎng ge, kě yǐ pián yi yì diǎnr.',
+        ko: '이건 120위안입니다. 두 개 사시면 조금 깎아 드릴 수 있어요.',
+      },
+      tip: '가격 + 如果…可以… 로 한 문장 더. 흥정 표현도 함께 익혀 두세요.',
+    },
+    {
+      p: 3, q: '周末你有空吗？', py: 'zhōu mò nǐ yǒu kòng ma?', ko: '주말에 시간 있어요?',
+      model: {
+        hz: '周末我有空。你有什么计划吗？我们可以一起去看电影。',
+        py: 'zhōu mò wǒ yǒu kòng. nǐ yǒu shén me jì huà ma? wǒ men kě yǐ yì qǐ qù kàn diàn yǐng.',
+        ko: '주말에 시간 있어요. 무슨 계획 있어요? 같이 영화 보러 갈 수 있어요.',
+      },
+      tip: '有空 ↔ 没空. 답 + 제안 두 문장이면 15초가 자연스럽습니다.',
+    },
+
+    /* ---------- 제4부분 짧은 대답 · 25초 ---------- */
+    {
+      p: 4, q: '请说说你周末一般做什么。', py: 'qǐng shuō shuo nǐ zhōu mò yì bān zuò shén me.', ko: '주말에 보통 무엇을 하는지 말해 보세요.',
+      model: {
+        hz: '我周末一般早上睡到九点，然后去市场买菜。下午我会打扫房间，或者跟朋友喝咖啡。晚上在家里看电影，所以周末过得很放松。',
+        py: 'wǒ zhōu mò yì bān zǎo shang shuì dào jiǔ diǎn, rán hòu qù shì chǎng mǎi cài. xià wǔ wǒ huì dǎ sǎo fáng jiān, huò zhě gēn péng you hē kā fēi. wǎn shang zài jiā lǐ kàn diàn yǐng, suǒ yǐ zhōu mò guò de hěn fàng sōng.',
+        ko: '주말에는 보통 아침 9시까지 자고, 그다음 시장에 가서 장을 봅니다. 오후에는 방을 청소하거나 친구와 커피를 마셔요. 저녁에는 집에서 영화를 봐서 주말을 아주 편안하게 보냅니다.',
+      },
+      tip: '아침 → 오후 → 저녁 세 덩어리 + 一般·或者·所以 연결어.',
+    },
+    {
+      p: 4, q: '请介绍一个你喜欢的城市。', py: 'qǐng jiè shào yí ge nǐ xǐ huan de chéng shì.', ko: '좋아하는 도시 하나를 소개해 보세요.',
+      model: {
+        hz: '我喜欢青岛。那儿的风景很美，海边很安静。海鲜也很好吃，而且物价比首尔便宜。我去年夏天去过一次，还想再去。',
+        py: 'wǒ xǐ huan qīng dǎo. nàr de fēng jǐng hěn měi, hǎi biān hěn ān jìng. hǎi xiān yě hěn hǎo chī, ér qiě wù jià bǐ shǒu ěr pián yi. wǒ qù nián xià tiān qù guò yí cì, hái xiǎng zài qù.',
+        ko: '저는 칭다오를 좋아합니다. 그곳 풍경이 아름답고 바닷가가 조용해요. 해산물도 맛있고 물가가 서울보다 쌉니다. 작년 여름에 한 번 가 봤는데 또 가고 싶어요.',
+      },
+      tip: '도시 + 특징 두 가지 + 而且 + 내 경험. 那儿的…로 이어 가면 자연스럽습니다.',
+    },
+    {
+      p: 4, q: '你一般怎么学习外语？', py: 'nǐ yì bān zěn me xué xí wài yǔ?', ko: '평소에 어떻게 외국어를 공부해요?',
+      model: {
+        hz: '我一般每天早上背二十个单词，晚上听中文广播。周末看中国电影，跟着台词练习。我觉得坚持比时间更重要。',
+        py: 'wǒ yì bān měi tiān zǎo shang bèi èr shí ge dān cí, wǎn shang tīng zhōng wén guǎng bō. zhōu mò kàn zhōng guó diàn yǐng, gēn zhe tái cí liàn xí. wǒ jué de jiān chí bǐ shí jiān gèng zhòng yào.',
+        ko: '보통 매일 아침 단어 20개를 외우고, 저녁에는 중국어 방송을 들어요. 주말에는 중국 영화를 보며 대사를 따라 연습합니다. 저는 꾸준함이 시간보다 중요하다고 생각해요.',
+      },
+      tip: '습관 + 방법 두 가지 + 마무리 의견(我觉得…)까지 붙이면 5급 구간입니다.',
+    },
+    {
+      p: 4, q: '请说说你的一次旅行经历。', py: 'qǐng shuō shuo nǐ de yí cì lǚ xíng jīng lì.', ko: '여행 경험 한 번을 말해 보세요.',
+      model: {
+        hz: '去年夏天我去了云南。我在那儿待了一个星期，去了三个城市。风景特别美，东西也很好吃，不过坐车的时间有点儿长。',
+        py: 'qù nián xià tiān wǒ qù le yún nán. wǒ zài nàr dāi le yí ge xīng qī, qù le sān ge chéng shì. fēng jǐng tè bié měi, dōng xi yě hěn hǎo chī, bú guò zuò chē de shí jiān yǒu diǎnr cháng.',
+        ko: '작년 여름에 윈난에 갔습니다. 그곳에서 일주일 머물며 세 도시를 돌았어요. 풍경이 특히 아름답고 음식도 맛있었지만, 차를 타는 시간이 조금 길었습니다.',
+      },
+      tip: '언제·어디 → 무엇을 → 좋았던 점 + 不过 단점 한 문장.',
+    },
+    {
+      p: 4, q: '你喜欢网上购物吗？为什么？', py: 'nǐ xǐ huan wǎng shàng gòu wù ma? wèi shén me?', ko: '온라인 쇼핑을 좋아하나요? 왜요?',
+      model: {
+        hz: '我很喜欢网上购物，因为很方便，也比较便宜。不过看不到实物，有时候会买错，所以重要的东西我还是去商店买。',
+        py: 'wǒ hěn xǐ huan wǎng shàng gòu wù, yīn wèi hěn fāng biàn, yě bǐ jiào pián yi. bú guò kàn bú dào shí wù, yǒu shí hou huì mǎi cuò, suǒ yǐ zhòng yào de dōng xi wǒ hái shi qù shāng diàn mǎi.',
+        ko: '온라인 쇼핑을 아주 좋아합니다. 편하고 비교적 저렴하니까요. 다만 실물을 볼 수 없어서 가끔 잘못 사기도 해서, 중요한 물건은 매장에서 삽니다.',
+      },
+      tip: '因为(이유) → 不过(반대) → 所以(결론). 세 연결어가 점수를 만듭니다.',
+    },
+
+    /* ---------- 제5부분 의견 제시 · 50초 ---------- */
+    {
+      p: 5, q: '有人认为网上购物比在商店买东西好，你怎么看？', py: 'yǒu rén rèn wéi wǎng shàng gòu wù bǐ zài shāng diàn mǎi dōng xi hǎo, nǐ zěn me kàn?', ko: '어떤 사람은 온라인 쇼핑이 매장 구매보다 낫다고 합니다. 어떻게 생각하세요?',
+      model: {
+        hz: '我认为网上购物确实很方便，因为可以节省时间，价格也比较便宜。比如我平时工作很忙，就在网上买生活用品。但是网上购物看不到实物，有时候质量不好。因此我觉得两种方式都应该用，重要的东西去商店买，日常用品在网上买。',
+        py: 'wǒ rèn wéi wǎng shàng gòu wù què shí hěn fāng biàn, yīn wèi kě yǐ jié shěng shí jiān, jià gé yě bǐ jiào pián yi. bǐ rú wǒ píng shí gōng zuò hěn máng, jiù zài wǎng shàng mǎi shēng huó yòng pǐn. dàn shì wǎng shàng gòu wù kàn bú dào shí wù, yǒu shí hou zhì liàng bù hǎo. yīn cǐ wǒ jué de liǎng zhǒng fāng shì dōu yīng gāi yòng, zhòng yào de dōng xi qù shāng diàn mǎi, rì cháng yòng pǐn zài wǎng shàng mǎi.',
+        ko: '온라인 쇼핑이 확실히 편리하다고 생각합니다. 시간을 아낄 수 있고 가격도 비교적 저렴하니까요. 예를 들어 저는 평소 일이 바빠서 생활용품을 인터넷으로 삽니다. 하지만 실물을 볼 수 없어 품질이 좋지 않을 때가 있어요. 따라서 두 방식을 모두 써야 하고, 중요한 물건은 매장에서, 일상용품은 인터넷에서 사야 한다고 생각합니다.',
+      },
+      tip: '의견 8초 · 근거 15초(因为) · 예시 15초(比如) · 결론 8초(因此) — 네 덩어리.',
+    },
+    {
+      p: 5, q: '现在很多年轻人喜欢熬夜，你觉得这样好不好？', py: 'xiàn zài hěn duō nián qīng rén xǐ huan áo yè, nǐ jué de zhè yàng hǎo bu hǎo?', ko: '요즘 많은 젊은이가 밤을 새웁니다. 좋다고 생각하세요?',
+      model: {
+        hz: '我觉得熬夜对身体不好。因为睡眠不足会影响健康和工作效率。比如我熬夜以后，第二天上课总是没有精神。所以我认为应该早睡早起，合理安排时间。',
+        py: 'wǒ jué de áo yè duì shēn tǐ bù hǎo. yīn wèi shuì mián bù zú huì yǐng xiǎng jiàn kāng hé gōng zuò xiào lǜ. bǐ rú wǒ áo yè yǐ hòu, dì èr tiān shàng kè zǒng shì méi yǒu jīng shén. suǒ yǐ wǒ rèn wéi yīng gāi zǎo shuì zǎo qǐ, hé lǐ ān pái shí jiān.',
+        ko: '밤을 새우는 것은 몸에 좋지 않다고 생각합니다. 수면 부족은 건강과 업무 효율에 영향을 주니까요. 예를 들어 저는 밤을 새우면 다음 날 수업에 집중이 안 됩니다. 그래서 일찍 자고 일찍 일어나 시간을 합리적으로 써야 한다고 봅니다.',
+      },
+      tip: '찬반 질문은 “내 의견 + 이유 + 내 경험 + 결론” 네 문장이 가장 안전합니다.',
+    },
+    {
+      p: 5, q: '学习外语最重要的是什么？请说说你的看法。', py: 'xué xí wài yǔ zuì zhòng yào de shì shén me? qǐng shuō shuo nǐ de kàn fǎ.', ko: '외국어 학습에서 가장 중요한 것은 무엇이라고 생각하세요?',
+      model: {
+        hz: '我认为学习外语最重要的是坚持和多练习。因为语言需要每天接触，如果只学几天就放弃，不会有进步。比如我每天听中文广播，慢慢就能听懂中国人说话了。因此坚持练习比学习方法更重要。',
+        py: 'wǒ rèn wéi xué xí wài yǔ zuì zhòng yào de shì jiān chí hé duō liàn xí. yīn wèi yǔ yán xū yào měi tiān jiē chù, rú guǒ zhǐ xué jǐ tiān jiù fàng qì, bú huì yǒu jìn bù. bǐ rú wǒ měi tiān tīng zhōng wén guǎng bō, màn man jiù néng tīng dǒng zhōng guó rén shuō huà le. yīn cǐ jiān chí liàn xí bǐ xué xí fāng fǎ gèng zhòng yào.',
+        ko: '외국어 학습에서 가장 중요한 것은 꾸준함과 많이 연습하는 것이라고 생각합니다. 언어는 매일 접해야 하고, 며칠 배우다 포기하면 발전이 없으니까요. 예를 들어 저는 매일 중국어 방송을 들으면서 서서히 중국인의 말을 알아듣게 되었습니다. 따라서 학습법보다 꾸준한 연습이 더 중요합니다.',
+      },
+      tip: '如果…就… 조건문 + 比如 예시 + 因此 결론. 50초를 채우는 기본 골격입니다.',
+    },
+
+    /* ---------- 제6부분 상황 대처 · 40초 ---------- */
+    {
+      p: 6, q: '你在餐厅点了一碗面，但是服务员上错了菜。你会怎么说？', py: 'nǐ zài cān tīng diǎn le yì wǎn miàn, dàn shì fú wù yuán shàng cuò le cài. nǐ huì zěn me shuō?', ko: '식당에서 국수를 주문했는데 직원이 다른 음식을 가져왔습니다. 어떻게 말하시겠어요?',
+      model: {
+        hz: '不好意思，我要的是一碗牛肉面，但是这个好像不是。麻烦您帮我换一下，好吗？如果太麻烦的话，我可以换成这个。',
+        py: 'bù hǎo yì si, wǒ yào de shì yì wǎn niú ròu miàn, dàn shì zhè ge hǎo xiàng bú shì. má fan nín bāng wǒ huàn yí xià, hǎo ma? rú guǒ tài má fan de huà, wǒ kě yǐ huàn chéng zhè ge.',
+        ko: '죄송한데 제가 주문한 것은 소고기 국수인데 이건 아닌 것 같아요. 번거롭지만 바꿔 주시겠어요? 너무 번거로우시면 이걸로 바꿔도 됩니다.',
+      },
+      tip: '① 상황 인정(不好意思) ② 요구(麻烦您…) ③ 대안(如果…的话) 세 단계면 충분합니다.',
+    },
+    {
+      p: 6, q: '你和朋友约好三点见面，但是路上堵车，你快迟到了。你会怎么跟朋友说？', py: 'nǐ hé péng you yuē hǎo sān diǎn jiàn miàn, dàn shì lù shang dǔ chē, nǐ kuài chí dào le. nǐ huì zěn me gēn péng you shuō?', ko: '친구와 3시에 만나기로 했는데 길이 막혀 곧 늦을 것 같습니다. 친구에게 뭐라고 말하시겠어요?',
+      model: {
+        hz: '真不好意思，路上堵车，我可能要晚到十分钟。你先找个地方坐一下，我马上就到。真的很抱歉。',
+        py: 'zhēn bù hǎo yì si, lù shang dǔ chē, wǒ kě néng yào wǎn dào shí fēn zhōng. nǐ xiān zhǎo ge dì fang zuò yí xià, wǒ mǎ shàng jiù dào. zhēn de hěn bào qiàn.',
+        ko: '정말 미안해, 길이 막혀서 10분 정도 늦을 것 같아. 먼저 앉을 곳을 찾아 있어, 나 금방 갈게. 정말 미안해.',
+      },
+      tip: '사과 → 상황 → 예상 시간 → 배려. 路上堵车는 만능 이유 표현입니다.',
+    },
+    {
+      p: 6, q: '你的朋友考试没考好，很难过。你会怎么安慰他？', py: 'nǐ de péng you kǎo shì méi kǎo hǎo, hěn nán guò. nǐ huì zěn me ān wèi tā?', ko: '친구가 시험을 잘 못 봐서 속상해합니다. 어떻게 위로하시겠어요?',
+      model: {
+        hz: '别太担心了，这次考试不代表你的能力。你已经很努力了，下次一定会更好。如果需要帮忙，随时跟我说。',
+        py: 'bié tài dān xīn le, zhè cì kǎo shì bù dài biǎo nǐ de néng lì. nǐ yǐ jīng hěn nǔ lì le, xià cì yí dìng huì gèng hǎo. rú guǒ xū yào bāng máng, suí shí gēn wǒ shuō.',
+        ko: '너무 걱정하지 마, 이번 시험이 네 능력을 의미하는 건 아니야. 너는 이미 충분히 노력했고 다음엔 분명 더 잘할 거야. 도움이 필요하면 언제든 말해.',
+      },
+      tip: '공감 → 격려 → 도움 제안. 别太担心 / 你已经很努力了 / 随时跟我说 세 마디면 됩니다.',
+    },
+
+    /* ---------- 제7부분 그림 이야기 · 90초 ---------- */
+    {
+      p: 7, q: '请看这四张图，用 90 秒讲一个完整的故事。', py: 'qǐng kàn zhè sì zhāng tú, yòng jiǔ shí miǎo jiǎng yí ge wán zhěng de gù shi.', ko: '네 장의 그림을 보고 90초 동안 하나의 이야기로 말해 보세요.',
+      pic: '🚌 💼 → 😱 👜 → 🙏 👮 → 😊 👜', picKo: '버스를 타고 출근 → 지갑을 잃어버림 → 기사에게 도움 요청 → 지갑을 찾음',
+      model: {
+        hz: '有一天，他坐公交车去上班。下车以后，他发现钱包不见了，心里很着急。于是他回到车站，请司机帮忙找一找。最后，在司机的帮助下，他找回了钱包。他觉得这个世界上还是好人多。',
+        py: 'yǒu yì tiān, tā zuò gōng jiāo chē qù shàng bān. xià chē yǐ hòu, tā fā xiàn qián bāo bú jiàn le, xīn lǐ hěn zháo jí. yú shì tā huí dào chē zhàn, qǐng sī jī bāng máng zhǎo yi zhǎo. zuì hòu, zài sī jī de bāng zhù xià, tā zhǎo huí le qián bāo. tā jué de zhè ge shì jiè shang hái shi hǎo rén duō.',
+        ko: '어느 날 그는 버스를 타고 출근했습니다. 내린 뒤 지갑이 없어진 것을 발견하고 마음이 급해졌습니다. 그래서 정류장으로 돌아가 기사에게 찾아 달라고 부탁했어요. 마지막으로 기사의 도움으로 지갑을 되찾았습니다. 그는 세상에 여전히 좋은 사람이 많다고 느꼈습니다.',
+      },
+      tip: '0~15초 도입(有一天) → 过了一会儿 → 于是 → 最后 + 느낀 점. 컷마다 한 문장.',
+    },
+    {
+      p: 7, q: '请看这四张图，用 90 秒讲一个完整的故事。', py: 'qǐng kàn zhè sì zhāng tú, yòng jiǔ shí miǎo jiǎng yí ge wán zhěng de gù shi.', ko: '네 장의 그림을 보고 90초 동안 하나의 이야기로 말해 보세요.',
+      pic: '👫 ☀️ → 🌧️ 😥 → 🏪 ☂️ → 😄 🌂', picKo: '친구와 산책 → 갑자기 비 → 편의점에서 우산 구입 → 즐겁게 귀가',
+      model: {
+        hz: '周末，他和朋友约好去公园散步。可是走到一半，突然下起了大雨，他们都没有带伞。他们只好跑到附近的便利店，买了一把伞。虽然衣服都淋湿了，但是他们觉得很有意思。',
+        py: 'zhōu mò, tā hé péng you yuē hǎo qù gōng yuán sàn bù. kě shì zǒu dào yí bàn, tū rán xià qǐ le dà yǔ, tā men dōu méi yǒu dài sǎn. tā men zhǐ hǎo pǎo dào fù jìn de biàn lì diàn, mǎi le yì bǎ sǎn. suī rán yī fu dōu lín shī le, dàn shì tā men jué de hěn yǒu yì si.',
+        ko: '주말에 그는 친구와 공원 산책을 약속했습니다. 그런데 절반쯤 왔을 때 갑자기 큰비가 내렸고 둘 다 우산이 없었습니다. 어쩔 수 없이 근처 편의점으로 달려가 우산을 하나 샀어요. 옷은 다 젖었지만 두 사람은 아주 재미있었다고 느꼈습니다.',
+      },
+      tip: '可是 / 突然 / 只好 / 虽然…但是… — 접속사 네 개면 90초가 채워집니다.',
+    },
+  ];
+
+  const S = {
+    pi: 0, qi: 0, phase: 'ready', left: 0, total: 0, timer: 0,
+    stream: null, rec: null, chunks: [], url: '', recErr: '', autoNext: false,
+  };
+  const $ = (id) => document.getElementById(id);
+
+  function listOf(part) { return Q.filter((x) => x.p === part); }
+  function cur() {
+    const part = PARTS[S.pi] ? PARTS[S.pi].p : 1;
+    const list = listOf(part);
+    return list[Math.min(S.qi, list.length - 1)] || Q[0];
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  function ensure() {
+    let el = $('v15TscModal');
+    if (el) return el;
+    el = document.createElement('div');
+    el.className = 'modal';
+    el.id = 'v15TscModal';
+    el.innerHTML = `
+      <div class="sheet v15-sheet">
+        <button class="v12-x" data-close aria-label="닫기">✕</button>
+        <h2>🎙️ TSC 시험관 <span style="font-size:11px;color:#9a8d79">说话考试 · 口试官</span></h2>
+        <p class="v12-sub">질문을 듣고 제한 시간 안에 중국어로 답해 보세요 · 준비 시간이 끝나면 삐 소리와 함께 자동 녹음됩니다</p>
+        <div class="tsc-parts" id="tscParts"></div>
+        <div class="tsc-stage">
+          <div class="tsc-badge" id="tscBadge">제1부분</div>
+          <div class="tsc-pic" id="tscPic"></div>
+          <div class="tsc-q" id="tscQ"></div>
+          <div class="tsc-py" id="tscPy"></div>
+          <div class="tsc-ko" id="tscKo"></div>
+          <div class="tsc-clock">
+            <div class="tsc-time" id="tscTime">10</div>
+            <div class="tsc-bar"><i id="tscBar"></i></div>
+            <div class="tsc-state" id="tscState">질문을 듣고 시작을 누르세요</div>
+          </div>
+        </div>
+        <div class="tsc-row">
+          <button class="v12-btn" id="tscPlay" type="button">🔊 질문 듣기</button>
+          <button class="v12-btn primary" id="tscGo" type="button">▶ 준비 · 시작</button>
+          <button class="v12-btn" id="tscEye" type="button">👁 병음·뜻</button>
+        </div>
+        <div class="tsc-model" id="tscModel"></div>
+        <div class="tsc-row">
+          <button class="v12-btn" id="tscPrev" type="button">← 이전</button>
+          <button class="v12-btn" id="tscNext" type="button">다음 문제 →</button>
+        </div>
+        <div class="small-note">녹음은 이 브라우저 안에서만 재생돼요. 저장되지 않습니다.</div>
+      </div>`;
+    document.body.appendChild(el);
+    const st = document.createElement('style');
+    st.textContent = `
+      #v15TscModal .v15-sheet{max-width:440px}
+      #v15TscModal .tsc-parts{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+      #v15TscModal .tsc-parts::-webkit-scrollbar{display:none}
+      #v15TscModal .tsc-parts button{flex:0 0 auto;min-height:32px;padding:0 11px;border-radius:99px;font-size:11px;font-weight:800;
+        background:rgba(94,80,62,.07);color:#6d6151;border:1px solid rgba(94,80,62,.12)}
+      #v15TscModal .tsc-parts button.on{background:linear-gradient(150deg,#c1704f,#a2543a);color:#fff;border-color:transparent}
+      #v15TscModal .tsc-stage{padding:12px 13px 10px;border-radius:16px;background:linear-gradient(160deg,#fffdf7,#f3ecdd);
+        border:1px solid rgba(94,80,62,.14);text-align:center}
+      #v15TscModal .tsc-badge{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.06em;color:#8a6418;
+        background:rgba(201,154,63,.18);border-radius:99px;padding:3px 10px;margin-bottom:8px}
+      #v15TscModal .tsc-pic{font-size:24px;letter-spacing:6px;line-height:1.5;margin:2px 0 6px;display:none}
+      #v15TscModal .tsc-pic.on{display:block}
+      #v15TscModal .tsc-q{font-size:20px;font-weight:800;line-height:1.45;color:#2f2a22;word-break:keep-all}
+      #v15TscModal .tsc-py{font-size:12px;color:#a9743a;margin-top:5px;font-weight:700;line-height:1.4}
+      #v15TscModal .tsc-ko{font-size:12px;color:#6b6252;margin-top:3px;line-height:1.45}
+      #v15TscModal .tsc-py.off,#v15TscModal .tsc-ko.off{display:none}
+      #v15TscModal .tsc-clock{margin-top:10px}
+      #v15TscModal .tsc-time{font-size:34px;font-weight:900;color:#3f7f5c;line-height:1;letter-spacing:.02em}
+      #v15TscModal .tsc-time.warn{color:#c1553f}
+      #v15TscModal .tsc-bar{height:7px;border-radius:99px;background:rgba(94,80,62,.12);overflow:hidden;margin:7px 0 5px}
+      #v15TscModal .tsc-bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#5aa87a,#c9a23f);transition:width .18s linear}
+      #v15TscModal .tsc-state{font-size:11px;color:#8a7a63;min-height:15px}
+      #v15TscModal .tsc-row{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+      #v15TscModal .tsc-row button{flex:1;min-height:42px;border-radius:12px;font-size:12px;font-weight:800;white-space:nowrap}
+      #v15TscModal .tsc-model{margin-top:9px;padding:10px 12px;border-radius:14px;background:rgba(127,156,122,.1);
+        border:1px solid rgba(127,156,122,.22);display:none;text-align:left}
+      #v15TscModal .tsc-model.on{display:block}
+      #v15TscModal .tsc-model b{font-size:11px;color:#44613f;letter-spacing:.04em}
+      #v15TscModal .tsc-model .mz{font-size:16px;font-weight:800;color:#2f2a22;line-height:1.5;margin:5px 0 3px}
+      #v15TscModal .tsc-model .mp{font-size:11px;color:#a9743a;line-height:1.45}
+      #v15TscModal .tsc-model .mk{font-size:11.5px;color:#5d5448;line-height:1.5;margin-top:4px}
+      #v15TscModal .tsc-model .tip{margin-top:6px;font-size:11px;color:#6b7f66;line-height:1.45}
+      #v15TscModal .tsc-model audio{width:100%;margin-top:7px}
+      @media(max-width:420px){
+        #v15TscModal .tsc-q{font-size:18px}
+        #v15TscModal .tsc-time{font-size:30px}
+      }`;
+    document.head.appendChild(st);
+    el.querySelector('[data-close]').onclick = close;
+    el.addEventListener('click', (ev) => { if (ev.target === el) close(); });
+    $('tscParts').innerHTML = PARTS.map((p, i) => `<button type="button" data-pi="${i}">${p.p}부 ${p.sub}</button>`).join('');
+    $('tscParts').querySelectorAll('[data-pi]').forEach((b) => {
+      b.onclick = () => { selectPart(Number(b.dataset.pi)); };
+    });
+    $('tscPlay').onclick = () => { try { speak(cur().q); } catch (e) {} };
+    $('tscGo').onclick = () => { startRound(); };
+    $('tscEye').onclick = () => {
+      $('tscPy').classList.toggle('off');
+      $('tscKo').classList.toggle('off');
+    };
+    $('tscPrev').onclick = () => { move(-1); };
+    $('tscNext').onclick = () => { move(1); };
+    return el;
+  }
+
+  function render() {
+    const el = ensure();
+    const part = PARTS[S.pi];
+    const it = cur();
+    const list = listOf(part.p);
+    el.querySelectorAll('#tscParts [data-pi]').forEach((b) => b.classList.toggle('on', Number(b.dataset.pi) === S.pi));
+    $('tscBadge').textContent = `${part.name} · ${part.sub} · ${part.prep ? `준비 ${part.prep}초 + ` : ''}답변 ${part.sec}초 (${S.qi + 1}/${list.length})`;
+    const pic = $('tscPic');
+    if (it.pic) { pic.innerHTML = `${esc(it.pic)}`; pic.classList.add('on'); }
+    else { pic.innerHTML = ''; pic.classList.remove('on'); }
+    $('tscQ').textContent = it.q;
+    $('tscPy').textContent = it.py || '';
+    $('tscKo').textContent = (it.picKo ? `그림: ${it.picKo} · ` : '') + (it.ko || '');
+    $('tscTime').textContent = String(part.sec);
+    $('tscTime').classList.remove('warn');
+    $('tscBar').style.width = '0%';
+    $('tscGo').textContent = part.prep ? `▶ 준비 ${part.prep}초` : '▶ 답변 시작';
+    $('tscState').textContent = '질문을 듣고 시작을 누르세요';
+    $('tscModel').classList.remove('on');
+    $('tscModel').innerHTML = '';
+  }
+
+  function clearTimer() {
+    if (S.timer) { clearInterval(S.timer); S.timer = 0; }
+  }
+
+  function startRound() {
+    const part = PARTS[S.pi];
+    clearTimer();
+    stopRec(true);
+    S.phase = part.prep ? 'prep' : 'answer';
+    S.total = part.prep ? part.prep : part.sec;
+    S.left = S.total;
+    paintClock();
+    $('tscModel').classList.remove('on');
+    $('tscModel').innerHTML = '';
+    $('tscState').textContent = part.prep ? `준비 ${part.prep}초 · 준비되면 바로 말해도 돼요` : '답변 시작! 지금 중국어로 말하세요';
+    $('tscGo').textContent = '⏹ 그만하기';
+    if (S.phase === 'answer') beginAnswer();
+    S.timer = setInterval(tickClock, 200);
+  }
+
+  function paintClock() {
+    const t = $('tscTime');
+    if (!t) return;
+    t.textContent = String(Math.max(0, Math.ceil(S.left)));
+    t.classList.toggle('warn', S.left <= 5);
+    const pct = S.total ? Math.max(0, Math.min(100, (1 - S.left / S.total) * 100)) : 0;
+    const bar = $('tscBar');
+    if (bar) bar.style.width = pct + '%';
+  }
+
+  function tickClock() {
+    if (S.phase !== 'prep' && S.phase !== 'answer') { clearTimer(); return; }
+    S.left -= 0.2;
+    if (S.left <= 0) {
+      S.left = 0;
+      paintClock();
+      if (S.phase === 'prep') {
+        beep();
+        S.phase = 'answer';
+        S.total = PARTS[S.pi].sec;
+        S.left = S.total;
+        paintClock();
+        $('tscState').textContent = '답변 시작! 지금 중국어로 말하세요';
+        beginAnswer();
+        return;
+      }
+      finishRound();
+      return;
+    }
+    paintClock();
+  }
+
+  function beep() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) { try { Sound.click(); } catch (e) {} return; }
+      const ac = new AC();
+      const o = ac.createOscillator(); const g = ac.createGain();
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.12, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.25);
+      o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.26);
+      setTimeout(() => { try { ac.close(); } catch (e) {} }, 500);
+    } catch (e) { try { Sound.click(); } catch (e2) {} }
+  }
+
+  function beginAnswer() {
+    S.recErr = '';
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        S.recErr = '이 브라우저는 녹음을 지원하지 않아요';
+        return;
+      }
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        if (S.phase !== 'answer') { try { stream.getTracks().forEach((t) => t.stop()); } catch (e) {} return; }
+        S.stream = stream;
+        S.chunks = [];
+        const rec = new MediaRecorder(stream);
+        S.rec = rec;
+        rec.ondataavailable = (e) => { if (e.data && e.data.size) S.chunks.push(e.data); };
+        rec.onstop = () => {
+          try {
+            if (S.chunks.length) {
+              const blob = new Blob(S.chunks, { type: S.chunks[0].type || 'audio/webm' });
+              if (S.url) { try { URL.revokeObjectURL(S.url); } catch (e) {} }
+              S.url = URL.createObjectURL(blob);
+            }
+          } catch (e) {}
+          try { S.stream && S.stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+          S.stream = null;
+          paintModel();
+        };
+        rec.start();
+      }).catch((e) => {
+        S.recErr = e && e.name === 'NotAllowedError' ? '마이크 권한을 허용하면 내 답변을 다시 들을 수 있어요' : '녹음을 시작하지 못했어요';
+      });
+    } catch (e) { S.recErr = '녹음을 시작하지 못했어요'; }
+  }
+
+  function stopRec(silent) {
+    try {
+      if (S.rec && S.rec.state !== 'inactive') {
+        if (silent) {
+          S.rec.onstop = null;
+          try { S.rec.stop(); } catch (e) {}
+          try { S.stream && S.stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+          S.stream = null; S.rec = null;
+        } else {
+          S.rec.stop();
+          S.rec = null;
+        }
+      }
+    } catch (e) {}
+  }
+
+  function finishRound() {
+    clearTimer();
+    S.phase = 'done';
+    stopRec(false);
+    $('tscGo').textContent = '▶ 다시 하기';
+    $('tscState').textContent = '시간 종료! 내 답변과 모범 답안을 비교해 보세요';
+    try { beep(); } catch (e) {}
+    paintModel();
+  }
+
+  function paintModel() {
+    const el = $('tscModel');
+    if (!el) return;
+    const it = cur();
+    const m = it.model || {};
+    el.innerHTML = `
+      <b>🎧 내 답변</b>
+      ${S.url ? `<audio id="tscAudio" controls src="${S.url}"></audio>` : `<div class="mk">${esc(S.recErr || '녹음된 소리가 없어요. 마이크를 허용하면 다시 들을 수 있어요.')}</div>`}
+      <b style="display:block;margin-top:8px">✅ 모범 답안</b>
+      <div class="mz">${esc(m.hz || '')}</div>
+      <div class="mp">${esc(m.py || '')}</div>
+      <div class="mk">${esc(m.ko || '')}</div>
+      <div class="tsc-row" style="margin-top:7px">
+        <button class="v12-btn" type="button" id="tscSayModel">🔊 모범 답안 듣기</button>
+      </div>
+      ${it.tip ? `<div class="tip">💡 ${esc(it.tip)}</div>` : ''}`;
+    el.classList.add('on');
+    const b = $('tscSayModel');
+    if (b) b.onclick = () => { try { speak(m.hz); } catch (e) {} };
+  }
+
+  function move(d) {
+    const part = PARTS[S.pi];
+    const list = listOf(part.p);
+    const nq = S.qi + d;
+    if (nq >= 0 && nq < list.length) { S.qi = nq; reset(); return; }
+    const np = S.pi + d;
+    if (np >= 0 && np < PARTS.length) { S.pi = np; S.qi = 0; reset(); return; }
+    try { V12.say(d > 0 ? '🎙️ 마지막 문제예요' : '🎙️ 첫 문제예요', '부분을 바꿔 보세요', 1600); } catch (e) {}
+  }
+
+  function selectPart(pi) {
+    S.pi = Math.max(0, Math.min(PARTS.length - 1, pi));
+    S.qi = 0;
+    reset();
+  }
+
+  function reset() {
+    clearTimer();
+    stopRec(true);
+    S.phase = 'ready'; S.left = 0; S.total = 0;
+    if (S.url) { try { URL.revokeObjectURL(S.url); } catch (e) {} S.url = ''; }
+    S.recErr = '';
+    render();
+  }
+
+  function open(partNo) {
+    const el = ensure();
+    if (typeof partNo === 'number') { S.pi = Math.max(0, Math.min(PARTS.length - 1, partNo - 1)); S.qi = 0; }
+    reset();
+    el.classList.add('show');
+    try { UI && UI.closeStudy && UI.closeStudy(); } catch (e) {}
+    try { if (V12.syncModalState) V12.syncModalState(); } catch (e) {}
+    el.style.zIndex = '70';
+    try { document.body.appendChild(el); } catch (e) {}
+    setTimeout(() => { try { speak(cur().q); } catch (e) {} }, 420);
+  }
+
+  function close() {
+    clearTimer();
+    stopRec(true);
+    S.phase = 'ready';
+    const el = $('v15TscModal');
+    if (el) el.classList.remove('show');
+    try { if (V12.syncModalState) V12.syncModalState(); } catch (e) {}
+  }
+
+  V15.openTscExam = open;
+  V15.closeTscExam = close;
+  V15.tscInfo = () => ({
+    open: !!($('v15TscModal') && $('v15TscModal').classList.contains('show')),
+    part: PARTS[S.pi].p, qi: S.qi, phase: S.phase, left: Math.round(S.left),
+    questions: Q.length, url: !!S.url, recErr: S.recErr,
+  });
+  V15.tscParts = PARTS;
+  V15.tscQuestions = Q;
+
+  /* ---------------- 입구 4곳 ---------------- */
+  let bookAdded = false;
+  function mountEntry() {
+    try {
+      const tabs = document.getElementById('studyTabs');
+      if (tabs && !document.getElementById('tabTsc16')) {
+        const b = document.createElement('button');
+        b.className = 'tab'; b.type = 'button'; b.dataset.pane = 'tsc'; b.id = 'tabTsc16';
+        b.textContent = '🎙️ TSC 시험관';
+        b.onclick = (e) => { e.stopPropagation(); e.preventDefault(); open(); };
+        tabs.appendChild(b);
+      }
+    } catch (e) {}
+    try {
+      const body = document.querySelector('#lecturePanel .panel-body');
+      if (body && !document.getElementById('lecTsc16')) {
+        const row = body.querySelector('.speak-row');
+        const b = document.createElement('button');
+        b.className = 'btn-soft solid'; b.type = 'button'; b.id = 'lecTsc16';
+        b.style.marginTop = '8px';
+        b.textContent = '🎙️ TSC 시험관 · 말하기 실전';
+        b.onclick = () => { try { UI.closeLecture(); } catch (e) {} open(); };
+        if (row && row.parentNode) row.parentNode.insertBefore(b, row.nextSibling);
+        else body.appendChild(b);
+      }
+    } catch (e) {}
+    try {
+      const qb = document.getElementById('quickbar');
+      if (qb && !document.getElementById('chipTsc16')) {
+        const b = document.createElement('button');
+        b.className = 'qbtn'; b.id = 'chipTsc16'; b.type = 'button';
+        b.innerHTML = '<span aria-hidden="true">🎙️</span>';
+        b.title = 'TSC 시험관 · 말하기 실전';
+        b.onclick = () => open();
+        qb.appendChild(b);
+      }
+    } catch (e) {}
+    try {
+      if (!bookAdded && V15.addBook) {
+        bookAdded = true;
+        V15.addBook({ ic: '🎙️', t: 'TSC 시험관 · 말하기 실전', s: '제1~7부분 · 질문 읽기·타이머·모범답안', tag: 'NEW', go: () => open() });
+      }
+    } catch (e) {}
+  }
+  setInterval(mountEntry, 2500);
+  setTimeout(mountEntry, 1200);
+})();
+
 
 /* =====================================================================
    v15 BOOT — 확장 월드 초기화 · 구역 지연 생성 · 공용 단축키
