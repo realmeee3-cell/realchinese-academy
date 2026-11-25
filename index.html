@@ -41887,7 +41887,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     el.innerHTML = `<div class="sheet v15-sheet" style="max-width:480px">
         <button class="v12-x" data-close aria-label="닫기">✕</button>
         <h2>🦉 영·중·한 기초회화 <span style="font-size:11px;color:#9a8d79">Duolingo style</span></h2>
-        <p class="v12-sub">${sel ? '🦉 6스테이지 · 스테이지를 골라 시작하세요' : `${st.icon} ${st.name} · ${DUO.q + 1} / ${total} 문제`} · 정답 +10 XP · +2G</p>
+        <p class="v12-sub">${sel ? '🦉 6스테이지 · 스테이지를 골라 시작하세요' : `${st.icon} ${st.name} · ${Math.min(DUO.q + 1, total)} / ${total} 문제`} · 정답 +10 XP · +2G</p>
         ${top()}
         ${DUO.phase === 'done' ? `<div class="duo-q">🏁 스테이지 완료!</div>
           <div class="duo-sub">정답 ${DUO.right} · 오답 ${DUO.wrong} · 획득 ${DUO.xp} XP${DUO.hearts <= 0 ? ' · 하트 소진' : ''}</div>
