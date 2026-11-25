@@ -22198,6 +22198,98 @@ window.V12 = (function () {
     sign.position.set(cx, 2.5, z1 - 0.25);
     sign.rotation.y = Math.PI;
     g.add(sign);
+
+    /* ---- V15.4 : 텅 빈 상자처럼 보이지 않게 거실을 채운다 ---- */
+    try {
+      /* 나무 마루 */
+      const woodTex = canvasTex(256, 256, (c, w, h) => {
+        c.fillStyle = '#c79a68'; c.fillRect(0, 0, w, h);
+        for (let i = 0; i < 4; i++) {
+          c.fillStyle = ['#bd8f5e', '#c99d6c', '#b8895a', '#cf9f6d'][i];
+          c.fillRect(0, i * h / 4 + 2, w, h / 4 - 4);
+          c.strokeStyle = 'rgba(120,80,44,.35)'; c.lineWidth = 2;
+          c.beginPath(); c.moveTo(0, i * h / 4); c.lineTo(w, i * h / 4); c.stroke();
+          for (let k = 0; k < 3; k++) {
+            c.strokeStyle = 'rgba(140,96,56,.18)';
+            c.beginPath(); c.moveTo((i * 37 + k * 90) % w, i * h / 4 + 6); c.lineTo((i * 37 + k * 90) % w, i * h / 4 + h / 4 - 6); c.stroke();
+          }
+        }
+      });
+      woodTex.wrapS = woodTex.wrapT = THREE.RepeatWrapping;
+      woodTex.repeat.set(7, 5);
+      g.add(pl(x1 - x0 - 0.3, z1 - z0 - 0.3, new THREE.MeshBasicMaterial({ map: woodTex }), cx, 0.019, cz));
+      /* 거실 — TV(북쪽 벽)를 바라보는 소파 + 러그 + 테이블 */
+      g.add(pl(5.6, 3.8, M(0xd8c2a0, { roughness: 1 }), cx, 0.028, cz - 3.4));
+      g.add(pl(5.0, 3.2, M(0xe8d6b6, { roughness: 1 }), cx, 0.032, cz - 3.4));
+      const sofaM2 = M(0x6d7f6a, { roughness: .95 });
+      g.add(bx(3.2, 0.5, 1.15, sofaM2, cx, 0.4, cz - 2.3, false, RECV));
+      g.add(bx(3.2, 0.62, 0.3, sofaM2, cx, 0.85, cz - 1.78, false, RECV));
+      [-1, 1].forEach((dx) => g.add(bx(0.3, 0.62, 1.15, sofaM2, cx + dx * 1.55, 0.52, cz - 2.3, false, RECV)));
+      [-0.82, 0.82].forEach((dx) => g.add(bx(0.82, 0.14, 0.8, M(0x8a9a84, { roughness: 1 }), cx + dx, 0.66, cz - 2.35, false, false)));
+      /* 커피 테이블 */
+      g.add(bx(2.2, 0.1, 1.0, MAT.wood, cx, 0.5, cz - 3.7, false, RECV));
+      [[-0.9, -0.38], [0.9, -0.38], [-0.9, 0.38], [0.9, 0.38]].forEach(([dx, dz]) => g.add(bx(0.09, 0.48, 0.09, MAT.woodDark, cx + dx, 0.26, cz - 3.7 + dz, false, false)));
+      g.add(bx(0.36, 0.07, 0.26, M(0x3f6f8f, { roughness: .7 }), cx - 0.45, 0.58, cz - 3.7, false, false));
+      /* 보조 의자 2개 (러그 옆) */
+      [[-1, 0], [1, 0]].forEach(([sx]) => {
+        const chx = cx + sx * 2.9;
+        g.add(bx(0.8, 0.42, 0.8, M(0xc8b49a, { roughness: .95 }), chx, 0.28, cz - 3.4, false, RECV));
+        g.add(bx(0.8, 0.5, 0.18, M(0xc8b49a, { roughness: .95 }), chx, 0.66, cz - 3.05, false, RECV));
+      });
+      /* TV 장 */
+      g.add(bx(3.0, 0.42, 0.5, MAT.woodDark, cx + 1.2, 0.21, z0 + 0.55, false, RECV));
+      /* 책장 (동쪽 벽) */
+      const shelfM = M(0x8a6440, { roughness: .9 });
+      g.add(bx(0.42, 2.1, 2.6, shelfM, x1 - 0.55, 1.05, cz - 3.6, false, RECV));
+      const bookCols = [0xb85c4a, 0x3f6f8f, 0xd8b06a, 0x6a8a5f, 0x9a6a9a, 0xe8dcc0];
+      for (let r = 0; r < 3; r++) {
+        for (let b = 0; b < 6; b++) {
+          g.add(bx(0.16, 0.28, 0.1, M(bookCols[(r * 6 + b) % bookCols.length], { roughness: .85 }), x1 - 0.78, 0.5 + r * 0.58, cz - 4.6 + b * 0.36, false, false));
+        }
+      }
+      /* 주방 카운터 (서쪽 벽) */
+      g.add(bx(0.72, 0.9, 4.0, M(0xece4d4, { roughness: .85 }), x0 + 0.6, 0.45, cz + 0.6, false, RECV));
+      g.add(bx(0.8, 0.08, 4.1, M(0x3a3d42, { roughness: .5 }), x0 + 0.6, 0.93, cz + 0.6, false, false));
+      g.add(bx(0.5, 0.34, 0.56, M(0x8a8f97, { metalness: .5, roughness: .35 }), x0 + 0.62, 1.13, cz - 0.4, false, false));
+      for (let i = 0; i < 3; i++) g.add(bx(0.76, 0.06, 1.0, M(0xded4c2, { roughness: .8 }), x0 + 0.6, 1.0, cz - 0.4 - i * 1.2, false, false));
+      /* 식탁 (남동쪽 · 현관 옆) */
+      g.add(bx(1.9, 0.09, 1.0, M(0xe8dcc4, { roughness: .9 }), x1 - 3.2, 0.74, cz + 3.4, false, RECV));
+      [[-0.8, -0.36], [0.8, -0.36], [-0.8, 0.36], [0.8, 0.36]].forEach(([dx, dz]) => g.add(bx(0.09, 0.72, 0.09, MAT.woodDark, x1 - 3.2 + dx, 0.37, cz + 3.4 + dz, false, false)));
+      [[-1.25, 0], [1.25, 0]].forEach(([dx]) => {
+        g.add(bx(0.5, 0.08, 0.5, MAT.wood, x1 - 3.2 + dx, 0.46, cz + 3.4, false, false));
+        g.add(bx(0.08, 0.62, 0.5, MAT.wood, x1 - 3.2 + dx, 0.76, cz + 3.4, false, false));
+      });
+      /* 화분 · 스탠드 조명 · 액자 */
+      [[x0 + 1.3, z0 + 1.1], [x1 - 1.3, z1 - 1.6]].forEach(([px, pz]) => {
+        const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.2, 0.42, 10), M(0xb0663f, { roughness: .9 }));
+        pot.position.set(px, 0.21, pz); g.add(pot);
+        const lf = new THREE.Mesh(new THREE.SphereGeometry(0.42, 8, 6), M(0x5f8a55, { roughness: 1 }));
+        lf.position.set(px, 0.78, pz); lf.scale.y = 1.35; g.add(lf);
+      });
+      const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.5, 8), M(0x3a3d42));
+      stand.position.set(x1 - 1.3, 0.75, cz - 5.0); g.add(stand);
+      const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.3, 0.32, 12), EM(0xfff2cf, 0xffd89a, 1.4));
+      shade.position.set(x1 - 1.3, 1.62, cz - 5.0); g.add(shade);
+      const art = canvasTex(256, 180, (c, w, h) => {
+        c.fillStyle = '#f6efdf'; c.fillRect(0, 0, w, h);
+        c.fillStyle = '#3f6f8f'; c.fillRect(24, 30, 90, 120);
+        c.fillStyle = '#b85c4a'; c.beginPath(); c.arc(170, 90, 46, 0, 6.3); c.fill();
+        c.fillStyle = '#d8b06a'; c.fillRect(60, 120, 130, 16);
+      });
+      [[cz - 1.2], [cz + 1.6]].forEach(([pz]) => {
+        const fr = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.72), new THREE.MeshBasicMaterial({ map: art }));
+        fr.position.set(x1 - 0.26, 1.8, pz); fr.rotation.y = -Math.PI / 2; g.add(fr);
+      });
+      /* 천장 다운라이트 */
+      for (let i = 0; i < 3; i++) {
+        g.add(bx(0.5, 0.04, 0.5, EM(0xfff6e2, 0xffe6b8, 1.5), cx - 4 + i * 4, ceil - 0.04, cz - 3.6, false, false));
+        g.add(bx(0.5, 0.04, 0.5, EM(0xfff6e2, 0xffe6b8, 1.5), cx - 4 + i * 4, ceil - 0.04, cz + 2.0, false, false));
+      }
+      /* 현관문 (남쪽 벽) */
+      g.add(bx(1.5, 2.3, 0.12, M(0x6b5238, { roughness: .8 }), cx, 1.15, z1 - 0.24, false, false));
+      g.add(bx(0.1, 0.1, 0.16, M(0xd8b06a, { metalness: .6, roughness: .3 }), cx + 0.5, 1.1, z1 - 0.32, false, false));
+      V12._homeFurnStep = 9;
+    } catch (e) { try { console.warn('[home-furn]', e && e.message); } catch (e2) {} }
     return true;
   }
   V12.buildHome = buildHome;
@@ -22778,13 +22870,33 @@ window.V12 = (function () {
       r.x = nx; r.z = nz;
       r.mesh.position.set(nx, 0, nz);
       r.mesh.rotation.y = yaw;
-      // 정류장 정차
+      // 정류장 정차 (한 번 정차하면 반경을 벗어날 때까지 다시 서지 않는다)
       (V12.stops || []).forEach((s) => {
-        if (Math.hypot(nx - s.x, nz - s.z) < 3.2 && !r.__stopT) {
-          r.__stopT = 1; r.dwell = 3.2;
-          setTimeout(() => { r.__stopT = 0; }, 9000);
+        const d = Math.hypot(nx - s.x, nz - s.z);
+        if (d < 3.4) {
+          if (!r.__inStop) { r.__inStop = 1; r.dwell = Math.max(r.dwell || 0, 2.4); r.__lastStop = s.name; }
+        } else if (d > 8) {
+          r.__inStop = 0;
         }
       });
+      /* 다음 정류장 (경로 진행 방향 기준) */
+      try {
+        if (!r.__stopIdx) {
+          r.__stopIdx = (V12.stops || []).map((s) => {
+            let bi = 0, bd = 1e9;
+            pts.forEach((pt, i) => { const dd = Math.hypot(pt[0] - s.x, pt[1] - s.z); if (dd < bd) { bd = dd; bi = i; } });
+            return { s: s, i: bi };
+          });
+        }
+        const n = pts.length;
+        let best = null, bestAhead = 1e9;
+        r.__stopIdx.forEach((o) => {
+          const ahead = (o.i - r.seg + n) % n;
+          if (ahead < bestAhead) { bestAhead = ahead; best = o; }
+        });
+        r.nextStop = best ? best.s.name : '';
+        r.nextDist = best ? Math.hypot(best.s.x - nx, best.s.z - nz) : 0;
+      } catch (e) {}
     });
     // 탑승 중이면 플레이어를 버스에 태운다
     if (Bus.riding && Bus.bus) {
@@ -23188,15 +23300,24 @@ window.V12 = (function () {
   }
   V12.buyApt = buyApt;
 
+  /* 집 안에서만 쓰는 조명 — 나갈 때 반드시 되돌린다 (안 그러면 온 동네가 어두워진다) */
+  V12.homeLightsRestore = function () {
+    try {
+      (V12._hiddenLights || []).forEach((l) => { try { l.visible = true; } catch (e) {} });
+      V12._hiddenLights = [];
+    } catch (e) {}
+  };
   function enterHome() {
     if (!Home.owned) { openRealty(); return false; }
     V12.buildHome();
+    V12.homeLightsRestore();
     try {
       V12._hiddenLights = [];
       scene.traverse((o) => { if ((o.isPointLight || o.isSpotLight) && o.visible && o !== V12.homeLight) { o.visible = false; V12._hiddenLights.push(o); } });
       if (V12.homeLight) V12.homeLight.visible = true;
     } catch (e) {}
-    V12.teleport(W.home.x0 + 6, W.home.z1 - 3);
+    try { V13.teleport((W.home.x0 + W.home.x1) / 2, W.home.z0 + 7.0, 0, Math.PI); }
+    catch (e) { V12.teleport((W.home.x0 + W.home.x1) / 2, W.home.z0 + 7.0); }
     document.body.classList.add('inHome');
     const tag = $('w12Tag'); if (tag) { tag.textContent = '🏠 내 집 · 我的家'; tag.classList.add('show'); }
     const back = $('w12Return'); if (back) { back.textContent = '⬆️ 집에서 나가기'; back.classList.add('show'); }
@@ -23304,6 +23425,7 @@ window.V12 = (function () {
   V12.openSubway = openSubway;
 
   function enterMall() {
+    try { V12.homeLightsRestore && V12.homeLightsRestore(); } catch (e) {}
     V12.buildMall();
     // 서쪽 출구 계단에서 내려와 동쪽 상가 거리를 바라보는 구도
     try { V13.teleport(W.mall.x0 + 7.6, 0, 0, Math.PI / 2); } catch (e) { V12.teleport(W.mall.x0 + 7.6, 0, 0); }
@@ -24041,6 +24163,7 @@ window.V12 = (function () {
           <div class="v12-row" style="margin-top:6px">
             <button class="v12-btn gold" style="min-height:32px;padding:0 10px;font-size:11px" data-buy="${it.id}">구매</button>
             <button class="v12-btn" style="min-height:32px;padding:0 10px;font-size:11px" data-hear="${it.id}">🔊</button>
+                        <button class="v12-btn" style="min-height:32px;padding:0 10px;font-size:11px" data-prev="${it.id}">👁</button>
           </div>
         </div>`;
       }).join('')}</div>
@@ -24296,7 +24419,7 @@ window.V12 = (function () {
       b.classList.remove('show');
       const tag = $('w12Tag'); if (tag) tag.classList.remove('show');
       bar.style.display = 'none';
-      if (wasHome) { V12.teleport(-62, 34); say('🏠 집에서 나왔어요', '아파트 단지 · 분양소 앞', 1800); }
+      if (wasHome) { try { V12.homeLightsRestore && V12.homeLightsRestore(); } catch (e) {} V12.teleport(-62, 34); say('🏠 집에서 나왔어요', '아파트 단지 · 분양소 앞', 1800); }
       else if (wasMall) { V12.teleport(28.6, 72); say('⬆️ 지상으로 나왔어요', '리얼학원역 2번 출구', 1800); }
       else V12.teleport(0, 5);
     };
@@ -26879,11 +27002,81 @@ window.V12 = (function () {
     }, 400);
   }
 
+  /* V15.4 — 애플워치 운동 화면 스타일 러닝 HUD */
   function buildRunHud() {
     if ($('v13RunHud')) return;
     const el = document.createElement('div');
     el.id = 'v13RunHud';
     document.body.appendChild(el);
+    if (!$('v15Watch')) {
+      const w = document.createElement('div');
+      w.id = 'v15Watch';
+      w.innerHTML = `
+        <div class="vw-top"><span class="vw-dot"></span><b>RUNNING</b><small id="vwKmh">0.0 km/h</small></div>
+        <div class="vw-grid">
+          <div class="vw-c hr"><small>심박수</small><b id="vwHr">--</b><i>bpm</i></div>
+          <div class="vw-c"><small>케이던스</small><b id="vwCad">0</b><i>spm</i></div>
+          <div class="vw-c"><small>페이스</small><b id="vwPace">--'--"</b><i>/km</i></div>
+          <div class="vw-c"><small>거리</small><b id="vwDist">0.00</b><i>km</i></div>
+          <div class="vw-c"><small>칼로리</small><b id="vwKcal">0</b><i>kcal</i></div>
+          <div class="vw-c"><small>시간</small><b id="vwTime">00:00</b><i>h:m</i></div>
+        </div>`;
+      document.body.appendChild(w);
+      const st = document.createElement('style');
+      st.textContent = `
+        #v13RunHud{display:none !important}
+        #v15Watch{position:fixed;left:50%;transform:translate(-50%,-8px);top:calc(218px + env(safe-area-inset-top));
+          z-index:58;width:min(356px,calc(100vw - 24px));display:none;flex-direction:column;gap:7px;
+          padding:9px 11px 11px;border-radius:18px;background:linear-gradient(160deg,rgba(12,16,22,.94),rgba(22,28,36,.92));
+          border:1px solid rgba(140,255,190,.22);box-shadow:0 16px 34px -18px rgba(0,0,0,.8);color:#eafff2}
+        #v15Watch.show{display:flex}
+        #v15Watch .vw-top{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.14em;color:#8ef7b6;font-weight:900}
+        #v15Watch .vw-top small{margin-left:auto;color:#cfe9d8;letter-spacing:0;font-weight:700;font-size:10.5px}
+        #v15Watch .vw-dot{width:7px;height:7px;border-radius:50%;background:#39e07b;box-shadow:0 0 8px #39e07b;animation:vwPulse 1.6s infinite}
+        @keyframes vwPulse{0%,100%{opacity:.35}50%{opacity:1}}
+        #v15Watch .vw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+        #v15Watch .vw-c{background:rgba(255,255,255,.06);border-radius:12px;padding:6px 7px;display:flex;flex-direction:column;line-height:1.1}
+        #v15Watch .vw-c small{font-size:8.5px;color:#9fc7b0;font-weight:800;letter-spacing:.04em}
+        #v15Watch .vw-c b{font-size:17px;font-weight:900;color:#f2fff8;font-variant-numeric:tabular-nums}
+        #v15Watch .vw-c i{font-size:8px;color:#7fae93;font-style:normal;font-weight:700}
+        #v15Watch .vw-c.hr b{color:#ff8b8b}
+        body.modal-open #v15Watch,body.inHome #v15Watch,body.inMall #v15Watch,body.riding #v15Watch,body.driving #v15Watch{display:none !important}`;
+      document.head.appendChild(st);
+      setInterval(tickWatch, 480);
+    }
+  }
+  const _wk = { hr: 92, cad: 0, t0: 0, d0: 0, lastD: 0, moving: 0 };
+  function tickWatch() {
+    try {
+      const el = $('v15Watch');
+      if (!el) return;
+      const show = Run.on && outdoors();
+      el.classList.toggle('show', show);
+      if (!show) { _wk.t0 = 0; return; }
+      if (!_wk.t0) { _wk.t0 = Date.now(); _wk.d0 = Run.dist; _wk.hr = 104; }
+      const sec = (Date.now() - _wk.t0) / 1000;
+      const d = Math.max(0, Run.dist - _wk.d0);
+      const km = d / 1000;
+      const moved = d - _wk.lastD;
+      _wk.lastD = d;
+      _wk.moving = moved > 0.02 ? Math.min(3, _wk.moving + 1) : Math.max(0, _wk.moving - 1);
+      const running = _wk.moving > 0;
+      /* 심박수 — 달리면 오르고 멈추면 천천히 내려간다 */
+      const target = running ? Math.min(176, 118 + sec * 0.55) : 92;
+      _wk.hr += (target - _wk.hr) * 0.25;
+      const hr = Math.round(_wk.hr + Math.sin(sec * 1.7) * 2);
+      const spm = running ? Math.round(162 + ((Player && Player.speed) || 2.75) * 3.2 + Math.sin(sec * 2.2) * 4) : 0;
+      const paceSec = km > 0.004 ? sec / km : 0;
+      const pace = paceSec ? Math.floor(paceSec / 60) + "'" + String(Math.round(paceSec % 60)).padStart(2, '0') + '"' : '--\'--"';
+      const kcal = Math.round(62 * km * 1.036);
+      const mm = Math.floor(sec / 60), ss = Math.floor(sec % 60);
+      const kmh = running ? ((Player && Player.speed) || 2.75) * 3.6 : 0;
+      const set = (id, v) => { const n = $(id); if (n && n.textContent !== String(v)) n.textContent = v; };
+      set('vwHr', hr); set('vwCad', spm); set('vwPace', pace);
+      set('vwDist', km.toFixed(2)); set('vwKcal', kcal);
+      set('vwTime', (mm < 10 ? '0' : '') + mm + ':' + (ss < 10 ? '0' : '') + ss);
+      set('vwKmh', kmh.toFixed(1) + ' km/h');
+    } catch (e) {}
   }
 
   /* 러닝 모드 중 하단 안내(작게) */
@@ -27135,6 +27328,7 @@ window.V12 = (function () {
             <button class="v12-btn gold" style="min-height:34px;padding:0 10px;font-size:11.5px" data-buy="${it.id}">${lack ? '구매' : '구매'}</button>
             <button class="v12-btn" style="min-height:34px;padding:0 8px;font-size:11.5px" data-place="${it.id}" ${n ? '' : 'disabled'}>배치</button>
             <button class="v12-btn" style="min-height:34px;padding:0 8px;font-size:11.5px" data-hear="${it.id}">🔊</button>
+                        <button class="v12-btn" style="min-height:34px;padding:0 8px;font-size:11.5px" data-prev="${it.id}">👁</button>
           </div>
           ${lack ? `<small class="v13-lack">${it.price - gold()}G 부족</small>` : ''}
         </div>`;
@@ -29862,7 +30056,8 @@ const BIZ_PLAN = [
           <small>${it.hz} · ${it.py}</small>
           <span class="lux-pr">${price(it.price)}G${n ? ` · 보유 ${n}` : ''}</span>
           <div class="lux-row"><button class="v12-btn gold" data-buy="${it.id}" type="button">구매</button>
-          <button class="v12-btn" data-hear="${it.id}" type="button">🔊</button></div>
+          <button class="v12-btn" data-hear="${it.id}" type="button">🔊</button>
+          <button class="v12-btn" data-prev="${it.id}" type="button">👁</button></div>
         </div>`;
       }).join('')}</div>
       <div class="v12-row">
@@ -30361,10 +30556,15 @@ const BIZ_PLAN = [
     document.body.appendChild(bar);
     const info = document.createElement('div');
     info.id = 'v14Ride';
-    info.innerHTML = '<span id="v14RideT">탑승 중</span><button type="button" id="v14Off">내리기</button>';
+    info.innerHTML = '<span id="v14RideT">탑승 중</span><button type="button" id="v14View">갑판 뷰</button><button type="button" id="v14Off">내리기</button>';
     document.body.appendChild(info);
     document.getElementById('v14Go').onclick = () => boardNow();
     document.getElementById('v14Off').onclick = () => off(false);
+    const vw = document.getElementById('v14View');
+    if (vw) vw.onclick = () => {
+      V14.rideView = (V14.rideView === 'deck') ? 'follow' : 'deck';
+      vw.textContent = V14.rideView === 'deck' ? '추적 뷰' : '갑판 뷰';
+    };
   }
   function showBar(on, ic, t, s) {
     ensureBar();
@@ -30382,6 +30582,12 @@ const BIZ_PLAN = [
     const info = document.getElementById('v14Ride');
     if (!info) return;
     info.classList.toggle('show', !!on);
+    const vw = document.getElementById('v14View');
+    if (vw) {
+      const boat = Ride.kind === 'boat';
+      vw.style.display = boat ? 'inline-flex' : 'none';
+      vw.textContent = V14.rideView === 'deck' ? '추적 뷰' : '갑판 뷰';
+    }
     const t = document.getElementById('v14RideT');
     if (t && text) t.textContent = text;
   }
@@ -30484,13 +30690,22 @@ const BIZ_PLAN = [
           if (Ride.kind) {
             const yaw = Ride.yaw;
             const fx = Math.sin(yaw), fz = Math.cos(yaw);
-            const y = Ride.kind === 'bike' ? 2.05 : 3.6;
-            const back = Ride.kind === 'bike' ? 4.2 : 11;
+            if (Ride.kind === 'boat' && V14.rideView === 'deck') {
+              /* 갑판 뷰 — 배 앞머리에서 한강을 바라본다 */
+              const dx = Ride.x + fx * 2.4, dz = Ride.z + fz * 2.4;
+              camera.position.lerp({ x: dx, y: 3.15, z: dz }, 1 - Math.exp(-8 * dt));
+              Cam.look.set(Ride.x + fx * 26, 1.5, Ride.z + fz * 26);
+              camera.lookAt(Cam.look);
+              if (camera.fov !== 66) { camera.fov = 66; camera.updateProjectionMatrix(); }
+              return;
+            }
+            const y = Ride.kind === 'bike' ? 2.05 : 5.6;
+            const back = Ride.kind === 'bike' ? 4.2 : 8.5;
             const tx = Ride.x - fx * back, tz = Ride.z - fz * back;
             camera.position.lerp({ x: tx, y: y, z: tz }, 1 - Math.exp(-6 * dt));
-            camera.position.set(tx, y, tz);
-            Cam.look.set(Ride.x + fx * 8, Ride.kind === 'bike' ? 1.3 : 2.2, Ride.z + fz * 8);
+            Cam.look.set(Ride.x + fx * 8, Ride.kind === 'bike' ? 1.3 : 1.6, Ride.z + fz * 8);
             camera.lookAt(Cam.look);
+            if (camera.fov !== 62) { camera.fov = 62; camera.updateProjectionMatrix(); }
             return;
           }
         } catch (e) {}
@@ -33805,50 +34020,65 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   const P = V15.PAL;
   const err = V15.err;
 
-  /* ---------------- 공유 지오메트리 ---------------- */
+  /* ---------------- 공유 지오메트리 (플레이어 createAvatar 와 같은 치수) ---------------- */
   const G = {
-    head: new THREE.SphereGeometry(0.152, 18, 14),
-    /* 앞머리는 '눈 위'까지만 — 반구(半球) 캡이라 얼굴을 가리지 않는다 */
-    hairCap: new THREE.SphereGeometry(0.1627, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.42),
+    /* 머리 — createAvatar 와 동일 (0.185 · head 그룹 scale 1.16) */
+    head: new THREE.SphereGeometry(0.185, 18, 14),
+    hairCap: new THREE.SphereGeometry(0.198, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.48),
+    hairBack: new THREE.SphereGeometry(0.185, 16, 12),
+    hairSide: new THREE.SphereGeometry(0.066, 10, 9),
+    hairSweep: new THREE.SphereGeometry(0.088, 14, 10),
+    hairFringe: new THREE.SphereGeometry(0.151, 16, 10),
     hairLong: new THREE.CapsuleGeometry(0.115, 0.16, 4, 8),
-    torso: new THREE.CapsuleGeometry(0.148, 0.30, 4, 10),
-    hip: new THREE.CapsuleGeometry(0.135, 0.06, 3, 8),
-    upperArm: new THREE.CapsuleGeometry(0.052, 0.16, 3, 7),
-    foreArm: new THREE.CapsuleGeometry(0.046, 0.15, 3, 7),
-    hand: new THREE.SphereGeometry(0.052, 7, 6),
-    thigh: new THREE.CapsuleGeometry(0.072, 0.20, 3, 8),
-    shin: new THREE.CapsuleGeometry(0.061, 0.20, 3, 8),
-    shoe: new THREE.BoxGeometry(0.115, 0.062, 0.215),
-    /* V15.2 치비 얼굴 — 플레이어 캐릭터(createAvatar)와 같은 비율 */
-    eyeW: new THREE.SphereGeometry(0.0477, 12, 10),
-    iris: new THREE.SphereGeometry(0.0345, 12, 10),
-    pupil: new THREE.SphereGeometry(0.0189, 10, 8),
-    shine: new THREE.SphereGeometry(0.0132, 8, 6),
-    shine2: new THREE.SphereGeometry(0.0070, 6, 6),
-    lash: new THREE.TorusGeometry(0.046, 0.0062, 6, 14, Math.PI * 0.92),
-    brow: new THREE.CapsuleGeometry(0.0051, 0.0345, 4, 8),
-    mouth: new THREE.TorusGeometry(0.0214, 0.0062, 8, 14, Math.PI * 0.9),
-    nose: new THREE.SphereGeometry(0.0115, 8, 8),
-    blush: new THREE.CircleGeometry(0.0378, 16),
-    ear: new THREE.SphereGeometry(0.0395, 10, 10),
-    bang: new THREE.SphereGeometry(0.120, 14, 10),
-    hairBack: new THREE.SphereGeometry(0.152, 16, 12),
-    neck: new THREE.CylinderGeometry(0.045, 0.055, 0.07, 8),
+    /* 몸통 — 어깨·허리 실루엣까지 createAvatar 와 같게 */
+    torso: new THREE.CapsuleGeometry(0.172, 0.18, 6, 14),
+    shoulders: new THREE.SphereGeometry(0.176, 16, 12),
+    collar: new THREE.TorusGeometry(0.099, 0.014, 6, 20),
+    waist: new THREE.CylinderGeometry(0.129, 0.139, 0.10, 14),
+    hip: new THREE.SphereGeometry(0.152, 14, 12),
+    neck: new THREE.CylinderGeometry(0.074, 0.086, 0.12, 10),
+    /* 얼굴 */
+    eyeW: new THREE.SphereGeometry(0.058, 12, 10),
+    iris: new THREE.SphereGeometry(0.042, 12, 10),
+    pupil: new THREE.SphereGeometry(0.023, 10, 8),
+    shine: new THREE.SphereGeometry(0.016, 8, 8),
+    shine2: new THREE.SphereGeometry(0.0085, 6, 6),
+    lash: new THREE.TorusGeometry(0.056, 0.0075, 6, 14, Math.PI * 0.92),
+    brow: new THREE.CapsuleGeometry(0.0062, 0.042, 4, 8),
+    mouth: new THREE.TorusGeometry(0.026, 0.0075, 8, 14, Math.PI * 0.9),
+    nose: new THREE.SphereGeometry(0.014, 8, 8),
+    blush: new THREE.CircleGeometry(0.046, 16),
+    ear: new THREE.SphereGeometry(0.048, 10, 10),
+    /* 팔 · 다리 */
+    deltoid: new THREE.SphereGeometry(0.081, 12, 10),
+    upperArm: new THREE.CapsuleGeometry(0.062, 0.10, 4, 10),
+    hand: new THREE.SphereGeometry(0.062, 10, 8),
+    thigh: new THREE.CapsuleGeometry(0.085, 0.115, 4, 10),
+    shin: new THREE.CapsuleGeometry(0.074, 0.095, 4, 10),
+    shoe: new THREE.CapsuleGeometry(0.068, 0.075, 5, 12),
+    sole: new THREE.BoxGeometry(0.152, 0.026, 0.212),
+    /* 옷가지 */
+    skirt: new THREE.CylinderGeometry(0.18, 0.34, 0.42, 14, 1, true),
+    dress: new THREE.CylinderGeometry(0.19, 0.36, 0.52, 14, 1, true),
+    hanbokSkirt: new THREE.CylinderGeometry(0.20, 0.44, 0.72, 16, 1, true),
+    jeogori: new THREE.CapsuleGeometry(0.176, 0.10, 4, 10),
+    apron: new THREE.BoxGeometry(0.28, 0.34, 0.02),
+    /* 소품 */
     bag: new THREE.BoxGeometry(0.15, 0.19, 0.07),
     brief: new THREE.BoxGeometry(0.22, 0.17, 0.075),
     cup: new THREE.CylinderGeometry(0.032, 0.026, 0.09, 7),
     phone: new THREE.BoxGeometry(0.055, 0.095, 0.009),
-    hatBrim: new THREE.CylinderGeometry(0.215, 0.215, 0.014, 14),
-    hatTop: new THREE.CylinderGeometry(0.115, 0.122, 0.10, 12),
     mask: new THREE.BoxGeometry(0.13, 0.075, 0.02),
     glass: new THREE.TorusGeometry(0.030, 0.0050, 5, 14),
-    skirt: new THREE.CylinderGeometry(0.145, 0.30, 0.44, 12, 1, true),
-    dress: new THREE.CylinderGeometry(0.16, 0.30, 0.55, 12, 1, true),
-    hanbokSkirt: new THREE.CylinderGeometry(0.20, 0.40, 0.82, 14, 1, true),
-    jeogori: new THREE.CapsuleGeometry(0.163, 0.14, 4, 10),
-    gatBrim: new THREE.CylinderGeometry(0.27, 0.27, 0.012, 16),
-    gatTop: new THREE.CylinderGeometry(0.10, 0.12, 0.16, 12),
-    apron: new THREE.BoxGeometry(0.26, 0.34, 0.02),
+    /* 모자 (치비 머리에 맞춘 크기) */
+    capTop: new THREE.CylinderGeometry(0.148, 0.152, 0.145, 14),
+    capBrim: new THREE.CylinderGeometry(0.235, 0.235, 0.02, 16),
+    beanie: new THREE.SphereGeometry(0.206, 14, 10),
+    gatBrim: new THREE.CylinderGeometry(0.30, 0.30, 0.014, 16),
+    gatTop: new THREE.CylinderGeometry(0.115, 0.135, 0.17, 12),
+    band: new THREE.CylinderGeometry(0.152, 0.152, 0.07, 14),
+    scarf: new THREE.TorusGeometry(0.132, 0.040, 7, 18),
+    backpack: new THREE.BoxGeometry(0.24, 0.30, 0.12),
   };
   const M = {};
   function mat(c, o) {
@@ -33877,339 +34107,370 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   /* ---------------- 사람 1명 ---------------- */
   /* V15.2 — NPC 피부는 밝은 살구톤으로 통일 (어둑한 피부 금지) */
   const SKIN_CUTE = [0xfde3cd, 0xfadbbf, 0xf8d6b8, 0xf4cfae, 0xfce6d4];
+  /* V15.4 — 바깥 NPC 도 학원 로비의 치비 캐릭터(createAvatar)와 똑같은
+     키(1.47m)·머리 크기·목 연결을 쓰도록 전면 재작성. */
   function person(o) {
     const opt = o || {};
     const g = new THREE.Group();
-    const sc = opt.scale || 1;
+    /* 크기는 제각각이 되지 않게 아주 좁은 범위만 허용 */
+    const sc = (typeof opt.scale === 'number') ? Math.max(0.96, Math.min(1.04, opt.scale)) : 1;
     const skin = cached(skinMats, (typeof opt.skin === 'number') ? SKIN_CUTE[Math.abs(opt.skin) % SKIN_CUTE.length] : pick(SKIN_CUTE));
     const hairC = opt.hair !== undefined ? opt.hair : pick(P.hair);
     const hairM = cached(hairMats, hairC);
     const topM = cached(topMats, opt.shirt !== undefined ? opt.shirt : pick(P.top));
     const botM = cached(botMats, opt.pants !== undefined ? opt.pants : pick(P.bottom));
-    const shoeM = cached(shoeMats, opt.shoes !== undefined ? opt.shoes : pick(P.shoe));
+    const shoeM = cached(shoeMats, opt.shoes !== undefined ? opt.shoes : 0x3a342d);
+    const soleM = cached(shoeMats, 0xe9e1d2);
     const style = opt.style || 'casual';
+    const hanbok = style === 'hanbok';
+    const legMat = (opt.skirt || opt.dress || hanbok) ? skin : botM;
 
-    /* --- 하체 --- */
+    /* --- 다리 (createAvatar 0.094 · 0.59 · thigh/knee/shoe) --- */
     const legs = [];
-    const hip = new THREE.Group();
-    hip.position.y = 0.62;
-    g.add(hip);
     [-1, 1].forEach((side) => {
-      const pivot = new THREE.Group();
-      pivot.position.set(0.083 * side, 0, 0);
-      const thigh = new THREE.Mesh(G.thigh, botM);
-      thigh.position.y = -0.13;
+      const hip = new THREE.Group();
+      hip.position.set(0.094 * side, 0.59, 0);
+      const thigh = new THREE.Mesh(G.thigh, legMat);
+      thigh.position.y = -0.11;
       const knee = new THREE.Group();
-      knee.position.y = -0.255;
-      const shin = new THREE.Mesh(G.shin, opt.skirt || opt.dress || style === 'hanbok' ? skin : botM);
-      shin.position.y = -0.11;
+      knee.position.y = -0.235;
+      const shin = new THREE.Mesh(G.shin, legMat);
+      shin.position.y = -0.10;
       const shoe = new THREE.Mesh(G.shoe, shoeM);
-      shoe.position.set(0, -0.235, 0.032);
-      knee.add(shin, shoe);
-      pivot.add(thigh, knee);
-      hip.add(pivot);
-      legs.push({ pivot, knee });
+      shoe.rotation.x = Math.PI / 2;
+      shoe.scale.set(1.12, 1, 0.62);
+      shoe.position.set(0, -0.262, 0.026);
+      const sole = new THREE.Mesh(G.sole, soleM);
+      sole.position.set(0, -0.305, 0.026);
+      knee.add(shin, shoe, sole);
+      hip.add(thigh, knee);
+      g.add(hip);
+      legs.push({ pivot: hip, knee });
     });
 
-    /* --- 몸통 --- */
+    /* --- 몸통 (createAvatar 와 같은 y · 반지름) --- */
     const body = new THREE.Group();
-    body.position.y = 0.62;
+    body.position.y = 0;
     g.add(body);
     const torso = new THREE.Mesh(G.torso, topM);
-    torso.position.y = 0.26;
-    torso.scale.set(1, 1, 0.86);
-    const hipM = new THREE.Mesh(G.hip, opt.skirt || opt.dress ? topM : botM);
-    hipM.position.y = 0.02;
-    hipM.scale.set(1, 1, 0.84);
-    body.add(torso, hipM);
+    torso.position.y = 0.795;
+    torso.scale.set(1.14, 1, 0.9);
+    body.add(torso);
+    const shoulders = new THREE.Mesh(G.shoulders, topM);
+    shoulders.position.y = 0.945;
+    shoulders.scale.set(1.32, 0.44, 0.92);
+    body.add(shoulders);
+    const hips = new THREE.Mesh(G.hip, (opt.skirt || opt.dress || hanbok) ? topM : botM);
+    hips.position.y = 0.645;
+    hips.scale.set(1.2, 0.8, 1.0);
+    body.add(hips);
 
-    /* 치마 · 원피스 · 한복 */
-    if (style === 'hanbok') {
+    if (hanbok) {
+      /* 한복 — 허리에서 발목까지 부드럽게 퍼지는 치마 + 짧은 저고리 */
       const sk = new THREE.Mesh(G.hanbokSkirt, mat(opt.hanbokBottom || 0xd94f6a, { side: THREE.DoubleSide, roughness: .9 }));
-      sk.position.y = -0.02;
-      body.add(sk);
-      const jeo = new THREE.Mesh(G.jeogori, mat(opt.hanbokTop || 0xfaf4e8, { roughness: .85 }));
-      jeo.position.y = 0.3;
-      jeo.scale.set(1, 1, 0.88);
-      body.add(jeo);
-      const ribbon = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.14, 0.01), mat(opt.hanbokRibbon || 0x2f4a8a));
-      ribbon.position.set(0, 0.2, 0.15);
-      body.add(ribbon);
-    } else if (opt.dress) {
-      const dr = new THREE.Mesh(G.dress, mat(opt.dress, { side: THREE.DoubleSide }));
-      dr.position.y = -0.10;
-      dr.scale.set(1, 1, 0.9);
-      body.add(dr);
-    } else if (opt.skirt) {
-      const sk = new THREE.Mesh(G.skirt, mat(opt.skirt, { side: THREE.DoubleSide }));
-      sk.position.y = -0.12;
+      sk.position.y = 0.42;
       sk.scale.set(1, 1, 0.92);
       body.add(sk);
-    }
-    /* 재킷 라펠 · 넥타이 · 셔츠 깃 */
-    if (opt.tie) {
-      body.add(new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.20, 0.012), mat(0x8f2f38)).translateY(0.32).translateZ(0.135));
-      const collar = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.05, 0.012), mat(0xf2efe6));
-      collar.position.set(0, 0.42, 0.132);
-      body.add(collar);
-    } else if (style === 'office' || opt.lapel) {
+      const jeo = new THREE.Mesh(G.jeogori, mat(opt.hanbokTop || 0xfaf4e8, { roughness: .85 }));
+      jeo.position.y = 0.87;
+      jeo.scale.set(1.06, 1, 0.92);
+      body.add(jeo);
+      const ribbon = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.16, 0.012), mat(opt.hanbokRibbon || 0x2f4a8a));
+      ribbon.position.set(0, 0.775, 0.172);
+      body.add(ribbon);
+      /* 깃 (V 자) */
       [-1, 1].forEach((s) => {
-        const l = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.2, 0.012), mat(opt.lapel || 0x1f2733));
-        l.position.set(0.055 * s, 0.34, 0.128);
+        const git = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.16, 0.012), mat(0xf7f1e4));
+        git.position.set(0.045 * s, 0.885, 0.168);
+        git.rotation.z = -0.5 * s;
+        body.add(git);
+      });
+    } else {
+      const collar = new THREE.Mesh(G.collar, mat(opt.trim !== undefined ? opt.trim : (opt.pants || 0x4a4f5a), { roughness: .55, metalness: .18 }));
+      collar.position.y = 0.972;
+      collar.rotation.x = Math.PI / 2;
+      body.add(collar);
+      const waist = new THREE.Mesh(G.waist, topM);
+      waist.position.y = 0.695;
+      waist.scale.z = 0.86;
+      body.add(waist);
+      const hemShirt = new THREE.Mesh(new THREE.TorusGeometry(0.134, 0.014, 6, 20), mat(opt.pants || 0x4a4f5a, { roughness: .6 }));
+      hemShirt.position.y = 0.648;
+      hemShirt.rotation.x = Math.PI / 2;
+      body.add(hemShirt);
+      if (opt.dress) {
+        const dr = new THREE.Mesh(G.dress, mat(opt.dress, { side: THREE.DoubleSide, roughness: .9 }));
+        dr.position.y = 0.56;
+        dr.scale.set(1, 1, 0.9);
+        body.add(dr);
+      } else if (opt.skirt) {
+        const sk = new THREE.Mesh(G.skirt, mat(opt.skirt, { side: THREE.DoubleSide, roughness: .9 }));
+        sk.position.y = 0.55;
+        sk.scale.set(1, 1, 0.92);
+        body.add(sk);
+      }
+    }
+    /* 재킷 라펠 · 넥타이 */
+    if (opt.tie) {
+      body.add(new THREE.Mesh(new THREE.BoxGeometry(0.046, 0.22, 0.012), mat(0x8f2f38)).translateY(0.86).translateZ(0.152));
+      const collarT = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.055, 0.012), mat(0xf2efe6));
+      collarT.position.set(0, 0.965, 0.148);
+      body.add(collarT);
+    } else if (opt.lapel) {
+      [-1, 1].forEach((s) => {
+        const l = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.012), mat(opt.lapel || 0x1f2733));
+        l.position.set(0.062 * s, 0.875, 0.146);
         l.rotation.z = 0.22 * s;
         body.add(l);
       });
     }
     if (opt.apron) {
       const a = new THREE.Mesh(G.apron, mat(opt.apron, { roughness: .95 }));
-      a.position.set(0, 0.16, 0.135);
+      a.position.set(0, 0.72, 0.155);
       body.add(a);
     }
-    /* 가슴 휴대폰 · 이름표 */
     if (opt.badge) {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.028, 0.006), mat(0xf2efe6));
-      b.position.set(0.08, 0.35, 0.135);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.032, 0.006), mat(0xf2efe6));
+      b.position.set(0.09, 0.90, 0.152);
       body.add(b);
     }
 
-    /* --- 팔 --- */
+    /* --- 팔 (createAvatar 0.243 · 0.905) --- */
     const arms = [];
     [-1, 1].forEach((side) => {
       const pivot = new THREE.Group();
-      pivot.position.set(0.185 * side, 0.46, 0);
-      const upper = new THREE.Mesh(G.upperArm, topM);
-      upper.position.y = -0.085;
-      const elbow = new THREE.Group();
-      elbow.position.y = -0.185;
-      const fore = new THREE.Mesh(G.foreArm, opt.sleeveShort ? skin : topM);
-      fore.position.y = -0.08;
+      pivot.position.set(0.243 * side, 0.905, 0);
+      const deltoid = new THREE.Mesh(G.deltoid, topM);
+      deltoid.position.y = -0.008;
+      deltoid.scale.set(1, 0.92, 0.96);
+      const arm = new THREE.Mesh(G.upperArm, opt.sleeveShort ? skin : topM);
+      arm.position.y = -0.105;
       const hand = new THREE.Mesh(G.hand, skin);
-      hand.position.y = -0.175;
-      elbow.add(fore, hand);
-      pivot.add(upper, elbow);
+      hand.position.y = -0.224;
+      pivot.add(deltoid, arm, hand);
       body.add(pivot);
-      arms.push({ pivot, elbow, hand });
+      arms.push({ pivot, hand });
     });
     const armL = arms[0], armR = arms[1];
 
     /* 소품 (손) */
     if (opt.briefcase) {
       const b = new THREE.Mesh(G.brief, mat(0x2a231c));
-      b.position.set(0.03, -0.20, 0.03);
-      b.rotation.z = 0.06;
+      b.position.set(0.02, -0.245, 0.03);
       armR.hand.add(b);
     } else if (opt.bag) {
       const b = new THREE.Mesh(G.bag, mat(opt.bagColor || 0x8a5a3a));
-      b.position.set(0, -0.16, 0.02);
+      b.position.set(0, -0.20, 0.03);
       armR.hand.add(b);
     }
     if (opt.coffee) {
       const c = new THREE.Mesh(G.cup, mat(0xf7f2e8));
-      c.position.set(0, -0.10, 0.03);
+      c.position.set(0, -0.13, 0.04);
       armL.hand.add(c);
       const lid = new THREE.Mesh(G.cup, mat(0x4a3728));
       lid.scale.set(1.06, 0.16, 1.06);
-      lid.position.set(0, -0.06, 0.03);
+      lid.position.set(0, -0.085, 0.04);
       armL.hand.add(lid);
     }
     if (opt.phone) {
       const ph = new THREE.Mesh(G.phone, mat(0x1b1f24, { roughness: .3 }));
-      ph.position.set(0, -0.07, 0.04);
+      ph.position.set(0, -0.10, 0.05);
       ph.rotation.x = 0.5;
       armL.hand.add(ph);
     }
     if (opt.umbrella) {
       const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.9, 6), mat(0x3a3f47));
-      rod.position.set(0.02, -0.35, 0.12);
+      rod.position.set(0.02, -0.42, 0.13);
       armR.hand.add(rod);
     }
+    if (opt.backpack) {
+      const bp = new THREE.Mesh(G.backpack, mat(opt.backpack));
+      bp.position.set(0, 0.80, -0.19);
+      body.add(bp);
+    }
 
-    /* --- 머리 (플레이어와 같은 귀여운 치비 얼굴) --- */
+    /* --- 목 (createAvatar 1.03 · 반지름 0.074/0.086 · 높이 0.12) --- */
     const neck = new THREE.Mesh(G.neck, skin);
-    neck.position.y = 0.48;
+    neck.position.y = 1.03;
     body.add(neck);
+
+    /* --- 머리 (createAvatar 1.238 · scale 1.16) --- */
     const head = new THREE.Group();
-    head.position.y = 0.545;
+    head.position.y = 1.238;
+    head.scale.setScalar(1.16);
     body.add(head);
     const skull = new THREE.Mesh(G.head, skin);
-    skull.scale.set(0.98, 1.06, 0.98);
+    skull.scale.set(0.94, 1.09, 0.98);
     head.add(skull);
-    /* 귀 */
     [-1, 1].forEach((s) => {
       const ear = new THREE.Mesh(G.ear, skin);
       ear.scale.set(0.55, 0.95, 0.85);
-      ear.position.set(0.1463 * s, -0.009, 0.004);
+      ear.position.set(0.178 * s, -0.012, 0.004);
       head.add(ear);
     });
-    /* 헤어 — 캡은 이마 위까지만 (눈을 절대 가리지 않는다) */
-    const hs = opt.hairStyle || (opt.longHair ? 'long' : pick(['short', 'long', 'bun', 'wave', 'buzz']));
-    if (hs !== 'bald') {
-      const cap = new THREE.Mesh(G.hairCap, hairM);
-      cap.position.set(0, 0.026, -0.006);
-      cap.rotation.x = -0.12;
-      cap.scale.set(1, 0.98, 1);
-      head.add(cap);
-      if (hs === 'long' || hs === 'wave') {
-        const back = new THREE.Mesh(G.hairBack, hairM);
-        back.position.set(0, -0.045, -0.062);
-        back.scale.set(0.97, 1.06, 0.66);
-        head.add(back);
-        if (hs === 'wave') {
-          [-1, 1].forEach((s) => {
-            const sp = new THREE.Mesh(G.hairLong, hairM);
-            sp.position.set(0.108 * s, -0.05, 0.0);
-            sp.scale.set(0.44, 0.72, 0.5);
-            head.add(sp);
-          });
-        }
-      } else if (hs === 'bun') {
-        const bun = new THREE.Mesh(G.head, hairM);
-        bun.position.set(0, 0.150, -0.062);
-        bun.scale.set(0.46, 0.46, 0.46);
-        head.add(bun);
-      } else if (hs === 'short') {
+    /* 헤어 */
+    const hs = opt.hairStyle || (opt.longHair ? 'long' : pick(['short', 'long', 'bun', 'wave']));
+    const cap = new THREE.Mesh(G.hairCap, hairM);
+    cap.position.set(0, 0.032, -0.008);
+    cap.rotation.x = -0.12;
+    head.add(cap);
+    if (hs === 'long' || hs === 'wave') {
+      const back = new THREE.Mesh(G.hairBack, hairM);
+      back.position.set(0, -0.05, -0.075);
+      back.scale.set(0.97, 1.06, 0.66);
+      head.add(back);
+      if (hs === 'wave') {
         [-1, 1].forEach((s) => {
-          const side = new THREE.Mesh(G.head, hairM);
-          side.scale.set(0.42, 1.06, 0.92);
-          side.position.set(0.146 * s, -0.012, -0.004);
-          head.add(side);
+          const sp = new THREE.Mesh(G.hairLong, hairM);
+          sp.position.set(0.148 * s, -0.06, 0.0);
+          sp.scale.set(0.5, 0.8, 0.55);
+          head.add(sp);
         });
       }
-      if (hs === 'buzz') {
-        cap.scale.set(0.98, 0.74, 0.98);
-      } else {
-        /* 앞머리 — 눈 위(이마)에만 얹는다 */
-        const bang = new THREE.Mesh(G.bang, hairM);
-        bang.position.set(0, 0.098, 0.062);
-        bang.scale.set(1.0, 0.36, 0.55);
-        bang.rotation.x = -0.12;
-        head.add(bang);
-        if (hs === 'short' || hs === 'bun') {
-          const sweep = new THREE.Mesh(G.bang, hairM);
-          sweep.scale.set(0.62, 0.24, 0.34);
-          sweep.position.set(0.060, 0.092, 0.088);
-          sweep.rotation.set(0.1, 0.1, -0.3);
-          head.add(sweep);
-        }
-      }
+    } else if (hs === 'bun') {
+      const bun = new THREE.Mesh(G.head, hairM);
+      bun.position.set(0, 0.16, -0.07);
+      bun.scale.setScalar(0.44);
+      head.add(bun);
+      const nape = new THREE.Mesh(G.hairBack, hairM);
+      nape.position.set(0, -0.03, -0.06);
+      nape.scale.set(0.97, 0.86, 0.74);
+      head.add(nape);
+    } else if (hs === 'short') {
+      const nape = new THREE.Mesh(G.hairBack, hairM);
+      nape.position.set(0, -0.03, -0.058);
+      nape.scale.set(0.97, 0.86, 0.74);
+      head.add(nape);
+      [-1, 1].forEach((s) => {
+        const side = new THREE.Mesh(G.hairSide, hairM);
+        side.scale.set(0.44, 1.25, 0.98);
+        side.position.set(0.178 * s, -0.005, -0.005);
+        head.add(side);
+      });
     }
-    /* 얼굴 — 크고 반짝이는 눈 · 볼터치 · 웃는 입 */
+    if (hs !== 'buzz') {
+      const fringe = new THREE.Mesh(G.hairFringe, hairM);
+      fringe.scale.set(1.0, 0.34, 0.56);
+      fringe.position.set(0, 0.1, 0.145);
+      fringe.rotation.x = -0.12;
+      head.add(fringe);
+      const sweep = new THREE.Mesh(G.hairSweep, hairM);
+      sweep.scale.set(1.5, 0.5, 0.72);
+      sweep.position.set(0.045, 0.095, 0.166);
+      sweep.rotation.set(0.18, 0.18, -0.38);
+      head.add(sweep);
+    }
+    /* 얼굴 — createAvatar 와 같은 좌표 */
     const whiteM = mat(0xfffdf8, { roughness: .38 });
     const irisM = mat(0x2b211c, { roughness: .34 });
     const pupilM = mat(0x141010, { roughness: .4 });
     const shineM = basic(0xffffff);
     const lashM = mat(0x241c18, { roughness: .6 });
-    const browM = mat(0x4a3524, { roughness: .7 });
     [-1, 1].forEach((s) => {
       const w = new THREE.Mesh(G.eyeW, whiteM);
       w.scale.set(1, 1.02, 0.6);
-      w.position.set(0.0606 * s, 0, 0.119);
+      w.position.set(0.073 * s, 0, 0.146);
       head.add(w);
       const iris = new THREE.Mesh(G.iris, irisM);
       iris.scale.set(0.92, 1.04, 0.5);
-      iris.position.set(0.0606 * s, -0.003, 0.140);
+      iris.position.set(0.073 * s, -0.004, 0.171);
       head.add(iris);
       const pup = new THREE.Mesh(G.pupil, pupilM);
       pup.scale.set(0.9, 1.1, 0.5);
-      pup.position.set(0.0606 * s, -0.005, 0.152);
+      pup.position.set(0.073 * s, -0.006, 0.186);
       head.add(pup);
       const sh = new THREE.Mesh(G.shine, shineM);
       sh.scale.set(1, 1, 0.5);
-      sh.position.set(0.0606 * s + 0.0107, 0.0156, 0.160);
+      sh.position.set(0.073 * s + 0.013, 0.019, 0.196);
       head.add(sh);
       const sh2 = new THREE.Mesh(G.shine2, shineM);
-      sh2.position.set(0.0606 * s - 0.0123, -0.0148, 0.160);
+      sh2.position.set(0.073 * s - 0.015, -0.018, 0.196);
       head.add(sh2);
       const lash = new THREE.Mesh(G.lash, lashM);
-      lash.position.set(0.0606 * s, 0.007, 0.124);
+      lash.position.set(0.073 * s, 0.008, 0.152);
       lash.rotation.set(0.16, 0, -0.12 * s);
       head.add(lash);
-      const brow = new THREE.Mesh(G.brow, browM);
+      const brow = new THREE.Mesh(G.brow, lashM);
       brow.rotation.z = Math.PI / 2 + 0.1 * s;
-      brow.position.set(0.0606 * s, 0.066, 0.130);
+      brow.position.set(0.073 * s, 0.082, 0.16);
       head.add(brow);
     });
     const nose = new THREE.Mesh(G.nose, skin);
     nose.scale.set(1, 0.8, 0.7);
-    nose.position.set(0, -0.031, 0.148);
+    nose.position.set(0, -0.038, 0.183);
     head.add(nose);
     const mouth = new THREE.Mesh(G.mouth, mat(0xb35a52, { roughness: .65 }));
-    mouth.position.set(0, -0.062, 0.139);
+    mouth.position.set(0, -0.075, 0.172);
     mouth.rotation.set(0.12, 0, Math.PI + 0.32);
     head.add(mouth);
-    /* 발그레 볼터치 */
     const blushM = new THREE.MeshBasicMaterial({ color: 0xf59a95, transparent: true, opacity: .5 });
-    [-1, 1].forEach((s) => {
-      const b = new THREE.Mesh(G.blush, blushM);
-      b.position.set(0.095 * s, -0.040, 0.121);
-      b.rotation.y = 0.42 * s;
-      head.add(b);
-    });
+    const blushL = new THREE.Mesh(G.blush, blushM);
+    blushL.position.set(-0.116, -0.048, 0.152);
+    blushL.rotation.y = -0.42;
+    const blushR = blushL.clone();
+    blushR.position.x = 0.116;
+    blushR.rotation.y = 0.42;
+    head.add(blushL, blushR);
     if (opt.mask) {
       const m = new THREE.Mesh(G.mask, mat(0xf2f4f6, { roughness: .6 }));
-      m.position.set(0, -0.034, 0.146);
+      m.position.set(0, -0.042, 0.176);
       head.add(m);
     }
     if (opt.glasses) {
       const gm = mat(0x2a2a2e, { roughness: .35, metalness: .4 });
       [-1, 1].forEach((s) => {
         const r = new THREE.Mesh(G.glass, gm);
-        r.position.set(0.0606 * s, 0.004, 0.152);
+        r.position.set(0.073 * s, 0.004, 0.186);
         r.rotation.y = 0.14 * s;
         head.add(r);
       });
-      const br = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.006, 0.006), gm);
-      br.position.set(0, 0.008, 0.156);
+      const br = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.006, 0.006), gm);
+      br.position.set(0, 0.008, 0.19);
       head.add(br);
     }
     /* 모자 */
     if (opt.hat === 'cap') {
-      const c = new THREE.Mesh(G.hatTop, mat(opt.hatColor || 0x2f3b52));
-      c.position.y = 0.175;
-      c.scale.y = 0.6;
+      const c = new THREE.Mesh(G.capTop, mat(opt.hatColor || 0x2f3b52));
+      c.position.y = 0.235;
+      c.scale.y = 0.62;
       head.add(c);
-      const brim = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.012, 0.1), mat(opt.hatColor || 0x2f3b52));
-      brim.position.set(0, 0.146, 0.14);
+      const brim = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.014, 0.12), mat(opt.hatColor || 0x2f3b52));
+      brim.position.set(0, 0.20, 0.16);
       head.add(brim);
     } else if (opt.hat === 'beanie') {
-      const c = new THREE.Mesh(G.hairCap, mat(opt.hatColor || 0xd8544a));
-      c.position.y = 0.056;
-      c.scale.set(1.04, 0.88, 1.04);
+      const c = new THREE.Mesh(G.beanie, mat(opt.hatColor || 0xd8544a));
+      c.position.y = 0.052;
+      c.scale.set(1.02, 0.9, 1.02);
       head.add(c);
     } else if (opt.hat === 'gat') {
       const brim = new THREE.Mesh(G.gatBrim, mat(0x1a1a1c, { roughness: .7 }));
-      brim.position.y = 0.165;
+      brim.position.y = 0.20;
       head.add(brim);
       const top = new THREE.Mesh(G.gatTop, mat(0x1a1a1c, { roughness: .7 }));
-      top.position.y = 0.245;
+      top.position.y = 0.29;
       head.add(top);
     } else if (opt.hat === 'hanbokHat') {
-      const band = new THREE.Mesh(G.hatTop, mat(0x1f2530));
-      band.position.y = 0.155;
-      band.scale.set(0.9, 0.5, 0.9);
+      const band = new THREE.Mesh(G.band, mat(0x1f2530));
+      band.position.y = 0.175;
+      band.scale.set(0.98, 0.7, 0.98);
       head.add(band);
     }
-    /* 목도리 */
+    /* 목도리 — 목(1.03)에 자연스럽게 감기게 */
     if (opt.scarf) {
-      const sc2 = new THREE.Mesh(new THREE.TorusGeometry(0.115, 0.035, 6, 14), mat(opt.scarf));
-      sc2.position.y = 0.50;
-      sc2.rotation.x = Math.PI / 2;
+      const sc2 = new THREE.Mesh(G.scarf, mat(opt.scarf, { roughness: .95 }));
+      sc2.position.y = 1.05;
+      sc2.rotation.x = Math.PI / 2 - 0.05;
       body.add(sc2);
-    }
-    /* 백팩 */
-    if (opt.backpack) {
-      const bp = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.28, 0.11), mat(opt.backpack));
-      bp.position.set(0, 0.28, -0.17);
-      body.add(bp);
     }
 
     g.scale.setScalar(sc);
     g.position.set(opt.x || 0, 0, opt.z || 0);
-    g.rotation.y = opt.yaw || Math.random() * 6.28;
+    g.rotation.y = opt.yaw !== undefined ? opt.yaw : Math.random() * 6.28;
     scene.add(g);
 
+    const npcName = opt.name ? String(opt.name) : '행인';
     const npc = {
-      root: g, name: opt.name || '', path: opt.path || null, idx: 0, dir: 1,
+      root: g, name: npcName, path: opt.path || null, idx: 0, dir: 1,
       speed: opt.speed || 0.95, phase: Math.random() * 6.28, t: Math.random() * 6,
       legs, arms, body, head, hairM,
       x: g.position.x, z: g.position.z, yaw: g.rotation.y,
@@ -34217,11 +34478,105 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       baseY: 0, hidden: false, idleT: Math.random() * 3,
     };
     people.push(npc);
-    if (window.npcs && npc.name && window.Talk && Talk.lines[npc.name]) {
-      npcs.push({ avatar: { name: npc.name, root: g }, kind: 'stand', seat: null });
-    }
+    /* V15.4 — 바깥 NPC 도 전부 눌러서 대화할 수 있게 */
+    try { V15.registerTalker(npcName, g, npc); } catch (e) { err('talk:' + e.message); }
     return npc;
   }
+
+  /* =================================================================
+     V15.4 — 바깥 NPC 전원 대화 (이름별 중국어 대사 · 병음 · 뜻 + 역할)
+     -----------------------------------------------------------------
+     · 강남·여의도·성수·북촌·한강·다리 위 모든 사람이 눌러서 대화된다.
+     · 대사가 없는 이름은 이름/직업 키워드로 역할별 기본 대화를 붙인다.
+     ================================================================= */
+  const T_WORK = [
+    { hz: '我在附近上班，今天也很忙。', py: 'wǒ zài fùjìn shàngbān, jīntiān yě hěn máng.', ko: '저는 근처에서 일하는데 오늘도 바빠요.' },
+    { hz: '一起喝杯咖啡吧？', py: 'yìqǐ hē bēi kāfēi ba?', ko: '같이 커피 한 잔 할래요?' },
+    { hz: '这里周末人更多。', py: 'zhèlǐ zhōumò rén gèng duō.', ko: '여기는 주말에 사람이 더 많아요.' },
+  ];
+  const T_TOUR = [
+    { hz: '这里的风景真漂亮！', py: 'zhèlǐ de fēngjǐng zhēn piàoliang!', ko: '여기 풍경 정말 예뻐요!' },
+    { hz: '可以帮我拍张照吗？', py: 'kěyǐ bāng wǒ pāi zhāng zhào ma?', ko: '사진 한 장 찍어 주실 수 있나요?' },
+    { hz: '我第一次来首尔。', py: 'wǒ dì yī cì lái shǒu ěr.', ko: '서울에 처음 왔어요.' },
+  ];
+  const T_NEIGH = [
+    { hz: '你好！今天天气不错。', py: 'nǐ hǎo! jīntiān tiānqì búcuò.', ko: '안녕하세요! 오늘 날씨 좋네요.' },
+    { hz: '这条巷子很安静。', py: 'zhè tiáo xiàngzi hěn ānjìng.', ko: '이 골목은 참 조용해요.' },
+    { hz: '前面有家很好吃的店。', py: 'qiánmiàn yǒu jiā hěn hǎochī de diàn.', ko: '앞에 맛있는 가게가 있어요.' },
+  ];
+  const T_SHOP = [
+    { hz: '欢迎光临！随便看看。', py: 'huānyíng guānglín! suíbiàn kànkan.', ko: '어서 오세요! 편하게 둘러보세요.' },
+    { hz: '这个颜色很适合您。', py: 'zhège yánsè hěn shìhé nín.', ko: '이 색이 잘 어울리세요.' },
+    { hz: '需要我帮您介绍吗？', py: 'xūyào wǒ bāng nín jièshào ma?', ko: '제가 설명해 드릴까요?' },
+  ];
+  const T_RUN = [
+    { hz: '跑起来真舒服！', py: 'pǎo qǐlái zhēn shūfu!', ko: '달리니까 정말 시원해요!' },
+    { hz: '一起运动吧。', py: 'yìqǐ yùndòng ba.', ko: '같이 운동해요.' },
+  ];
+  const T_BRIDGE = [
+    { hz: '从桥上看的汉江最美。', py: 'cóng qiáo shàng kàn de hànjiāng zuì měi.', ko: '다리에서 보는 한강이 제일 예뻐요.' },
+    { hz: '风有点大，小心着凉。', py: 'fēng yǒudiǎn dà, xiǎoxīn zháoliáng.', ko: '바람이 세니까 감기 조심하세요.' },
+  ];
+  const T_LOCAL = { '성수': 0 };
+  const V15_TALK_ROLE = {
+    '한복 관광객': '북촌 관광객 · 游客',
+    '북촌 주민': '북촌 주민 · 北村居民',
+    '찻집 주인': '찻집 주인 · 茶房主人',
+    '한복집 주인': '한복집 주인 · 韩服店主人',
+    '자전거 타는 사람': '한강 라이더 · 汉江骑手',
+    '성수지훈': '성수 골목 친구 · 圣水朋友',
+    '성수민지': '성수 골목 친구 · 圣水朋友',
+    '성수알렉스': '성수 팝업 게스트 · 快闪店客人',
+    '성수유나': '성수 카페 단골 · 咖啡常客',
+  };
+  const linesFor = (name) => {
+    const n = String(name || '');
+    if (/관광|알렉스|游客/.test(n)) return T_TOUR;
+    if (/주인|점원|사장|店/.test(n)) return T_SHOP;
+    if (/주민|이웃|동네/.test(n)) return T_NEIGH;
+    if (/자전거|러너|달리|운동/.test(n)) return T_RUN;
+    if (/다리|한강|骑手/.test(n)) return T_BRIDGE;
+    if (/^성수/.test(n)) return T_NEIGH;
+    return T_WORK;
+  };
+  V15.registerTalker = function (name, root, npc) {
+    try {
+      if (!name || !root) return;
+      if (window.Talk) {
+        if (!Talk.lines[name]) Talk.lines[name] = linesFor(name);
+      }
+      root.userData.talkHit = root.userData.talkHit || 'crowd';
+      if (typeof npcs !== 'undefined' && npcs) {
+        /* updateNpcs(stand) 가 head/armR 를 건드리므로 같은 객체를 넘긴다 */
+        const arms = (npc && npc.arms) || [];
+        const av = {
+          name: name, root: root, t: 0, seated: false,
+          head: (npc && npc.head) || null,
+          armR: (arms[1] && arms[1].pivot) || null,
+          armL: (arms[0] && arms[0].pivot) || null,
+          update: function () {},
+        };
+        npcs.push({ avatar: av, kind: 'stand', seat: null, crowd: true });
+      }
+    } catch (e) { err('talker:' + e.message); }
+  };
+  V15.linesFor = linesFor;
+  /* 역할 이름 — 기존 roleOf 확장 위에 한 겹 더 */
+  try {
+    if (window.Talk && !Talk.roleOf.__v154) {
+      const old = Talk.roleOf.bind(Talk);
+      const fn = function (av) {
+        const n = av && av.name;
+        if (V15_TALK_ROLE[n]) return V15_TALK_ROLE[n];
+        const r = old(av);
+        if (r && r !== '같은 방 수강생 · 同学') return r;
+        if (/^성수/.test(String(n))) return '성수동 사람 · 圣水洞';
+        return linesFor(n) === T_WORK ? '동네 사람 · 街坊' : '지나가는 사람 · 路人';
+      };
+      fn.__v154 = true;
+      Talk.roleOf = fn;
+    }
+  } catch (e) {}
   V15.person = person;
 
   /* ---------------- v14.makeCrowd 대체 ---------------- */
@@ -34276,7 +34631,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
           n.legs[1].knee.rotation.x = Math.max(0, sw) * 0.55;
           n.arms[1].pivot.rotation.x = -sw * 0.5;
           n.arms[0].pivot.rotation.x = sw * 0.5;
-          n.body.position.y = 0.62 + Math.abs(sw) * 0.022;
+          n.body.position.y = Math.abs(sw) * 0.022;
           n.body.rotation.y = sw * 0.04;
         }
         n.root.rotation.y += (n.yaw - n.root.rotation.y) * Math.min(1, dt * 6);
@@ -34284,7 +34639,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         /* 서 있는 사람 : 미세한 호흡 · 가끔 고개 돌림 */
         n.idleT += dt;
         const br = Math.sin(n.idleT * 1.7) * 0.006;
-        n.body.position.y = 0.62 + br;
+        n.body.position.y = br;
         if (n.arms) {
           n.arms[0].pivot.rotation.x *= 0.92;
           n.arms[1].pivot.rotation.x *= 0.92;
@@ -35172,6 +35527,39 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (V12.syncModalState) V12.syncModalState();
   }
   V15.openArcade = open;
+
+  /* V15.4 — 오락실 안/오락기 앞에서는 '게임하기' 버튼을 항상 띄운다 (모바일 터치 보장) */
+  (function () {
+    let btn = null;
+    function ensure() {
+      if (btn) return btn;
+      btn = document.createElement('button');
+      btn.id = 'v15ArcadeBtn';
+      btn.type = 'button';
+      btn.innerHTML = '🎮 게임하기 <small>두더지 · 성조 슈팅 · 클래식</small>';
+      btn.onclick = () => { try { open(); } catch (e) {} };
+      document.body.appendChild(btn);
+      const st = document.createElement('style');
+      st.textContent = `
+        #v15ArcadeBtn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(158px + env(safe-area-inset-bottom));
+          z-index:62;display:none;flex-direction:column;align-items:center;gap:1px;padding:9px 18px;border-radius:16px;border:0;
+          background:linear-gradient(150deg,#c45bff,#7a2fbf);color:#fff;font-weight:900;font-size:13px;
+          box-shadow:0 14px 30px -12px rgba(120,40,180,.8)}
+        #v15ArcadeBtn.show{display:flex}
+        #v15ArcadeBtn small{font-size:9px;font-weight:700;opacity:.88}
+        body.modal-open #v15ArcadeBtn{display:none !important}`;
+      document.head.appendChild(st);
+      return btn;
+    }
+    setInterval(() => {
+      try {
+        const b = ensure();
+        const inRoom = !!(V14.curRoom && V14.curRoom.id === 'arcade');
+        const near = Math.hypot(Player.pos.x + 139, Player.pos.z - 32) < 10;
+        b.classList.toggle('show', (inRoom || near) && !document.body.classList.contains('modal-open'));
+      } catch (e) {}
+    }, 600);
+  })();
 
   /* ---------------- 등록 ---------------- */
   V14.addWarp({ id: 'arcade', icon: '🕹️', name: '리얼 오락실', sub: '게임厅 · 두더지·성조슈팅', x: -139, z: 23.2, yaw: 0 }, build);
@@ -36157,88 +36545,286 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     });
   }
 
-  /* ---------------- 한옥 1채 ---------------- */
+  /* ---------------- 재질 : 화강암 · 회벽 · 기와 ---------------- */
+  const graniteTex = (() => {
+    let t = null;
+    return () => {
+      if (t) return t;
+      t = tex(128, 128, (c, W, H) => {
+        c.fillStyle = '#b9b3a6'; c.fillRect(0, 0, W, H);
+        for (let i = 0; i < 220; i++) {
+          const v = 150 + Math.random() * 70 | 0;
+          c.fillStyle = `rgba(${v},${v - 4},${v - 12},.5)`;
+          c.fillRect(Math.random() * W, Math.random() * H, 3 + Math.random() * 5, 2 + Math.random() * 4);
+        }
+        /* 큰 돌 블록 줄눈 */
+        c.strokeStyle = 'rgba(96,90,80,.55)'; c.lineWidth = 2;
+        for (let r = 0; r <= 4; r++) {
+          c.beginPath(); c.moveTo(0, r * 32); c.lineTo(W, r * 32); c.stroke();
+          const off = (r % 2) * 24;
+          for (let k = 0; k < 3; k++) {
+            c.beginPath(); c.moveTo(off + k * 48, r * 32); c.lineTo(off + k * 48, r * 32 + 32); c.stroke();
+          }
+        }
+      });
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      return t;
+    };
+  })();
+  const plasterTex = (() => {
+    let t = null;
+    return () => {
+      if (t) return t;
+      t = tex(128, 128, (c, W, H) => {
+        c.fillStyle = '#f4efe2'; c.fillRect(0, 0, W, H);
+        for (let i = 0; i < 320; i++) {
+          c.fillStyle = `rgba(206,196,176,${Math.random() * .18})`;
+          c.fillRect(Math.random() * W, Math.random() * H, 3, 3);
+        }
+      });
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      return t;
+    };
+  })();
+  const stonePaveTex = (() => {
+    let t = null;
+    return () => {
+      if (t) return t;
+      t = tex(256, 256, (c, W, H) => {
+        c.fillStyle = '#b3aa98'; c.fillRect(0, 0, W, H);
+        for (let r = 0; r < 6; r++) {
+          for (let k = 0; k < 6; k++) {
+            const v = 168 + ((r * 7 + k * 3) % 5) * 8;
+            c.fillStyle = `rgb(${v},${v - 6},${v - 20})`;
+            c.fillRect(k * 42 + 2, r * 42 + 2, 38, 38);
+            c.fillStyle = `rgba(255,255,255,${.06 + (k % 3) * .03})`;
+            c.fillRect(k * 42 + 3, r * 42 + 3, 36, 4);
+          }
+        }
+      });
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      return t;
+    };
+  })();
+
+  /* ---------------- 한옥 1채 (겹겹이 처마 · 서까래 · 대청마루) ---------------- */
   function hanok(g, o) {
     const x0 = o.x0, x1 = o.x1, z0 = o.z0, z1 = o.z1;
     const w = x1 - x0, d = z1 - z0;
     const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
     const h = o.h || 3.0;
-    const base = 0.45;
-    /* 기단 */
-    g.add(box(w + 0.5, base, d + 0.5, mat(0xb9b2a2, { roughness: .95 }), cx, base / 2, cz));
-    /* 벽 */
-    const wallM = new THREE.MeshStandardMaterial({ map: wallTex(), color: 0xffffff, roughness: .95, emissive: 0x6a6258, emissiveIntensity: .18 });
-    g.add(box(w, h, d, wallM, cx, base + h / 2, cz));
+    const base = 0.42;
+    const colM = mat(o.col || 0x6f4526, { roughness: .85 });
+    /* 기단 (화강암) */
+    const baseM = new THREE.MeshStandardMaterial({ map: graniteTex(), roughness: .95, color: 0xdfd9cc });
+    g.add(box(w + 0.7, base, d + 0.7, baseM, cx, base / 2, cz));
+    g.add(box(w + 0.9, 0.08, d + 0.9, mat(0xc9c2b2), cx, base + 0.02, cz));
+    /* 벽 — 흰 회벽 + 아래는 화강암 */
+    const wallM = new THREE.MeshStandardMaterial({ map: plasterTex(), color: 0xffffff, roughness: .95, emissive: 0x6a6258, emissiveIntensity: .16 });
+    g.add(box(w, h * 0.62, d, wallM, cx, base + h * 0.31 + h * 0.38, cz));
+    g.add(box(w + 0.02, h * 0.38, d + 0.02, baseM, cx, base + h * 0.19, cz));
     /* 기둥 */
-    const colM = mat(o.col || 0x7a4a2e, { roughness: .85 });
-    [[x0 + 0.16, z0 + 0.16], [x1 - 0.16, z0 + 0.16], [x0 + 0.16, z1 - 0.16], [x1 - 0.16, z1 - 0.16],
-      [cx, z0 + 0.16], [cx, z1 - 0.16], [x0 + 0.16, cz], [x1 - 0.16, cz]].forEach(([x, z]) => {
-      g.add(box(0.22, h + 0.06, 0.22, colM, x, base + h / 2, z));
+    [[x0 + 0.14, z0 + 0.14], [x1 - 0.14, z0 + 0.14], [x0 + 0.14, z1 - 0.14], [x1 - 0.14, z1 - 0.14],
+      [cx, z0 + 0.14], [cx, z1 - 0.14], [x0 + 0.14, cz], [x1 - 0.14, cz]].forEach(([x, z]) => {
+      g.add(box(0.2, h, 0.2, colM, x, base + h / 2, z));
     });
-    /* 창살문 */
+    /* 창살문 (한지 격자) */
     const lat = latticeTex();
+    const latM = new THREE.MeshStandardMaterial({ map: lat, roughness: .9, emissive: 0xffe2a8, emissiveIntensity: .22 });
     const faces = [
-      [cx, base + h * 0.55, z1 + 0.02, 0, w * 0.5],
-      [cx, base + h * 0.55, z0 - 0.02, Math.PI, w * 0.5],
-      [x0 - 0.02, base + h * 0.55, cz, -Math.PI / 2, d * 0.5],
-      [x1 + 0.02, base + h * 0.55, cz, Math.PI / 2, d * 0.5],
+      [cx, base + h * 0.55, z1 + 0.02, 0, w * 0.62],
+      [cx, base + h * 0.55, z0 - 0.02, Math.PI, w * 0.62],
+      [x0 - 0.02, base + h * 0.55, cz, -Math.PI / 2, d * 0.62],
+      [x1 + 0.02, base + h * 0.55, cz, Math.PI / 2, d * 0.62],
     ];
     faces.forEach(([x, y, z, ry, ww], i) => {
-      if (i === (o.doorFace || 0)) return;   /* 문 자리 */
-      const p = new THREE.Mesh(new THREE.PlaneGeometry(ww, h * 0.5), new THREE.MeshStandardMaterial({ map: lat, roughness: .9 }));
+      if (i === (o.doorFace === undefined ? 0 : o.doorFace)) return;   /* 문 자리 */
+      const p = new THREE.Mesh(new THREE.PlaneGeometry(ww, h * 0.46), latM);
       p.position.set(x, y, z); p.rotation.y = ry;
       g.add(p);
     });
-    /* 문 */
+    /* 나무 대문 · 대청마루 */
     const dfs = o.doorFace === undefined ? 0 : o.doorFace;
-    if (dfs >= 0) {
-      const df = faces[dfs];
-      const door = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.9), new THREE.MeshStandardMaterial({ map: lat, roughness: .9 }));
-      door.position.set(df[0], base + 0.95, df[2] + (dfs === 0 ? 0.03 : dfs === 1 ? -0.03 : 0));
-      if (dfs === 2) door.position.x -= 0.03;
-      if (dfs === 3) door.position.x += 0.03;
-      door.rotation.y = df[3];
-      g.add(door);
-    }
-    /* 지붕 — 팔작지붕 느낌 (두 개의 경사면 + 처마) */
-    const rH = 1.5, over = 0.85;
+    const df = faces[dfs];
+    const gx = df[0] + (dfs === 2 ? -0.04 : dfs === 3 ? 0.04 : 0), gz = df[2] + (dfs === 0 ? 0.04 : dfs === 1 ? -0.04 : 0);
+    const doorGrp = new THREE.Group();
+    doorGrp.position.set(gx, base, gz);
+    doorGrp.rotation.y = df[3];
+    const dM = mat(0x5a3a22, { roughness: .82 });
+    doorGrp.add(box(1.24, 2.0, 0.08, dM, 0, 1.0, 0));
+    [-0.28, 0.28].forEach((sx) => doorGrp.add(box(0.05, 1.96, 0.1, mat(0x3a2416), sx, 1.0, 0.01)));
+    [-1, 1].forEach((s) => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.012, 5, 12), mat(0xc8a24a, { metalness: .7, roughness: .3 }));
+      ring.position.set(0.11 * s, 1.02, 0.07);
+      doorGrp.add(ring);
+    });
+    doorGrp.add(box(1.5, 0.14, 0.16, colM, 0, 2.08, 0));
+    g.add(doorGrp);
+    /* 마루 (문 앞 목재 데크 + 계단) */
+    const deckM = mat(0x9a6a3c, { roughness: .8 });
+    const deckZ = dfs === 0 ? z1 + 0.55 : dfs === 1 ? z0 - 0.55 : cz;
+    const deckX = dfs === 2 ? x0 - 0.55 : dfs === 3 ? x1 + 0.55 : cx;
+    const deckW = (dfs <= 1) ? 1.9 : 0.9, deckD = (dfs <= 1) ? 0.9 : 1.9;
+    g.add(box(deckW, 0.12, deckD, deckM, deckX, base + 0.06, deckZ));
+    g.add(box(deckW, 0.1, 0.26, deckM, deckX, base - 0.06, deckZ + (dfs === 0 ? 0.55 : dfs === 1 ? -0.55 : 0)));
+    /* 지붕 — 진회색 기와, 안으로 굽은 처마, 서까래 */
+    const rH = 1.45, over = 0.95;
     const roofM = new THREE.MeshStandardMaterial({ map: tileTex(), roughness: .88, color: 0xffffff });
     const ridgeY = base + h + rH;
     const half = d / 2 + over;
     [-1, 1].forEach((s) => {
       const slopeLen = Math.hypot(half, rH);
-      const slope = box(w + over * 2, 0.12, slopeLen, roofM, cx, base + h + rH / 2, cz + s * half / 2);
+      const slope = box(w + over * 2.1, 0.12, slopeLen, roofM, cx, base + h + rH / 2, cz + s * half / 2);
       slope.rotation.x = s * Math.atan2(rH, half);
       g.add(slope);
       /* 처마 끝 살짝 들림 */
-      const eave = box(w + over * 2.2, 0.12, 0.5, roofM, cx, base + h + 0.06, cz + s * half);
-      eave.rotation.x = s * -0.16;
+      const eave = box(w + over * 2.35, 0.13, 0.62, roofM, cx, base + h + 0.03, cz + s * half);
+      eave.rotation.x = s * -0.17;
       g.add(eave);
+      /* 서까래 */
+      for (let i = 0; i < 10; i++) {
+        const rx = cx - (w + over * 1.6) / 2 + 0.35 + i * ((w + over * 1.6) - 0.7) / 9;
+        const raf = box(0.07, 0.07, 0.75, mat(0x6a4526), rx, base + h + 0.14, cz + s * (half - 0.18));
+        raf.rotation.x = s * -0.26;
+        g.add(raf);
+      }
     });
-    /* 용마루 */
-    g.add(box(w + over * 2.1, 0.22, 0.4, mat(0x2f3338, { roughness: .8 }), cx, ridgeY, cz));
-    [-1, 1].forEach((s) => g.add(box(0.34, 0.34, 0.5, mat(0x2a2e33), cx + s * (w / 2 + over), ridgeY + 0.05, cz)));
-    /* 박공면 */
+    /* 용마루 + 망와 */
+    g.add(box(w + over * 2.2, 0.26, 0.46, mat(0x2f3338, { roughness: .8 }), cx, ridgeY, cz));
     [-1, 1].forEach((s) => {
-      const tri = new THREE.Mesh(new THREE.CylinderGeometry(0.001, 0.001, 0.001, 3), wallM);
-      tri.visible = false; g.add(tri);
+      g.add(box(0.36, 0.4, 0.56, mat(0x2a2e33), cx + s * (w / 2 + over), ridgeY + 0.06, cz));
+      const end = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.1, 10), mat(0x35393f));
+      end.rotation.z = Math.PI / 2;
+      end.position.set(cx + s * (w / 2 + over * 1.05), ridgeY + 0.16, cz);
+      g.add(end);
     });
     /* 충돌 */
     V14.addSolid(x0 - 0.1, x1 + 0.1, z0 - 0.1, z1 + 0.1, 'hanok');
     return { cx, cz };
   }
 
-  /* ---------------- 돌담 ---------------- */
+  /* ---------------- 담장 (화강암 아래 · 회벽 위 · 기와 덮개) ---------------- */
   function stoneWall(g, x0, z0, x1, z1, h) {
     const len = Math.hypot(x1 - x0, z1 - z0);
-    const w = box(len, h || 1.05, 0.32, mat(0xa8a294, { roughness: .98 }), (x0 + x1) / 2, (h || 1.05) / 2, (z0 + z1) / 2);
-    w.rotation.y = Math.atan2(x1 - x0, z1 - z0) + Math.PI / 2;
-    g.add(w);
-    /* 기와 덮개 */
-    const cap = box(len, 0.14, 0.48, mat(0x3f444a), (x0 + x1) / 2, (h || 1.05) + 0.06, (z0 + z1) / 2);
-    cap.rotation.y = w.rotation.y;
-    g.add(cap);
-    V14.addSolid(Math.min(x0, x1) - 0.22, Math.max(x0, x1) + 0.22, Math.min(z0, z1) - 0.22, Math.max(z0, z1) + 0.22, 'stonewall');
+    const H = h || 1.15;
+    const midX = (x0 + x1) / 2, midZ = (z0 + z1) / 2;
+    const ry = Math.atan2(x1 - x0, z1 - z0) + Math.PI / 2;
+    const baseM = new THREE.MeshStandardMaterial({ map: graniteTex(), roughness: .96, color: 0xdcd6c9 });
+    const plM = new THREE.MeshStandardMaterial({ map: plasterTex(), roughness: .96, color: 0xffffff });
+    const b = box(len, H * 0.46, 0.34, baseM, midX, H * 0.23, midZ);
+    b.rotation.y = ry; g.add(b);
+    const p = box(len, H * 0.54, 0.3, plM, midX, H * 0.46 + H * 0.27, midZ);
+    p.rotation.y = ry; g.add(p);
+    /* 기와 덮개 (양쪽으로 살짝 경사) */
+    [-1, 1].forEach((s) => {
+      const cap = box(len, 0.1, 0.32, mat(0x3f444a, { roughness: .8 }), midX, H + 0.06, midZ);
+      cap.rotation.y = ry;
+      cap.rotation.z = 0;
+      cap.position.x += Math.cos(ry) * 0 + (-Math.sin(ry) * 0);
+      g.add(cap);
+    });
+    const capTop = box(len, 0.1, 0.1, mat(0x4a5058), midX, H + 0.13, midZ);
+    capTop.rotation.y = ry; g.add(capTop);
+    V14.addSolid(Math.min(x0, x1) - 0.25, Math.max(x0, x1) + 0.25, Math.min(z0, z1) - 0.25, Math.max(z0, z1) + 0.25, 'stonewall');
+  }
+
+  /* ---------------- 나무 대문 (빗장 · 문고리 · 기와 문지붕) ---------------- */
+  function woodGate(g, x, z, yaw) {
+    const grp = new THREE.Group();
+    grp.position.set(x, 0, z);
+    grp.rotation.y = yaw || 0;
+    const postM = mat(0x5a3a22, { roughness: .8 });
+    [-1, 1].forEach((s) => grp.add(box(0.22, 2.2, 0.22, postM, s * 1.05, 1.1, 0)));
+    /* 문짝 두 쪽 */
+    [-1, 1].forEach((s) => {
+      const leaf = box(0.9, 1.9, 0.09, mat(0x6b4526, { roughness: .82 }), s * 0.47, 1.02, 0);
+      grp.add(leaf);
+      /* 가로 띠 */
+      [0.45, 1.05, 1.6].forEach((y) => grp.add(box(0.86, 0.06, 0.11, mat(0x3a2416), s * 0.47, y, 0)));
+      /* 문고리 */
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.013, 5, 12), mat(0xc8a24a, { metalness: .7, roughness: .3 }));
+      ring.position.set(s * 0.18, 1.0, 0.08);
+      grp.add(ring);
+    });
+    /* 빗장 */
+    grp.add(box(1.9, 0.1, 0.1, mat(0x3a2416), 0, 1.25, 0.09));
+    /* 문 위 기와지붕 */
+    const roofM = new THREE.MeshStandardMaterial({ map: tileTex(), roughness: .88, color: 0xffffff });
+    [-1, 1].forEach((s) => {
+      const slope = box(2.9, 0.1, 0.62, roofM, 0, 2.34, s * 0.26);
+      slope.rotation.x = s * 0.45;
+      grp.add(slope);
+    });
+    grp.add(box(2.9, 0.16, 0.2, mat(0x2f3338), 0, 2.46, 0));
+    g.add(grp);
+  }
+
+  /* ---------------- 소나무 · 회화나무 ---------------- */
+  function pine(g, x, z, s) {
+    const k = s || 1;
+    const trunk = cyl(0.13 * k, 0.18 * k, 2.2 * k, mat(0x6a4a30, { roughness: .95 }), x, 1.1 * k, z, 7);
+    trunk.rotation.z = (Math.random() - .5) * 0.12;
+    g.add(trunk);
+    for (let i = 0; i < 4; i++) {
+      const cy2 = (1.5 + i * 0.52) * k;
+      const r = (1.15 - i * 0.2) * k;
+      const c = new THREE.Mesh(new THREE.ConeGeometry(r, 0.6 * k, 8), mat(i % 2 ? 0x2f5f3a : 0x3a6f42, { roughness: .95 }));
+      c.position.set(x + (i % 2 ? 0.14 : -0.12) * k, cy2, z + (i % 2 ? -0.1 : 0.12) * k);
+      c.scale.y = 0.72;
+      g.add(c);
+    }
+    V14.addSolid(x - 0.3, x + 0.3, z - 0.3, z + 0.3, 'pine');
+  }
+
+  /* ---------------- 남산 서울타워 실루엣 (북촌 5·6경 원경) ---------------- */
+  function namsan(g, x, z) {
+    const far = new THREE.MeshBasicMaterial({ color: 0x9fb0c0, transparent: true, opacity: .85 });
+    const far2 = new THREE.MeshBasicMaterial({ color: 0xb4c2d0, transparent: true, opacity: .8 });
+    /* 능선 */
+    for (let i = 0; i < 4; i++) {
+      const hill = new THREE.Mesh(new THREE.ConeGeometry(46 - i * 7, 15 - i * 2, 12), far2);
+      hill.position.set(x - 70 + i * 40, 6, z + i * 8);
+      hill.scale.set(1.5, 1, 1);
+      g.add(hill);
+    }
+    /* 타워 */
+    const tower = new THREE.Group();
+    tower.position.set(x, 0, z);
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 2.0, 30, 12), far);
+    shaft.position.y = 20;
+    tower.add(shaft);
+    const deck = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.0, 2.4, 16), far);
+    deck.position.y = 36;
+    tower.add(deck);
+    const deck2 = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 1.6, 16), far);
+    deck2.position.y = 39.4;
+    tower.add(deck2);
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.4, 12, 8), far);
+    mast.position.y = 46;
+    tower.add(mast);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.5, 3, 8), far);
+    tip.position.y = 53;
+    tower.add(tip);
+    g.add(tower);
+  }
+
+  /* ---------------- 청사초롱 ---------------- */
+  function cheongsachorong(g, x, y, z) {
+    const grp = new THREE.Group();
+    grp.position.set(x, y, z);
+    const body1 = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.34, 10), emat(0xd94b46, 0xd94b46, .9));
+    body1.position.y = 0.22;
+    const body2 = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.16, 10), emat(0x3a6fb0, 0x3a6fb0, .8));
+    body2.position.y = 0.02;
+    const capT = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.19, 0.05, 10), mat(0x2f3338));
+    capT.position.y = 0.41;
+    const capB = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.04, 10), mat(0x2f3338));
+    capB.position.y = -0.08;
+    const tassel = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.2, 6), mat(0xd8b06a, { metalness: .4 }));
+    tassel.position.y = -0.2;
+    tassel.rotation.x = Math.PI;
+    grp.add(body1, body2, capT, capB, tassel);
+    g.add(grp);
   }
 
   /* ---------------- 마을 ---------------- */
@@ -36269,90 +36855,99 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       alley.rotation.x = -Math.PI / 2;
       g.add(alley);
 
-      /* 한옥 배치 (안길 x -2~2 를 비워 둔다) */
-      const houses = [
-        { x0: -32, x1: -20, z0: 120, z1: 128, h: 2.9 },
-        { x0: -32, x1: -20, z0: 134, z1: 142, h: 3.0 },
-        { x0: -32, x1: -20, z0: 146, z1: 154, h: 2.9 },
-        { x0: 10, x1: 22, z0: 120, z1: 128, h: 3.0 },
-        { x0: 10, x1: 22, z0: 134, z1: 142, h: 3.1 },
-        { x0: 10, x1: 22, z0: 146, z1: 154, h: 2.8 },
-      ];
-      houses.forEach((h, i) => hanok(g, Object.assign({ doorFace: i % 2 ? 3 : 2 }, h)));
-      /* 안길 가까이 붙은 작은 한옥 4채 (마을을 빽빽하게) */
-      const inner = [
-        { x0: -16, x1: -7, z0: 126.5, z1: 134.5, h: 2.7 },
-        { x0: -16, x1: -7, z0: 138,   z1: 146,   h: 2.7 },
-        { x0: 7,   x1: 16, z0: 126.5, z1: 134.5, h: 2.7 },
-        { x0: 7,   x1: 16, z0: 138,   z1: 146,   h: 2.7 },
-      ];
-      inner.forEach((h, i) => hanok(g, Object.assign({ doorFace: i % 2 ? 2 : 3, col: 0x6b4a32 }, h)));
-      /* 마을 안 나무 · 화단 */
-      [[-4.4, 131], [4.4, 137], [-4.4, 149], [4.4, 128]].forEach(([x, z]) => {
-        if (!V15.blockedForProps(x, z, 0.5)) V15.tree(g, x, z, 0.9);
+      /* ---- 가회동 골목 : 양옆으로 겹겹이 붙은 한옥 (북촌 5·6경) ---- */
+      /* 앞줄 — 안길 양옆에 처마를 맞대고 붙은 집들 */
+      [[-9.7, -3.15], [3.15, 9.7]].forEach(([ax0, ax1]) => {
+        [126.2, 132.6, 139.0, 145.4, 151.8].forEach((z) => {
+          hanok(g, { x0: ax0, x1: ax1, z0: z, z1: z + 5.7, h: 2.95, doorFace: ax0 < 0 ? 3 : 2 });
+        });
       });
-      [[-5, 143, 0xe86a8a], [5, 131, 0xf2c14e], [-5, 127, 0x8ed081]].forEach(([x, z, c]) => {
-        g.add(box(0.9, 0.3, 0.9, mat(0x8a6440), x, 0.15, z));
-        for (let i = 0; i < 4; i++) {
-          const b = new THREE.Mesh(new THREE.SphereGeometry(0.13, 6, 5), mat(c));
-          b.position.set(x - 0.22 + (i % 2) * 0.44, 0.4, z - 0.2 + Math.floor(i / 2) * 0.4);
-          g.add(b);
+      /* 뒤줄 — 지붕만 겹쳐 보이게 (한옥 마을의 밀도) */
+      [[-19.5, -11.3], [11.3, 19.5]].forEach(([ax0, ax1]) => {
+        [125.4, 132.2, 139.0, 145.8].forEach((z) => {
+          hanok(g, { x0: ax0, x1: ax1, z0: z, z1: z + 6.2, h: 3.2, doorFace: ax0 < 0 ? 3 : 2, col: 0x6b4a32 });
+        });
+      });
+      /* 골목 돌바닥 */
+      const pave = new THREE.Mesh(new THREE.PlaneGeometry(5.6, B.z1 - 118),
+        new THREE.MeshStandardMaterial({ map: stonePaveTex(), roughness: .96, color: 0xd8cfbc }));
+      pave.rotation.x = -Math.PI / 2;
+      pave.position.set(0, 0.03, (118 + B.z1) / 2);
+      g.add(pave);
+      /* 담장 — 골목 양옆 (대문 자리는 비운다) */
+      const fenceSegs = [[124.4, 132.6], [135.6, 145.0], [148.0, 156.4]];
+      fenceSegs.forEach(([za, zb]) => {
+        [-2.65, 2.65].forEach((fx) => {
+          stoneWall(g, fx, za, fx, zb, 1.2);
+        });
+      });
+      /* 나무 대문 2쌍 */
+      woodGate(g, -2.65, 134.1, Math.PI / 2);
+      woodGate(g, -2.65, 146.6, Math.PI / 2);
+      woodGate(g, 2.65, 134.1, -Math.PI / 2);
+      woodGate(g, 2.65, 146.6, -Math.PI / 2);
+      /* 마을 앞 담장 (입구 좌우) */
+      stoneWall(g, -16.2, 124.2, -4.4, 124.2, 1.15);
+      stoneWall(g, 4.4, 124.2, 16.2, 124.2, 1.15);
+      /* 소나무 · 회화나무 */
+      [[-6.2, 129.5, 1.05], [6.4, 137.5, 1.15], [-6.4, 143.5, 1.0], [6.2, 150.5, 1.1],
+        [-13.5, 129.0, 1.2], [13.8, 144.5, 1.15], [-22.5, 137.5, 1.3], [22.0, 130.0, 1.25]].forEach(([x, z, s]) => pine(g, x, z, s));
+      /* 청사초롱 — 골목을 따라 */
+      [127.5, 135.5, 143.5, 151.5].forEach((z, i) => {
+        [-2.45, 2.45].forEach((fx) => {
+          g.add(cyl(0.05, 0.06, 2.3, mat(0x4a3a2a), fx, 1.15, z, 6));
+          g.add(box(0.5, 0.06, 0.06, mat(0x4a3a2a), fx + (fx > 0 ? -0.22 : 0.22), 2.28, z));
+          cheongsachorong(g, fx + (fx > 0 ? -0.42 : 0.42), 1.72, z);
+        });
+      });
+      /* 장독대 (마당) */
+      [[-5.6, 127.4, 0.34], [6.0, 149.0, 0.3], [-11.4, 151.0, 0.32]].forEach(([x, z, r], i) => {
+        for (let k = 0; k < 3; k++) {
+          const j = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), mat(0x4a3a30, { roughness: .9 }));
+          j.scale.set(1, 0.9, 1);
+          j.position.set(x + (k - 1) * 0.62, r * 0.86, z + (k % 2) * 0.4);
+          g.add(j);
+          g.add(cyl(r * 0.6, r * 0.68, 0.1, mat(0x3a2e26), x + (k - 1) * 0.62, r * 1.7, z + (k % 2) * 0.4, 10));
         }
       });
-      /* 한복집 · 찻집 (길 양옆 · 걸어 들어가는 실내) */
-      /* 돌담 */
-      stoneWall(g, -36, 114, -36, 158, 1.1);
-      stoneWall(g, 26, 114, 26, 158, 1.1);
-      stoneWall(g, -36, 158, -8, 158, 1.1);
-      stoneWall(g, 8, 158, 26, 158, 1.1);
-      /* 가로등 · 나무 */
-      for (let z = 118; z < 156; z += 8) {
-        if (!V15.blockedForProps(-3.1, z, 0.4)) {
-          g.add(cyl(0.06, 0.08, 2.4, mat(0x4a3a2a), -3.1, 1.2, z, 6));
-          const l = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.26, 8), emat(0xffe0a0, 0xffc060, 1.1));
-          l.position.set(-3.1, 2.5, z);
-          g.add(l);
-        }
-        if (!V15.blockedForProps(3.1, z + 4, 0.4)) {
-          g.add(cyl(0.06, 0.08, 2.4, mat(0x4a3a2a), 3.1, 1.2, z + 4, 6));
-          const l2 = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.26, 8), emat(0xffe0a0, 0xffc060, 1.1));
-          l2.position.set(3.1, 2.5, z + 4);
-          g.add(l2);
-        }
-      }
-      /* 마당 장독대 */
-      [[-6, 132], [-7.2, 133.4], [-5.2, 133.6]].forEach(([x, z], i) => {
-        const j = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8), mat(0x4a3a30, { roughness: .9 }));
-        j.scale.set(1, 0.9, 1);
-        j.position.set(x, 0.3 + i * 0.01, z);
-        g.add(j);
-        g.add(cyl(0.2, 0.24, 0.1, mat(0x3a2e26), x, 0.62, z, 10));
-      });
-      /* 전망대 (언덕 위 정자) */
+      /* 전망대 (골목 끝 정자) */
       const pav = new THREE.Group();
       pav.add(cyl(2.3, 2.4, 0.3, mat(0xb8ad96), 0, 0.15, 0, 12));
       [-1, 1].forEach((sx) => [-1, 1].forEach((sz) => {
         pav.add(cyl(0.11, 0.13, 2.6, mat(0x7a4a2e), sx * 1.7, 1.4, sz * 1.7, 8));
       }));
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(2.9, 1.5, 8), new THREE.MeshStandardMaterial({ map: tileTex(), color: 0xffffff, roughness: .9 }));
-      roof.position.y = 3.5;
-      pav.add(roof);
+      const pavRoof = new THREE.Mesh(new THREE.ConeGeometry(2.9, 1.5, 8), new THREE.MeshStandardMaterial({ map: tileTex(), color: 0xffffff, roughness: .9 }));
+      pavRoof.position.y = 3.5;
+      pav.add(pavRoof);
       pav.add(cyl(0.16, 0.16, 0.4, mat(0x2f3338), 0, 4.3, 0, 8));
       pav.position.set(0, 0.2, 155);
       g.add(pav);
       V14.addSolid(-2.6, 2.6, 152.4, 157.6, 'pavilion');
-      const pv = sign(2.6, 0.7, [{ t: '🏯 북촌 전망대', c: '#fff3d2', s: .4 }, { t: '北村展望台', c: '#ffe9a8', s: .26 }], { bg: '#3a2a1e', borderColor: '#d8b06a' });
+      const pv = sign(2.6, 0.7, [{ t: '🏯 북촌 6경 전망대', c: '#fff3d2', s: .38 }, { t: '北村六景 · 南山眺望', c: '#ffe9a8', s: .24 }], { bg: '#3a2a1e', borderColor: '#d8b06a' });
       pv.position.set(0, 3.0, 153.6);
       g.add(pv);
-
-      /* 마을 입구 표지 */
+      /* 원경 — 남산 서울타워 실루엣 + 능선 */
+      namsan(g, 6, 196);
+      /* 마을 입구 표지 (기와지붕 문) */
       const gate = sign(7.4, 1.8, [
         { t: '🏮 북촌 한옥마을', c: '#fff6e0', s: .42 },
         { t: '北村韩屋村 · BUKCHON', c: '#ffd9a0', s: .24 },
       ], { grad: [[0, '#3a2a1e'], [1, '#5a3a26']], borderColor: '#d8b06a' });
-      gate.position.set(0, 3.4, B.z0 - 1.2);
+      gate.position.set(0, 3.35, B.z0 - 1.0);
       g.add(gate);
-      [-3.4, 3.4].forEach((x) => g.add(cyl(0.13, 0.15, 3.4, mat(0x5a3a26, { roughness: .8 }), x, 1.7, B.z0 - 1.2, 8)));
+      [-3.5, 3.5].forEach((x) => {
+        g.add(cyl(0.14, 0.16, 3.2, mat(0x5a3a26, { roughness: .8 }), x, 1.6, B.z0 - 1.0, 8));
+        g.add(cyl(0.24, 0.24, 0.2, mat(0x8a8f97, { metalness: .4 }), x, 0.1, B.z0 - 1.0, 8));
+      });
+      /* 안내판 — 실제 북촌 이야기 */
+      const bInfo = sign(3.0, 1.5, [
+        { t: '北村八景', c: '#fff6e0', s: .34 },
+        { t: '가회동 31번지 · 북촌로 11길', c: '#ffe9c0', s: .22 },
+        { t: '600년 한옥 골목 · 남산이 보이는 길', c: '#e8d6b0', s: .2 },
+      ], { bg: '#2c2018', borderColor: '#d8b06a' });
+      bInfo.position.set(-4.2, 1.7, 125.6);
+      bInfo.rotation.y = 0.2;
+      g.add(bInfo);
 
       V15.shop({
         id: 'hanbok', name: '👘 북촌 한복집', cn: '北村韩服店 · HANBOK', x0: -16, x1: -4.2, z0: 114, z1: 124, h: 3.9,
@@ -36503,7 +37098,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
               <div class="pr">${it.price || 0}G ${own ? '· 보유' : ''}</div>
               <div class="btns">
                 <button data-buy="${it.id}">${own ? '하나 더' : '구매'}</button>
-                <button data-wear="${it.id}" class="${own && V15.Wear.equipped[it.id] ? 'on' : ''}">${V15.Wear.equipped[it.id] ? '착용 중' : '착용'}</button>
+                <button data-prev="${it.id}">👁</button>` + `<button data-wear="${it.id}" class="${own && V15.Wear.equipped[it.id] ? 'on' : ''}">${V15.Wear.equipped[it.id] ? '착용 중' : '착용'}</button>
               </div>
             </div>`;
           }).join('')}
@@ -36602,6 +37197,155 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   }, 2000);
 
   V15.bukchonInfo = () => ({ built, houses: 8, items: HANBOK.length });
+})();
+
+/* =====================================================================
+   v15.4 GREET — ⏰ 시간대 · 날씨 인사 도우미 (KST 아침·점심·저녁 + 실시간 날씨)
+   ---------------------------------------------------------------------
+   · 학원 로비와 광장에 서서 지금 한국 시간대에 맞는 중국어 인사와
+     실제 서울 날씨(기온·비·눈)에 맞는 한마디를 건넨다.
+   · 누르면 대화창에 简体 + 병음 + 뜻 + 🔊 듣기 로 나온다.
+   ===================================================================== */
+(function () {
+  const V15 = window.V15, V14 = window.V14;
+  if (!V15 || !V14) return;
+  const err = V15.err;
+  const { mat, box, cyl, sign } = V15;
+
+  /* --- 한국 시간 --- */
+  function kstParts() {
+    try {
+      const d = new Date(Date.now() + 9 * 3600 * 1000);
+      return { h: d.getUTCHours(), m: d.getUTCMinutes() };
+    } catch (e) { return { h: 12, m: 0 }; }
+  }
+  function period() {
+    const h = kstParts().h;
+    if (h >= 5 && h < 11) return 'morning';
+    if (h >= 11 && h < 17) return 'noon';
+    return 'evening';
+  }
+  const PERIOD = {
+    morning: {
+      icon: '🌅', ko: '아침', name: '早上好',
+      lines: [
+        { hz: '早上好！今天也一起加油吧。', py: 'zǎo shang hǎo! jīn tiān yě yì qǐ jiā yóu ba.', ko: '좋은 아침이에요! 오늘도 함께 힘내요.' },
+        { hz: '早饭吃了吗？', py: 'zǎo fàn chī le ma?', ko: '아침 식사는 하셨어요?' },
+        { hz: '一日之计在于晨。', py: 'yī rì zhī jì zài yú chén.', ko: '하루의 계획은 아침에 세우는 법이에요.' },
+      ],
+    },
+    noon: {
+      icon: '☀️', ko: '점심', name: '中午好',
+      lines: [
+        { hz: '中午好！吃饭了吗？', py: 'zhōng wǔ hǎo! chī fàn le ma?', ko: '점심 인사드려요! 식사는 하셨어요?' },
+        { hz: '中午休息一下，下午更有精神。', py: 'zhōng wǔ xiū xi yí xià, xià wǔ gèng yǒu jīng shén.', ko: '점심에 잠깐 쉬면 오후에 더 힘이 나요.' },
+        { hz: '今天的课文背下来了吗？', py: 'jīn tiān de kè wén bèi xià lái le ma?', ko: '오늘 본문은 외우셨어요?' },
+      ],
+    },
+    evening: {
+      icon: '🌙', ko: '저녁', name: '晚上好',
+      lines: [
+        { hz: '晚上好！今天辛苦了。', py: 'wǎn shang hǎo! jīn tiān xīn kǔ le.', ko: '좋은 저녁이에요! 오늘 하루 수고하셨어요.' },
+        { hz: '晚上安静，正好练发音。', py: 'wǎn shang ān jìng, zhèng hǎo liàn fā yīn.', ko: '저녁은 조용해서 발음 연습하기 좋아요.' },
+        { hz: '早点休息，明天见。', py: 'zǎo diǎn xiū xi, míng tiān jiàn.', ko: '일찍 쉬세요, 내일 봐요.' },
+      ],
+    },
+  };
+  /* --- 실시간 날씨 한마디 --- */
+  function weatherLine() {
+    let temp = null, wm = '';
+    try {
+      if (window.Weather) {
+        temp = (Weather.live && typeof Weather.live.temp === 'number') ? Weather.live.temp : null;
+        wm = Weather.mode === 'realtime' ? ((Weather.live && Weather.live.wm) || '') : Weather.mode;
+      }
+    } catch (e) {}
+    if (wm === 'rain') return { hz: '下雨了，带伞了吗？', py: 'xià yǔ le, dài sǎn le ma?', ko: '비가 오네요, 우산 챙기셨어요?', tag: '🌧️ 비' };
+    if (wm === 'snow') return { hz: '下雪了，路上小心！', py: 'xià xuě le, lù shang xiǎo xīn!', ko: '눈이 와요, 길 조심하세요!', tag: '❄️ 눈' };
+    if (temp !== null && temp <= 2) return { hz: '今天特别冷，多穿点儿！', py: 'jīn tiān tè bié lěng, duō chuān diǎnr!', ko: '오늘 정말 추워요, 따뜻하게 입으세요!', tag: '🥶 ' + temp + '°C' };
+    if (temp !== null && temp <= 9) return { hz: '今天好冷，多穿点儿！', py: 'jīn tiān hǎo lěng, duō chuān diǎnr!', ko: '오늘 춥네요, 따뜻하게 입으세요!', tag: '🧣 ' + temp + '°C' };
+    if (temp !== null && temp >= 30) return { hz: '今天好热，多喝水！', py: 'jīn tiān hǎo rè, duō hē shuǐ!', ko: '오늘 정말 더워요, 물 많이 드세요!', tag: '🥵 ' + temp + '°C' };
+    if (temp !== null && temp >= 24) return { hz: '有点儿热，别中暑了。', py: 'yǒu diǎnr rè, bié zhòng shǔ le.', ko: '조금 더우니 더위 먹지 마세요.', tag: '🌤️ ' + temp + '°C' };
+    if (wm === 'clear' && temp !== null) return { hz: '今天天气真好，出去走走吧？', py: 'jīn tiān tiān qì zhēn hǎo, chū qù zǒu zou ba?', ko: '오늘 날씨 정말 좋네요, 나가서 걸을까요?', tag: '☀️ ' + temp + '°C' };
+    if (temp !== null) return { hz: '今天' + temp + '度，感觉怎么样？', py: 'jīn tiān ' + temp + ' dù, gǎn jué zěn me yàng?', ko: '오늘 ' + temp + '도인데, 어떠세요?', tag: '🌡️ ' + temp + '°C' };
+    return { hz: '今天天气不错吧？', py: 'jīn tiān tiān qì bú cuò ba?', ko: '오늘 날씨 괜찮죠?', tag: '🌤️' };
+  }
+  function greetLines(name) {
+    const p = PERIOD[period()];
+    const w = weatherLine();
+    const out = [];
+    /* 대사 1 : 시간대 인사 */
+    out.push({ hz: p.lines[0].hz, py: p.lines[0].py, ko: p.lines[0].ko });
+    /* 대사 2 : 날씨 한마디 (같은 인사가 두 명에게 겹치지 않게 이름별로 순서 교체) */
+    out.push({ hz: w.hz, py: w.py, ko: w.ko + (w.tag ? ' · ' + w.tag : '') });
+    const extra = name === '밍밍' ? p.lines[2] : p.lines[1];
+    out.push({ hz: extra.hz, py: extra.py, ko: extra.ko });
+    return out;
+  }
+  V15.greetInfo = () => ({ period: period(), weather: weatherLine(), kst: kstParts() });
+
+  /* --- NPC 세우기 --- */
+  const GREETERS = [
+    { name: '리리', x: -7.6, z: 7.4, yaw: Math.PI * 0.15, shirt: 0xe8a0b4, pants: 0x5a4a6a },
+    { name: '밍밍', x: 14.5, z: 29.0, yaw: Math.PI, shirt: 0x8ab4d8, pants: 0x3f4a58 },
+  ];
+  let built = false;
+  function build() {
+    if (built) return;
+    built = true;
+    try {
+      GREETERS.forEach((c, i) => {
+        let av;
+        try {
+          av = createAvatar({
+            name: c.name, shirt: c.shirt, pants: c.pants, hair: 0x2b211d,
+            hairStyle: i ? 'long' : 'bun', longHair: !!i,
+          });
+        } catch (e) { return; }
+        av.root.position.set(c.x, 0, c.z);
+        av.root.rotation.y = c.yaw;
+        av.label.position.y = 1.74;
+        scene.add(av.root);
+        av.update(0.016, false);
+        /* 대화 등록 — 대사는 열 때마다 최신 시간/날씨로 갱신 */
+        try {
+          if (window.Talk) Talk.lines[c.name] = greetLines(c.name);
+          if (typeof npcs !== 'undefined' && npcs) npcs.push({ avatar: av, kind: 'stand', seat: null, greet: true });
+        } catch (e) {}
+        /* 머리 위 표지 */
+        try {
+          const p = PERIOD[period()];
+          const tag = sign(1.5, 0.42, [{ t: p.icon + ' ' + p.name + ' · 인사 도우미', c: '#fff7e2', s: .46 }],
+            { bg: 'rgba(30,24,18,.82)', borderColor: '#e8c98a' });
+          tag.position.set(c.x, 2.15, c.z);
+          scene.add(tag);
+        } catch (e) {}
+      });
+      /* 시간대·날씨가 바뀌면 대사 갱신 (1분마다) */
+      setInterval(() => {
+        GREETERS.forEach((c) => {
+          try { if (window.Talk) Talk.lines[c.name] = greetLines(c.name); } catch (e) {}
+        });
+      }, 60000);
+    } catch (e) { err('greet:' + e.message); }
+  }
+  V15.buildGreeters = build;
+  V14.lazyBuild(build, 0, 10, 40);
+  setTimeout(() => { try { build(); } catch (e) {} }, 5200);
+  /* 대화 열 때 즉시 최신 대사로 */
+  try {
+    if (window.Talk && !Talk.open.__v154g) {
+      const prev = Talk.open;
+      const fn = function (av) {
+        if (av && GREETERS.some((c) => c.name === av.name)) {
+          try { Talk.lines[av.name] = greetLines(av.name); } catch (e) {}
+        }
+        return prev.apply(this, arguments);
+      };
+      fn.__v154g = true;
+      Talk.open = fn;
+    }
+  } catch (e) {}
 })();
 
 /* =====================================================================
@@ -37254,6 +37998,8 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     } catch (e) { err('attach:' + e.message); }
   }
 
+  V15.wardrobeAttach = attach;
+
   function build(av, it, add) {
     const body = av.body, head = av.head;
     const c = it.color === undefined ? 0xffffff : it.color;
@@ -37356,8 +38102,8 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         break;
       }
       case 'hanbok': {
-        const sk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.44, 0.92, 16, 1, true), MS(c, { roughness: .92, side: THREE.DoubleSide }));
-        add(body, sk, 0, 0.50, 0);
+        const sk = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.37, 0.86, 16, 1, true), MS(c, { roughness: .92, side: THREE.DoubleSide }));
+        add(body, sk, 0, 0.48, 0);
         const jeo = new THREE.Mesh(new THREE.CapsuleGeometry(0.20, 0.16, 4, 12), MS(it.accent || 0xfaf4e8, { roughness: .9 }));
         add(body, jeo, 0, 0.98, 0);
         /* 깃 · 고름 */
@@ -37596,6 +38342,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
               <small>${it.hz}</small>
               <small style="color:#9aa89a">${it.src}</small>
               <div class="btns">
+                <button data-prev="${it.id}">👁 보기</button>
                 ${consumable
                   ? `<button data-use="${it.id}">${it.slot === 'food' ? '먹기' : '마시기'}</button>`
                   : `<button data-wear="${it.id}">${on ? '착용 중' : '착용'}</button>`}
@@ -38847,7 +39594,48 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     } catch (e) { return false; }
   }
 
+  /* ---------------- 내 집 · 지하상가 방 카메라 (고정 구도 · 벽 밖으로 안 나감) ---------------- */
+  V15.homeCam = function (dt) {
+    try {
+      const cl = document.body.classList;
+      const inHome = cl.contains('inHome'), inMall = cl.contains('inMall');
+      if (!inHome && !inMall) return false;
+      const r = inHome
+        ? { x0: 552.9, x1: 567.1, z0: -5.1, z1: 5.1, h: 3.05 }
+        : { x0: 481.2, x1: 520.8, z0: -9.8, z1: 9.8, h: 4.05 };
+      const look = tmp.set(Player.pos.x, 1.08 + (Player.groundY || 0), Player.pos.z);
+      Cam.look.lerp(look, 1 - Math.exp(-9 * dt));
+      const pitch = Math.max(0.05, Math.min(0.42, (typeof Cam.pitch === 'number' ? Cam.pitch : 0.18)));
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
+      const lim = (o, dd, lo, hi) => (Math.abs(dd) < 1e-4 ? 1e6 : (dd > 0 ? (hi - o) / dd : (lo - o) / dd));
+      let want = inHome ? 4.8 : 6.0;
+      want = Math.min(want,
+        lim(Cam.look.x, Math.sin(Cam.yaw) * cp, r.x0, r.x1),
+        lim(Cam.look.z, Math.cos(Cam.yaw) * cp, r.z0, r.z1));
+      let d = Math.max(1.9, want);
+      const py0 = Cam.look.y + 0.42 + d * sp;
+      if (py0 > r.h - 0.3) d = Math.max(1.7, (r.h - 0.3 - Cam.look.y - 0.42) / Math.max(0.05, sp));
+      tmp.set(
+        Cam.look.x + Math.sin(Cam.yaw) * d * cp,
+        Math.max(0.95, Cam.look.y + 0.42 + d * sp),
+        Cam.look.z + Math.cos(Cam.yaw) * d * cp
+      );
+      camera.position.lerp(tmp, 1 - Math.exp(-10 * dt));
+      camera.lookAt(Cam.look);
+      if (camera.fov !== 62) { camera.fov = 62; camera.updateProjectionMatrix(); }
+      return true;
+    } catch (e) { return false; }
+  };
+
   V15.freeCam = function (dt) {
+    /* 내 집 · 지하상가 · 클럽 같은 '방' 은 방 전용 카메라(V12/ V13)가 처리한다 */
+    try {
+      const cl = document.body.classList;
+      if (cl.contains('inHome') || cl.contains('inMall') || cl.contains('inClub')) {
+        if (camera.fov !== 62) { camera.fov = 62; camera.updateProjectionMatrix(); }
+        return false;
+      }
+    } catch (e) {}
     if (roomCam(dt)) return true;
     let open = false;
     try {
@@ -38861,47 +39649,58 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const gy = Player.groundY || 0;
       tmp.set(p.x, 1.02 + gy * 0.85, p.z);
       Cam.look.lerp(tmp, 1 - Math.exp(-9 * dt));
-      let dist = Math.min(5.2, Math.max(2.8, Cam.dist || 3.6));
+      let dist = Math.min(5.4, Math.max(3.0, Cam.dist || 3.8));
       let pitch = Cam.pitch;
-      /* --- 카메라가 건물 벽·기둥 안으로 파고들지 않게 (입구 앞·좁은 골목) --- */
+      let camYaw = Cam.yaw;
+      /* --- 카메라가 건물 벽·기둥 안으로 파고들지 않게 (입구 앞·좁은 골목) ---
+         · 막히면 거리를 줄여 머리통이 화면을 채우는 대신, 옆 각도로 돌거나 위에서 내려다본다 */
       try {
-        const sxp = Math.sin(Cam.yaw), szp = Math.cos(Cam.yaw);
-        const cp0 = Math.cos(pitch);
-        const blockedAt = (t) => {
-          const sx = Cam.look.x + sxp * t * cp0, sz = Cam.look.z + szp * t * cp0;
+        const blockedAt = (yw, t, pit) => {
+          const cp0 = Math.cos(pit);
+          const sx = Cam.look.x + Math.sin(yw) * t * cp0, sz = Cam.look.z + Math.cos(yw) * t * cp0;
           try { if (V14.solidAt && V14.solidAt(sx, sz)) return true; } catch (e) {}
-          /* 내가 들어가 있지 않은 실내로는 카메라가 넘어가지 않게 (열린 문 너머) */
           try {
             const r = V14.insideInterior && V14.insideInterior(sx, sz);
-            /* 문 통로는 0.9m까지만 허용 (문 안쪽 벽면을 들여다보지 않게) */
-            const isDoor = r && /door/i.test(String(r.tag || r.id || ''));
             if (r && !(V14.curRoom && V14.curRoom === r)) {
+              const isDoor = /door/i.test(String(r.tag || r.id || ''));
               if (!isDoor) return true;
-              /* 문 통로에 걸친 경우 : 들어간 깊이가 0.9m를 넘으면 막는다 */
-              try {
-                const dd = Math.min(
-                  Math.abs(z - r.z0), Math.abs(z - r.z1), Math.abs(x - r.x0), Math.abs(x - r.x1)
-                );
-                const depth = Math.min(r.x1 - r.x0, r.z1 - r.z0) - dd;
-                if (dd > 0.9) return true;
-              } catch (e) { return true; }
+              const dd = Math.min(Math.abs(sx - r.x0), Math.abs(sx - r.x1), Math.abs(sz - r.z0), Math.abs(sz - r.z1));
+              if (dd > 0.9) return true;
             }
           } catch (e) {}
           try { if (V13.walkable && !V13.walkable(sx, sz)) return true; } catch (e) {}
           return false;
         };
-        let free = dist;
-        for (let i = 1; i <= 16; i++) {
-          const t = dist * i / 16;
-          if (blockedAt(t)) { free = Math.max(0.9, t - 0.5); break; }
+        const freeAt = (yw, pit, max) => {
+          for (let i = 1; i <= 18; i++) {
+            const t = max * i / 18;
+            if (blockedAt(yw, t, pit)) return Math.max(0, t - 0.45);
+          }
+          return max;
+        };
+        let bestYaw = Cam.yaw, bestFree = freeAt(Cam.yaw, pitch, dist);
+        [0.34, -0.34, 0.66, -0.66, 1.0, -1.0, 1.4, -1.4].forEach((off) => {
+          const f = freeAt(Cam.yaw + off, pitch, dist);
+          if (f > bestFree + 0.35) { bestFree = f; bestYaw = Cam.yaw + off; }
+        });
+        /* 그래도 너무 가깝다면 살짝 높은 각도에서 다시 찾는다 (벽 앞·좁은 골목) */
+        if (bestFree < 3.0) {
+          const pit2 = Math.min(1.0, pitch + 0.38);
+          let hiYaw = Cam.yaw, hi = freeAt(Cam.yaw, pit2, dist);
+          [0.5, -0.5, 1.0, -1.0].forEach((off) => {
+            const f = freeAt(Cam.yaw + off, pit2, dist);
+            if (f > hi + 0.25) { hi = f; hiYaw = Cam.yaw + off; }
+          });
+          if (hi > bestFree + 0.25) { pitch = pit2; bestYaw = hiYaw; bestFree = hi; }
         }
-        dist = free;
-        /* 아주 좁으면 살짝 위에서 내려다보게 (머리통이 화면을 채우지 않게) */
-        if (dist < 2.5) pitch = Math.min(1.05, pitch + (2.5 - dist) * 0.30);
+        camYaw = bestYaw;
+        /* 최소 2.9m 는 지킨다 — 벽에 붙어도 캐릭터가 화면을 채우지 않게 */
+        dist = Math.max(2.9, Math.min(dist, bestFree));
+        if (bestFree < 2.2) pitch = Math.max(pitch, 0.72);
       } catch (e) {}
       const cp = Math.cos(pitch), sp = Math.sin(pitch);
-      const px = Cam.look.x + Math.sin(Cam.yaw) * dist * cp;
-      const pz = Cam.look.z + Math.cos(Cam.yaw) * dist * cp;
+      const px = Cam.look.x + Math.sin(camYaw) * dist * cp;
+      const pz = Cam.look.z + Math.cos(camYaw) * dist * cp;
       const py = Math.max(0.9 + gy, Cam.look.y + 0.36 + dist * sp);
       tmp.set(px, py, pz);
       camera.position.lerp(tmp, 1 - Math.exp(-11 * dt));
@@ -39278,6 +40077,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       if (!cur || cur.__v15bus) return;
       const prev = cur;
       const fn = function (dt) {
+        if (V15.homeCam && V15.homeCam(dt)) return;
         if (rideCam(dt)) return;
         if (V15.freeCam && V15.freeCam(dt)) return;
         return prev.call(this, dt);
@@ -39297,17 +40097,21 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     try {
       if (V12.Bus && V12.Bus.riding && V12.Bus.bus) {
         const b = V12.Bus.bus;
-        let best = null, bd = 1e9;
-        STOPS.forEach((s) => {
-          const d = Math.hypot(s.x - b.x, s.z - b.z);
-          if (d < bd) { bd = d; best = s; }
-        });
-        if (best) {
-          const el = document.getElementById('rideName');
-          const txt = '🚌 시티투어 · ' + (bd < 16 ? best.name + ' 도착' : best.name + ' 방면');
-          if (el && el.textContent !== txt) el.textContent = txt;
-          const sub = document.getElementById('rideSub');
-          if (sub) sub.textContent = '창밖으로 동네가 지나가요';
+        const nm = b.nextStop || '';
+        const dd = Math.round(b.nextDist || 0);
+        const arriving = dd < 18;
+        const txt = '🚌 ' + (arriving ? (nm || '정류장') + ' 도착' : '다음 정류장: ' + (nm || '—'));
+        const el = document.getElementById('rideName');
+        if (el && el.textContent !== txt) el.textContent = txt;
+        const sub = document.getElementById('rideSub');
+        const subTxt = arriving ? '잠시 후 정차해요 · 창밖을 보세요' : (dd ? dd + 'm 앞 · 창밖으로 동네가 지나가요' : '창밖으로 동네가 지나가요');
+        if (sub && sub.textContent !== subTxt) sub.textContent = subTxt;
+        /* 상단 HUD 에도 다음 정류장 실시간 표시 */
+        const info = document.getElementById('busInfo');
+        if (info && info.classList.contains('show')) {
+          const line = '🚌 다음 정류장: ' + (nm || '—') + (dd ? ' · ' + dd + 'm' : '') + (arriving ? ' · 도착' : '');
+          const sp = info.querySelector('span');
+          if (sp && sp.textContent !== line) sp.textContent = line;
         }
       }
     } catch (e) {}
@@ -40131,6 +40935,202 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     bagEq: Object.keys((far() && far().equipped) || {}),
     bagOwned: (far() && far().owned || []).length,
   });
+})();
+
+
+/* =====================================================================
+   v15.4 PREVIEW — 👁 아이템 미리보기 (구매·착용 전에 3D 로 입어보기)
+   ---------------------------------------------------------------------
+   옷장 · 북촌 한복집 · 부티크 · 백화점 카드에서 아이템을 누르면
+   실제 캐릭터가 그 아이템을 착용한 모습을 3D 로 보여준다.
+   ===================================================================== */
+(function () {
+  const V15 = window.V15;
+  if (!V15 || !V15.WARD) return;
+  const err = V15.err;
+  const MAP = V15.WARD.map;
+
+  let r = null, sc2 = null, cam2 = null, av = null, raf = 0, yaw = 0.35, curId = '';
+
+  function ensureModal() {
+    let el = document.getElementById('v15PrevModal');
+    if (el) return el;
+    el = document.createElement('div');
+    el.className = 'modal';
+    el.id = 'v15PrevModal';
+    el.innerHTML = `
+      <div class="sheet v15-sheet" style="max-width:430px">
+        <button class="v12-x" data-close aria-label="닫기">✕</button>
+        <h2 id="vpTitle">👁 미리보기</h2>
+        <p class="v12-sub" id="vpSub"></p>
+        <div class="vp-stage"><canvas id="vpCanvas"></canvas><div class="vp-badge" id="vpBadge"></div></div>
+        <div class="vp-meta">
+          <div class="vp-hz" id="vpHZ"></div>
+          <div class="vp-py" id="vpPY"></div>
+          <div class="vp-ko" id="vpKO"></div>
+        </div>
+        <div class="vp-row">
+          <button class="btn-soft solid" id="vpSpeak" type="button">🔊 중국어</button>
+          <button class="btn-soft" id="vpRotL" type="button">⟲ 돌리기</button>
+          <button class="btn-soft" id="vpRotR" type="button">⟳ 돌리기</button>
+        </div>
+        <div class="vp-row" id="vpActs"></div>
+        <button class="btn-ghost" id="vpClose" type="button">닫기</button>
+      </div>`;
+    document.body.appendChild(el);
+    const st = document.createElement('style');
+    st.textContent = `
+      #v15PrevModal .vp-stage{position:relative;height:270px;border-radius:16px;overflow:hidden;
+        background:radial-gradient(120% 90% at 50% 20%,#f6efe2,#e2d6c2 70%,#d3c5ae)}
+      #v15PrevModal #vpCanvas{width:100%;height:100%;display:block}
+      #v15PrevModal .vp-badge{position:absolute;left:10px;top:10px;font-size:10px;font-weight:900;
+        padding:3px 9px;border-radius:99px;background:rgba(30,24,18,.72);color:#ffe9bd}
+      #v15PrevModal .vp-meta{margin-top:8px;text-align:center;line-height:1.35}
+      #v15PrevModal .vp-hz{font-size:20px;font-weight:900;color:#2f2a22}
+      #v15PrevModal .vp-py{font-size:12px;color:#8a6a3a;font-weight:700}
+      #v15PrevModal .vp-ko{font-size:12px;color:#6b6252}
+      #v15PrevModal .vp-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+      #v15PrevModal .vp-row button{flex:1;min-height:40px;border-radius:12px;font-size:12px;font-weight:800}
+      #v15PrevModal .vp-row button[data-act]{background:linear-gradient(150deg,#5aa87a,#3f7f5c);color:#fff;border:0}`;
+    document.head.appendChild(st);
+    el.querySelector('[data-close]').onclick = close;
+    el.querySelector('#vpClose').onclick = close;
+    el.addEventListener('click', (ev) => { if (ev.target === el) close(); });
+    el.querySelector('#vpSpeak').onclick = (e) => { try { speak(document.getElementById('vpHZ').textContent, e.currentTarget); } catch (er) {} };
+    el.querySelector('#vpRotL').onclick = () => { yaw -= 0.55; render(); };
+    el.querySelector('#vpRotR').onclick = () => { yaw += 0.55; render(); };
+    return el;
+  }
+
+  function initGL() {
+    if (r) return true;
+    const cv = document.getElementById('vpCanvas');
+    if (!cv) return false;
+    try {
+      r = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+      r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      r.outputColorSpace = THREE.SRGBColorSpace;
+      sc2 = new THREE.Scene();
+      cam2 = new THREE.PerspectiveCamera(37, 1, 0.1, 20);
+      cam2.position.set(0, 1.12, 3.35);
+      cam2.lookAt(0, 0.76, 0);
+      sc2.add(new THREE.HemisphereLight(0xfff6e6, 0xc9bda9, 1.9));
+      const d1 = new THREE.DirectionalLight(0xfff2dc, 1.5); d1.position.set(2.2, 3.4, 3.8); sc2.add(d1);
+      const d2 = new THREE.DirectionalLight(0xdce9ff, 1.0); d2.position.set(-2.6, 1.8, 2.6); sc2.add(d2);
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(0.62, 32),
+        new THREE.MeshBasicMaterial({ color: 0x8a7a62, transparent: true, opacity: .16 }));
+      disc.rotation.x = -Math.PI / 2; disc.position.y = 0.004; sc2.add(disc);
+      return true;
+    } catch (e) { err('preview gl:' + e.message); return false; }
+  }
+
+  function render() {
+    if (!r || !av) return;
+    const cv = document.getElementById('vpCanvas');
+    if (!cv) return;
+    const w = Math.max(80, cv.clientWidth || 320), h = Math.max(80, cv.clientHeight || 260);
+    r.setSize(w, h, false);
+    cam2.aspect = w / h;
+    cam2.updateProjectionMatrix();
+    av.root.rotation.y = yaw;
+    r.render(sc2, cam2);
+  }
+
+  function loop() {
+    raf = requestAnimationFrame(loop);
+    try {
+      yaw += 0.004;
+      render();
+    } catch (e) {}
+  }
+
+  function buildAvatar(id) {
+    try {
+      if (av) { sc2.remove(av.root); av = null; }
+      const W = V15.Wear;
+      const had = !!(W && W.equipped[id]);
+      if (W && !had) W.equipped[id] = true;
+      let opts;
+      try { opts = (typeof Look !== 'undefined') ? Look.avatarOpts() : { name: '나' }; } catch (e) { opts = { name: '나' }; }
+      const items = (opts.items || []).slice();
+      if (items.indexOf(id) < 0) items.push(id);
+      opts.items = items;
+      opts.labelBg = 'rgba(177,95,61,.92)';
+      av = createAvatar(opts);
+      av.label.visible = false;
+      av.hideLabel = true;
+      if (V15.wardrobeAttach) V15.wardrobeAttach(av);
+      try { av.label.visible = false; } catch (e) {}
+      if (W && !had) delete W.equipped[id];
+      av.root.position.set(0, 0, 0);
+      av.root.rotation.y = yaw;
+      sc2.add(av.root);
+      try { av.update(0.016, false); } catch (e) {}
+      render();
+    } catch (e) { err('preview:' + e.message); }
+  }
+
+  /* opts: { z, py, ko, name, icon, actLabel, act(fn), owned } */
+  function show(id, o) {
+    const it = MAP[id] || {};
+    const info = o || {};
+    curId = id;
+    const el = ensureModal();
+    if (!initGL()) return;
+    document.getElementById('vpTitle').textContent = '👁 ' + (it.icon || '🎁') + ' ' + (info.name || it.name || id);
+    document.getElementById('vpSub').textContent = info.sub || '입어 보기 · 실제 3D 캐릭터 미리보기 (구매 전 확인)';
+    document.getElementById('vpHZ').textContent = info.hz || it.hz || '';
+    document.getElementById('vpPY').textContent = info.py || it.py || '';
+    document.getElementById('vpKO').textContent = info.ko || '';
+    document.getElementById('vpBadge').textContent = (it.src ? it.src + ' · ' : '') + (info.badge || ('착용 미리보기'));
+    /* 액션 버튼 */
+    const acts = document.getElementById('vpActs');
+    acts.innerHTML = '';
+    if (info.act && info.actLabel) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.act = '1';
+      b.textContent = info.actLabel;
+      b.onclick = () => { try { info.act(); } catch (e) {} close(); };
+      acts.appendChild(b);
+    }
+    el.classList.add('show');
+    if (V12.syncModalState) V12.syncModalState();
+    loco();
+    if (raf) cancelAnimationFrame(raf);
+    loop();
+  }
+  function loco() {
+    try { buildAvatar(curId); } catch (e) {}
+  }
+  function close() {
+    const el = document.getElementById('v15PrevModal');
+    if (el) el.classList.remove('show');
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    if (V12.syncModalState) V12.syncModalState();
+  }
+  V15.showItemPreview = show;
+  V15.previewClose = close;
+  V15.previewInfo = () => ({ open: !!(document.getElementById('v15PrevModal') || {}).classList && document.getElementById('v15PrevModal').classList.contains('show'), id: curId });
+
+  /* ---- 옷장 카드에 👁 버튼 (위임) ---- */
+  document.addEventListener('click', (ev) => {
+    const t = ev.target && ev.target.closest ? ev.target.closest('[data-prev]') : null;
+    if (!t) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const id = t.dataset.prev;
+    const it = MAP[id] || {};
+    show(id, {
+      actLabel: t.dataset.prevAct || '착용하기',
+      act: () => {
+        try {
+          if (V15.Wear && V15.Wear.equip) V15.Wear.equip(id);
+          if (V15.refreshAvatar) V15.refreshAvatar();
+          if (typeof speak === 'function' && (it.hz || '')) speak(it.hz);
+        } catch (e) {}
+      },
+    });
+  }, true);
 })();
 
 /* =====================================================================
