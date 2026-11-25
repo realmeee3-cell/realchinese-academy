@@ -30690,7 +30690,10 @@ const BIZ_PLAN = [
     if (Ride.kind === 'boat' && Y3 && Y3.boat) {
       const bt = Y3.boat;
       bt.x = Ride.x; bt.z = Ride.z; bt.yaw = Ride.yaw;
-      bt.group.position.set(Ride.x, Math.sin(performance.now() * 0.0012) * 0.05 - 0.12, Ride.z);
+      /* 배 그룹은 구역 그룹 안에 들어 있어 부모 오프셋을 빼고 배치한다 */
+      const par = bt.group.parent;
+      const ox = par ? par.position.x : 0, oz = par ? par.position.z : 0;
+      bt.group.position.set(Ride.x - ox, Math.sin(performance.now() * 0.0012) * 0.05 - 0.12, Ride.z - oz);
       bt.group.rotation.y = Ride.yaw;
       bt.group.rotation.z = Math.sin(performance.now() * 0.0009) * 0.012;
     }
@@ -30700,7 +30703,7 @@ const BIZ_PLAN = [
   /* 카메라 : 자전거/유람선 시점 */
   function hookCam() {
     try {
-      if (typeof window.updateCamera !== 'function' || window.updateCamera.__v14ride) return;
+      if (typeof window.updateCamera !== 'function' || window.updateCamera.__v14ride2) return;
       const prev = window.updateCamera;
       const f = function (dt) {
         try {
@@ -30708,10 +30711,10 @@ const BIZ_PLAN = [
             const yaw = Ride.yaw;
             const fx = Math.sin(yaw), fz = Math.cos(yaw);
             if (Ride.kind === 'boat' && V14.rideView === 'deck') {
-              /* 갑판 뷰 — 배 앞머리에서 한강을 바라본다 */
-              const dx = Ride.x + fx * 2.4, dz = Ride.z + fz * 2.4;
-              camera.position.lerp({ x: dx, y: 3.15, z: dz }, 1 - Math.exp(-8 * dt));
-              Cam.look.set(Ride.x + fx * 26, 1.5, Ride.z + fz * 26);
+              /* 갑판 뷰 — 배 앞머리에서 한강 물길을 바라본다 (뱃머리 난간이 화면 아래에 보임) */
+              const dx = Ride.x + fx * 0.4, dz = Ride.z + fz * 0.4;
+              camera.position.lerp({ x: dx, y: 2.55, z: dz }, 1 - Math.exp(-8 * dt));
+              Cam.look.set(Ride.x + fx * 22, 0.75, Ride.z + fz * 22);
               camera.lookAt(Cam.look);
               if (camera.fov !== 66) { camera.fov = 66; camera.updateProjectionMatrix(); }
               return;
@@ -30728,7 +30731,7 @@ const BIZ_PLAN = [
         } catch (e) {}
         return prev.call(this, dt);
       };
-      f.__v14ride = true;
+      f.__v14ride2 = true;
       window.updateCamera = f;
     } catch (e) { err('cam:' + e.message); }
   }
@@ -40101,6 +40104,33 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   }
   V15.rideCam = rideCam;
 
+  /* 자전거 · 유람선 탑승 시점 (다른 모듈 훅이 안 걸려도 여기서 확실히 처리) */
+  function rideCamBoat(dt) {
+    try {
+      const R = V14 && V14.ride;
+      if (!R || !R.kind) return false;
+      const yaw = R.yaw || 0;
+      const fx = Math.sin(yaw), fz = Math.cos(yaw);
+      if (R.kind === 'boat' && V14.rideView === 'deck') {
+        const dx = R.x + fx * 0.4, dz = R.z + fz * 0.4;
+        camera.position.lerp({ x: dx, y: 2.55, z: dz }, 1 - Math.exp(-9 * dt));
+        Cam.look.set(R.x + fx * 22, 0.7, R.z + fz * 22);
+        camera.lookAt(Cam.look);
+        if (camera.fov !== 66) { camera.fov = 66; camera.updateProjectionMatrix(); }
+        return true;
+      }
+      const y = R.kind === 'bike' ? 2.05 : 5.6;
+      const back = R.kind === 'bike' ? 4.2 : 8.5;
+      const tx = R.x - fx * back, tz = R.z - fz * back;
+      camera.position.lerp({ x: tx, y: y, z: tz }, 1 - Math.exp(-7 * dt));
+      Cam.look.set(R.x + fx * 8, R.kind === 'bike' ? 1.3 : 1.2, R.z + fz * 8);
+      camera.lookAt(Cam.look);
+      if (camera.fov !== 62) { camera.fov = 62; camera.updateProjectionMatrix(); }
+      return true;
+    } catch (e) { return false; }
+  }
+  V15.rideCamBoat = rideCamBoat;
+
   /* updateCamera 최상단에 우리 훅을 보장 (다른 모듈이 덮어써도 복구) */
   function installTop() {
     try {
@@ -40109,6 +40139,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const prev = cur;
       const fn = function (dt) {
         if (V15.homeCam && V15.homeCam(dt)) return;
+        if (rideCamBoat(dt)) return;
         if (rideCam(dt)) return;
         if (V15.freeCam && V15.freeCam(dt)) return;
         return prev.call(this, dt);
