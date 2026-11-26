@@ -2,32 +2,1022 @@
   "updated": "2026-11-26",
   "handle": "@realchinese_official",
   "profile": "https://www.instagram.com/realchinese_official/",
+  "note": "실제 @realchinese_official 릴스만 임베드 페이지로 소유 확인 후 등록",
   "reels": [
     {
       "code": "DeL5gI5xXKY",
       "title": "네가 뭔데 · 凭什么",
       "tag": "凭什么",
       "likes": "1.1만",
+      "date": "2026-10-08",
+      "url": "https://www.instagram.com/reel/DeL5gI5xXKY/",
       "phrases": [
         {
-          "hz": "凭什么？",
-          "py": "píng shénme?",
-          "ko": "무슨 자격으로? / 니가 뭔데?"
+          "hz": "你凭什么说我不行?",
+          "py": "Nǐ píng shénme shuō wǒ bù xíng?",
+          "ko": "네가 뭔데 나보고 안 된다고 해?"
         },
         {
-          "hz": "你凭什么说我不行？",
-          "py": "nǐ píng shénme shuō wǒ bù xíng?",
-          "ko": "네가 뭔데 내가 안 된다고 해?"
-        },
-        {
-          "hz": "凭什么他可以去，我不能去？",
-          "py": "píng shénme tā kěyǐ qù, wǒ bù néng qù?",
+          "hz": "凭什么他可以去,我不能去?",
+          "py": "Píng shénme tā kěyǐ qù, wǒ bù néng qù?",
           "ko": "왜 걔는 가도 되고 나는 안 돼?"
         },
         {
-          "hz": "凭什么让我先道歉？",
-          "py": "píng shénme ràng wǒ xiān dàoqiàn?",
-          "ko": "왜 나한테 먼저 사과하라는 거야?"
+          "hz": "凭什么让我先道歉?",
+          "py": "Píng shénme ràng wǒ xiān dàoqiàn?",
+          "ko": "왜 내가 먼저 사과해야 해?"
+        }
+      ]
+    },
+    {
+      "code": "De0yiToRBTW",
+      "title": "중국어 회화 한 컷",
+      "tag": "회화",
+      "likes": "",
+      "date": "2026-10-22",
+      "url": "https://www.instagram.com/reel/De0yiToRBTW/",
+      "phrases": []
+    },
+    {
+      "code": "De2--SuTHOn",
+      "title": "리얼통번역 수업 소개",
+      "tag": "수업소개",
+      "likes": "",
+      "date": "2026-10-23",
+      "url": "https://www.instagram.com/reel/De2--SuTHOn/",
+      "phrases": []
+    },
+    {
+      "code": "De-t9Jdz9gc",
+      "title": "표현 릴스 (10/26)",
+      "tag": "릴스",
+      "likes": "",
+      "date": "2026-10-26",
+      "url": "https://www.instagram.com/reel/De-t9Jdz9gc/",
+      "phrases": []
+    },
+    {
+      "code": "Dex0y6ms8mJ",
+      "title": "我是韩国人 · 국적 말하기",
+      "tag": "我是韩国人",
+      "likes": "",
+      "date": "2026-10-22",
+      "url": "https://www.instagram.com/reel/Dex0y6ms8mJ/",
+      "phrases": [
+        {
+          "hz": "我是韩国人",
+          "py": "Wǒ shì Hánguó rén",
+          "ko": "저는 한국 사람이에요"
+        },
+        {
+          "hz": "我是韩国人。",
+          "py": "Wǒ shì Hánguó rén.",
+          "ko": "저는 한국 사람이에요."
+        },
+        {
+          "hz": "我是中国人。",
+          "py": "Wǒ shì Zhōngguó rén.",
+          "ko": "저는 중국 사람이에요."
+        },
+        {
+          "hz": "他是日本人。",
+          "py": "Tā shì Rìběn rén.",
+          "ko": "그 사람은 일본 사람이에요."
+        }
+      ]
+    },
+    {
+      "code": "DeqQIrbBd9L",
+      "title": "호텔 실전 중국어 6문장",
+      "tag": "호텔",
+      "likes": "",
+      "date": "2026-10-18",
+      "url": "https://www.instagram.com/reel/DeqQIrbBd9L/",
+      "phrases": [
+        {
+          "hz": "我是在 Agoda 上预订的。",
+          "py": "Wǒ shì zài Agoda shàng yùdìng de.",
+          "ko": "아고다를 통해서 예약했어요."
+        },
+        {
+          "hz": "这是我的护照。",
+          "py": "Zhè shì wǒ de hùzhào.",
+          "ko": "여기 제 여권이요."
+        },
+        {
+          "hz": "请问，可以延迟退房吗？",
+          "py": "Qǐngwèn, kěyǐ yánchí tuìfáng ma?",
+          "ko": "체크아웃 시간 연장 가능한가요?"
+        },
+        {
+          "hz": "房间里太冷了。",
+          "py": "Fángjiān lǐ tài lěng le.",
+          "ko": "방 안이 너무 추워요."
+        }
+      ]
+    },
+    {
+      "code": "DexzGmthsba",
+      "title": "请问有空位吗? · 자리 묻기",
+      "tag": "请问有空位吗",
+      "likes": "",
+      "date": "2026-10-22",
+      "url": "https://www.instagram.com/reel/DexzGmthsba/",
+      "phrases": [
+        {
+          "hz": "请问有空位吗?我们三个人。",
+          "py": "Qǐngwèn yǒu kòngwèi ma? Wǒmen sān ge rén.",
+          "ko": "자리 있나요? 저희 세 명이에요."
+        },
+        {
+          "hz": "请问还有空位吗?我们两个人。",
+          "py": "Qǐngwèn hái yǒu kòngwèi ma? Wǒmen liǎng ge rén.",
+          "ko": "아직 자리 있나요? 저희 두 명이에요."
+        },
+        {
+          "hz": "请问有四个人的位子吗?",
+          "py": "Qǐngwèn yǒu sì ge rén de wèizi ma?",
+          "ko": "네 명 앉을 자리 있나요?"
+        }
+      ]
+    },
+    {
+      "code": "DfBTvKPBOCN",
+      "title": "一件能穿的衣服都没有",
+      "tag": "一件…都没有",
+      "likes": "",
+      "date": "2026-10-28",
+      "url": "https://www.instagram.com/reel/DfBTvKPBOCN/",
+      "phrases": [
+        {
+          "hz": "一件能穿的衣服都没有。",
+          "py": "Yí jiàn néng chuān de yīfu dōu méiyǒu.",
+          "ko": "입을 만한 옷이 하나도 없어요."
+        },
+        {
+          "hz": "冰箱里一样能吃的东西都没有。",
+          "py": "Bīngxiāng lǐ yí yàng néng chī de dōngxi dōu méiyǒu.",
+          "ko": "냉장고에 먹을 만한 게 하나도 없어요."
+        },
+        {
+          "hz": "他一句真话都没有说。",
+          "py": "Tā yí jù zhēnhuà dōu méiyǒu shuō.",
+          "ko": "그는 진실을 한 마디도 말하지 않았어요."
+        }
+      ]
+    },
+    {
+      "code": "DfTw7L5RSnd",
+      "title": "太…了 · 맛 표현 10가지",
+      "tag": "太…了",
+      "likes": "38",
+      "date": "2026-11-03",
+      "url": "https://www.instagram.com/reel/DfTw7L5RSnd/",
+      "phrases": [
+        {
+          "hz": "这个火锅太辣了。",
+          "py": "Zhège huǒguō tài là le.",
+          "ko": "이 훠궈는 너무 매워요."
+        },
+        {
+          "hz": "这个汤太咸了。",
+          "py": "Zhège tāng tài xián le.",
+          "ko": "이 국은 너무 짜요."
+        },
+        {
+          "hz": "这个蛋糕太甜了。",
+          "py": "Zhège dàngāo tài tián le.",
+          "ko": "이 케이크는 너무 달아요."
+        },
+        {
+          "hz": "这个柠檬太酸了。",
+          "py": "Zhège níngméng tài suān le.",
+          "ko": "이 레몬은 너무 셔요."
+        }
+      ]
+    },
+    {
+      "code": "De8L5YETpAf",
+      "title": "什么都没做 · 又周一了",
+      "tag": "什么都没做",
+      "likes": "10",
+      "date": "2026-10-25",
+      "url": "https://www.instagram.com/reel/De8L5YETpAf/",
+      "phrases": [
+        {
+          "hz": "这个周末什么都没做,又周一了。",
+          "py": "Zhège zhōumò shénme dōu méi zuò, yòu zhōuyī le.",
+          "ko": ""
+        },
+        {
+          "hz": "我明明想休息,结果什么都没做就过去了。",
+          "py": "Wǒ míngmíng xiǎng xiūxi, jiéguǒ shénme dōu méi zuò jiù guòqù le.",
+          "ko": ""
+        },
+        {
+          "hz": "又周一了,真的不想上班。",
+          "py": "Yòu zhōuyī le, zhēn de bù xiǎng shàngbān.",
+          "ko": ""
+        }
+      ]
+    },
+    {
+      "code": "Dfqe_-ERvoR",
+      "title": "중국 고속철 문장 20개",
+      "tag": "高铁",
+      "likes": "25",
+      "date": "2026-11-12",
+      "url": "https://www.instagram.com/reel/Dfqe_-ERvoR/",
+      "phrases": [
+        {
+          "hz": "我想买一张去上海的高铁票。",
+          "py": "Wǒ xiǎng mǎi yì zhāng qù Shànghǎi de gāotiě piào.",
+          "ko": "상하이 가는 고속철 표 한 장 사고 싶어요."
+        },
+        {
+          "hz": "下一班车几点开？",
+          "py": "Xià yì bān chē jǐ diǎn kāi?",
+          "ko": "다음 열차는 몇 시에 출발해요?"
+        },
+        {
+          "hz": "这张票多少钱？",
+          "py": "Zhè zhāng piào duōshao qián?",
+          "ko": "이 표는 얼마예요?"
+        },
+        {
+          "hz": "有直达的吗？",
+          "py": "Yǒu zhídá de ma?",
+          "ko": "직행 있어요?"
+        }
+      ]
+    },
+    {
+      "code": "DefxzUkhGa_",
+      "title": "你还是先管好自己吧",
+      "tag": "管好自己",
+      "likes": "688",
+      "date": "2026-10-14",
+      "url": "https://www.instagram.com/reel/DefxzUkhGa_/",
+      "phrases": [
+        {
+          "hz": "我还是先管好自己吧。",
+          "py": "Wǒ háishi xiān guǎn hǎo zìjǐ ba.",
+          "ko": "저부터 잘 챙겨야겠어요."
+        },
+        {
+          "hz": "我们还是先管好自己吧,明天还要早起。",
+          "py": "Wǒmen háishi xiān guǎn hǎo zìjǐ ba, míngtiān hái yào zǎoqǐ.",
+          "ko": "우리 각자 앞가림부터 해요, 내일도 일찍 일어나야 하니까요."
+        },
+        {
+          "hz": "你还是先管好自己吧,别太累了。",
+          "py": "Nǐ háishi xiān guǎn hǎo zìjǐ ba, bié tài lèi le.",
+          "ko": "너 자신부터 챙겨요, 너무 무리하지 말고요."
+        }
+      ]
+    },
+    {
+      "code": "DfTRa1zhI7W",
+      "title": "满意 vs 满足 · 만족의 차이",
+      "tag": "满意/满足",
+      "likes": "39",
+      "date": "2026-11-03",
+      "url": "https://www.instagram.com/reel/DfTRa1zhI7W/",
+      "phrases": [
+        {
+          "hz": "客户对我们的服务感到非常满意。",
+          "py": "Kèhù duì wǒmen de fúwù gǎndào fēicháng mǎnyì.",
+          "ko": "고객은 우리 서비스에 매우 만족해요."
+        },
+        {
+          "hz": "这次考试的结果令人满意。",
+          "py": "Zhè cì kǎoshì de jiéguǒ lìng rén mǎnyì.",
+          "ko": "이번 시험 결과는 만족스러워요."
+        },
+        {
+          "hz": "冬日里的一碗热汤面就能满足我的胃。",
+          "py": "Dōngrì lǐ de yì wǎn rè tāngmiàn jiù néng mǎnzú wǒ de wèi.",
+          "ko": "겨울날 따뜻한 국물 면 한 그릇이면 배가 만족해요."
+        },
+        {
+          "hz": "这款产品满足了用户的需求。",
+          "py": "Zhè kuǎn chǎnpǐn mǎnzúle yònghù de xūqiú.",
+          "ko": "이 제품은 사용자의 니즈를 충족시켰어요."
+        }
+      ]
+    },
+    {
+      "code": "DeiYvVkBGah",
+      "title": "중국 택시 필수 문장 6개",
+      "tag": "택시",
+      "likes": "22",
+      "date": "2026-10-15",
+      "url": "https://www.instagram.com/reel/DeiYvVkBGah/",
+      "phrases": [
+        {
+          "hz": "请带我去这个地址。",
+          "py": "Qǐng dài wǒ qù zhège dìzhǐ.",
+          "ko": "이 주소로 가 주세요."
+        },
+        {
+          "hz": "到了请告诉我。",
+          "py": "Dào le qǐng gàosu wǒ.",
+          "ko": "도착하면 알려 주세요."
+        },
+        {
+          "hz": "这趟车去机场吗？",
+          "py": "Zhè tàng chē qù jīchǎng ma?",
+          "ko": "이 차 공항 가요?"
+        },
+        {
+          "hz": "下一站是哪里？",
+          "py": "Xià yí zhàn shì nǎlǐ?",
+          "ko": "다음 정거장이 어디예요?"
+        }
+      ]
+    },
+    {
+      "code": "DfGZ-a-zsDP",
+      "title": "渐渐 / 慢慢 · 차츰",
+      "tag": "渐渐",
+      "likes": "18",
+      "date": "2026-10-29",
+      "url": "https://www.instagram.com/reel/DfGZ-a-zsDP/",
+      "phrases": [
+        {
+          "hz": "天气渐渐变冷了。",
+          "py": "Tiānqì jiànjiàn biàn lěng le.",
+          "ko": "나의 한국어 실력이 차츰 늘어요."
+        },
+        {
+          "hz": "我的韩语水平慢慢提高了。",
+          "py": "Wǒ de Hányǔ shuǐpíng mànmàn tígāo le.",
+          "ko": "밤이 되자 사람들이 차츰 떠나요."
+        },
+        {
+          "hz": "到了晚上，人们渐渐离开了。",
+          "py": "Dàole wǎnshang, rénmen jiànjiàn líkāi le.",
+          "ko": "꽃이 차츰 피었어요."
+        },
+        {
+          "hz": "花慢慢开了。",
+          "py": "Huā mànmàn kāi le.",
+          "ko": "배가 차츰 불러요."
+        }
+      ]
+    },
+    {
+      "code": "Def364PB3cz",
+      "title": "你清醒一点 · 정신 차려",
+      "tag": "你清醒一点",
+      "likes": "",
+      "date": "2026-10-14",
+      "url": "https://www.instagram.com/reel/Def364PB3cz/",
+      "phrases": [
+        {
+          "hz": "你清醒一点,他根本不喜欢你。",
+          "py": "Nǐ qīngxǐng yìdiǎn, tā gēnběn bù xǐhuan nǐ.",
+          "ko": "정신 차려요, 그 사람은 전혀 너 안 좋아해요."
+        },
+        {
+          "hz": "你清醒一点,这个价格不可能是真的。",
+          "py": "Nǐ qīngxǐng yìdiǎnr, zhège jiàgé bù kěnéng shì zhēn de.",
+          "ko": "정신 차려요, 이 가격이 진짜일 리가 없어요."
+        },
+        {
+          "hz": "喝杯咖啡,让自己清醒一点。",
+          "py": "Hē bēi kāfēi, ràng zìjǐ qīngxǐng yìdiǎn.",
+          "ko": "커피 한 잔 마시고 정신 좀 차려요."
+        }
+      ]
+    },
+    {
+      "code": "DfDzuIqzSuh",
+      "title": "充电 · 没电了",
+      "tag": "充电",
+      "likes": "",
+      "date": "2026-10-29",
+      "url": "https://www.instagram.com/reel/DfDzuIqzSuh/",
+      "phrases": [
+        {
+          "hz": "手机快没电了,我得赶紧充电。",
+          "py": "Shǒujī kuài méi diàn le, wǒ děi gǎnjǐn chōngdiàn.",
+          "ko": "휴대폰 배터리가 거의 다 됐어요, 얼른 충전해야 해요."
+        },
+        {
+          "hz": "你有充电宝吗?借我用一下。",
+          "py": "Nǐ yǒu chōngdiànbǎo ma? Jiè wǒ yòng yíxià.",
+          "ko": "보조배터리 있어요? 잠깐 빌려주세요."
+        },
+        {
+          "hz": "这个手机支持快充,半小时就能充满电。",
+          "py": "Zhège shǒujī zhīchí kuàichōng, bàn xiǎoshí jiù néng chōngmǎn diàn.",
+          "ko": "이 휴대폰은 급속충전을 지원해서 30분이면 완충돼요."
+        }
+      ]
+    },
+    {
+      "code": "De-pdfcTW69",
+      "title": "一会儿一起喝一杯",
+      "tag": "一会儿一起",
+      "likes": "",
+      "date": "2026-10-27",
+      "url": "https://www.instagram.com/reel/De-pdfcTW69/",
+      "phrases": [
+        {
+          "hz": "一会儿一起喝一杯。",
+          "py": "Yíhuìr yìqǐ hē yì bēi.",
+          "ko": "이따가 같이 한잔해요."
+        },
+        {
+          "hz": "一会儿一起吃个饭。",
+          "py": "Yíhuìr yìqǐ chī ge fàn.",
+          "ko": "이따가 같이 밥 먹어요."
+        },
+        {
+          "hz": "一会儿一起去走走。",
+          "py": "Yíhuìr yìqǐ qù zǒuzou.",
+          "ko": "이따가 같이 산책해요."
+        }
+      ]
+    },
+    {
+      "code": "De8NKsKzvi3",
+      "title": "공항 체크인·탑승 표현",
+      "tag": "공항",
+      "likes": "9",
+      "date": "2026-10-25",
+      "url": "https://www.instagram.com/reel/De8NKsKzvi3/",
+      "phrases": [
+        {
+          "hz": "请问,在哪儿办理登机手续?",
+          "py": "Qǐngwèn, zài nǎr bànlǐ dēngjī shǒuxù?",
+          "ko": ""
+        },
+        {
+          "hz": "我想托运这个行李箱。",
+          "py": "Wǒ xiǎng tuōyùn zhège xíngli xiāng.",
+          "ko": ""
+        },
+        {
+          "hz": "我想坐靠窗的座位。",
+          "py": "Wǒ xiǎng zuò kào chuāng de zuòwèi.",
+          "ko": ""
+        },
+        {
+          "hz": "请问,登机口在哪儿?",
+          "py": "Qǐngwèn, dēngjīkǒu zài nǎr?",
+          "ko": ""
+        }
+      ]
+    },
+    {
+      "code": "De8LDuizHp2",
+      "title": "画饼 · 헛된 약속",
+      "tag": "画饼",
+      "likes": "",
+      "date": "2026-10-26",
+      "url": "https://www.instagram.com/reel/De8LDuizHp2/",
+      "phrases": [
+        {
+          "hz": "老板又在给我们画饼了。",
+          "py": "Lǎobǎn yòu zài gěi wǒmen huà bǐng le.",
+          "ko": ""
+        },
+        {
+          "hz": "别听他画饼,先看合同写了什么。",
+          "py": "Bié tīng tā huà bǐng, xiān kàn hétong xiě le shénme.",
+          "ko": ""
+        },
+        {
+          "hz": "他只会画饼,从来不兑现。",
+          "py": "Tā zhǐ huì huà bǐng, cónglái bù duìxiàn.",
+          "ko": ""
+        }
+      ]
+    },
+    {
+      "code": "DeT8pNUzkqE",
+      "title": "你真小气 · 쪼잔하다",
+      "tag": "你真小气",
+      "likes": "",
+      "date": "2026-10-24",
+      "url": "https://www.instagram.com/reel/DeT8pNUzkqE/",
+      "phrases": [
+        {
+          "hz": "你真小气，一杯奶茶都不请我。",
+          "py": "Nǐ zhēn xiǎoqi, yì bēi nǎichá dōu bù qǐng wǒ.",
+          "ko": "너 진짜 쪼잔하다, 밀크티 한 잔도 안 사주네요."
+        },
+        {
+          "hz": "他对朋友很小气。",
+          "py": "Tā duì péngyou hěn xiǎoqi.",
+          "ko": "그는 친구한테 인색해요."
+        },
+        {
+          "hz": "别那么小气嘛，借我用一下。",
+          "py": "Bié nàme xiǎoqi ma, jiè wǒ yòng yíxià.",
+          "ko": "그렇게 쪼잔하게 굴지 말고 잠깐만 빌려줘요."
+        }
+      ]
+    },
+    {
+      "code": "DfV5v0lhgk_",
+      "title": "위챗 동사 8개",
+      "tag": "微信",
+      "likes": "20",
+      "date": "2026-11-04",
+      "url": "https://www.instagram.com/reel/DfV5v0lhgk_/",
+      "phrases": [
+        {
+          "hz": "我们加个微信吧,以后好联系。",
+          "py": "Wǒmen jiā ge Wēixìn ba, yǐhòu hǎo liánxì.",
+          "ko": "우리 위챗 친구 추가해요, 나중에 연락하기 편하게요."
+        },
+        {
+          "hz": "这是我的二维码,你扫一下。",
+          "py": "Zhè shì wǒ de èrwéimǎ, nǐ sǎo yíxià.",
+          "ko": "이게 제 QR코드예요, 스캔해 보세요."
+        },
+        {
+          "hz": "我在开车,不能打字,给你发语音。",
+          "py": "Wǒ zài kāichē, bù néng dǎzì, gěi nǐ fā yǔyīn.",
+          "ko": "운전 중이라 타자를 못 쳐서 음성 메시지 보낼게요."
+        },
+        {
+          "hz": "群里的红包一下子就被抢完了。",
+          "py": "Qún li de hóngbāo yíxiàzi jiù bèi qiǎng wán le.",
+          "ko": "단톡방 홍바오가 순식간에 다 없어졌어요."
+        }
+      ]
+    },
+    {
+      "code": "DfejH_Dxe5h",
+      "title": "关我屁事 · 내 알 바 아니야",
+      "tag": "关我屁事",
+      "likes": "22",
+      "date": "2026-11-08",
+      "url": "https://www.instagram.com/reel/DfejH_Dxe5h/",
+      "phrases": [
+        {
+          "hz": "关我屁事",
+          "py": "guān wǒ pì shì",
+          "ko": "내 알 바 아니야"
+        },
+        {
+          "hz": "关你什么事?",
+          "py": "guān nǐ shénme shì?",
+          "ko": "너랑 무슨 상관이야?"
+        },
+        {
+          "hz": "这事跟我们没关系。",
+          "py": "zhè shì gēn wǒmen méi guānxi.",
+          "ko": "이 일은 우리와 관계없어요."
+        }
+      ]
+    },
+    {
+      "code": "De-opAhzzm5",
+      "title": "我们加个微信吧",
+      "tag": "加个微信",
+      "likes": "12",
+      "date": "2026-10-26",
+      "url": "https://www.instagram.com/reel/De-opAhzzm5/",
+      "phrases": [
+        {
+          "hz": "我们加个微信吧。",
+          "py": "Wǒmen jiā ge Wēixìn ba.",
+          "ko": "우리 위챗 추가해요."
+        },
+        {
+          "hz": "我们见个面吧。",
+          "py": "Wǒmen jiàn ge miàn ba.",
+          "ko": "우리 얼굴 한번 봐요."
+        },
+        {
+          "hz": "我们吃个饭吧。",
+          "py": "Wǒmen chī ge fàn ba.",
+          "ko": "우리 밥 한번 먹어요."
+        }
+      ]
+    },
+    {
+      "code": "Df8dTE5o733",
+      "title": "손 놨어 · 摆烂",
+      "tag": "摆烂",
+      "likes": "",
+      "date": "2026-11-01",
+      "url": "https://www.instagram.com/reel/Df8dTE5o733/",
+      "phrases": [
+        {
+          "hz": "那个作业?我已经不想管了。",
+          "py": "Nà ge zuòyè? Wǒ yǐjīng bù xiǎng guǎn le.",
+          "ko": "그 과제? 나 그냥 손 놨어."
+        },
+        {
+          "hz": "算了,不管了,先睡吧。",
+          "py": "Suàn le, bù guǎn le, xiān shuì ba.",
+          "ko": "에라, 모르겠다. 일단 자자."
+        },
+        {
+          "hz": "我也不想管了,爱咋咋地吧。",
+          "py": "Wǒ yě bù xiǎng guǎn le, ài zǎ zǎ dì ba.",
+          "ko": "나도 이제 모르겠다. 될 대로 되라."
+        },
+        {
+          "hz": "努力过了,能做的都做了,随便吧。",
+          "py": "Nǔlì guò le, néng zuò de dōu zuò le, suíbiàn ba.",
+          "ko": "노력할 만큼 했고 할 수 있는 건 다 했으니 될 대로 되라죠."
+        }
+      ]
+    },
+    {
+      "code": "DgEMNdXSGy-",
+      "title": "성격 표현 모음",
+      "tag": "性格",
+      "likes": "",
+      "date": "2026-11-20",
+      "url": "https://www.instagram.com/reel/DgEMNdXSGy-/",
+      "phrases": [
+        {
+          "hz": "我朋友性子很急。",
+          "py": "Wǒ péngyou xìngzi hěn jí.",
+          "ko": "제 친구는 성격이 많이 급해요."
+        },
+        {
+          "hz": "这个孩子很认生。",
+          "py": "Zhège háizi hěn rènshēng.",
+          "ko": "이 아이는 낯을 많이 가려요."
+        },
+        {
+          "hz": "她多才多艺。",
+          "py": "Tā duōcái duōyì.",
+          "ko": "그녀는 재주가 많아요."
+        },
+        {
+          "hz": "他善于交朋友。",
+          "py": "Tā shànyú jiāo péngyou.",
+          "ko": "그는 사람을 잘 사귀어요."
+        }
+      ]
+    },
+    {
+      "code": "DfI_-5LzmZ5",
+      "title": "할로윈 분장 표현",
+      "tag": "装扮",
+      "likes": "7",
+      "date": "2026-10-30",
+      "url": "https://www.instagram.com/reel/DfI_-5LzmZ5/",
+      "phrases": [
+        {
+          "hz": "你装扮的是什么?",
+          "py": "nǐ zhuāngbàn de shì shénme?",
+          "ko": "뭐로 분장한 거예요?"
+        },
+        {
+          "hz": "我扮成了吸血鬼。",
+          "py": "wǒ bànchéng le xīxuèguǐ.",
+          "ko": "저는 뱀파이어로 분장했어요."
+        },
+        {
+          "hz": "装扮",
+          "py": "zhuāngbàn",
+          "ko": "분장·차림"
+        }
+      ]
+    },
+    {
+      "code": "DevO6iJBd9g",
+      "title": "摸鱼 · 딴짓하기",
+      "tag": "摸鱼",
+      "likes": "22",
+      "date": "2026-10-20",
+      "url": "https://www.instagram.com/reel/DevO6iJBd9g/",
+      "phrases": [
+        {
+          "hz": "我上班的时候经常摸鱼。",
+          "py": "Wǒ shàngbān de shíhou jīngcháng mō yú.",
+          "ko": "나 출근해서 일할 때 자주 딴짓해."
+        },
+        {
+          "hz": "别摸鱼了，赶紧干活！",
+          "py": "Bié mō yú le, gǎnjǐn gànhuó!",
+          "ko": "딴짓 그만하고 얼른 일해!"
+        },
+        {
+          "hz": "今天工作不多，我可以稍微摸一下鱼。",
+          "py": "Jīntiān gōngzuò bù duō, wǒ kěyǐ shāowēi mō yíxià yú.",
+          "ko": "오늘은 일이 많지 않아서 조금 딴짓해도 되겠어."
+        },
+        {
+          "hz": "他一边摸鱼，一边等下班。",
+          "py": "Tā yìbiān mō yú, yìbiān děng xiàbān.",
+          "ko": "그는 딴짓하면서 퇴근 시간만 기다리고 있어."
+        }
+      ]
+    },
+    {
+      "code": "DestsfLhwgU",
+      "title": "여행 긴급 상황 6표현",
+      "tag": "긴급상황",
+      "likes": "11",
+      "date": "2026-10-19",
+      "url": "https://www.instagram.com/reel/DestsfLhwgU/",
+      "phrases": [
+        {
+          "hz": "我的钱包不见了。",
+          "py": "Wǒ de qiánbāo bú jiàn le.",
+          "ko": "지갑이 없어졌어요."
+        },
+        {
+          "hz": "请帮我叫救护车。",
+          "py": "Qǐng bāng wǒ jiào jiùhùchē.",
+          "ko": "구급차를 불러 주세요."
+        },
+        {
+          "hz": "我需要帮助。",
+          "py": "Wǒ xūyào bāngzhù.",
+          "ko": "도움이 필요해요."
+        },
+        {
+          "hz": "我迷路了。",
+          "py": "Wǒ mílù le.",
+          "ko": "길을 잃었어요."
+        }
+      ]
+    },
+    {
+      "code": "DfDyiXpzDAa",
+      "title": "헬창 · 健身狂人",
+      "tag": "健身狂人",
+      "likes": "",
+      "date": "2026-10-31",
+      "url": "https://www.instagram.com/reel/DfDyiXpzDAa/",
+      "phrases": [
+        {
+          "hz": "每天不去健身房就焦虑,我是不是健身狂人?",
+          "py": "Měitiān bú qù jiànshēnfáng jiù jiāolǜ, wǒ shì bu shì jiànshēn kuángrén?",
+          "ko": "매일 헬스장 안 가면 불안해요, 저 헬창인가요?"
+        },
+        {
+          "hz": "他每天都去健身房,真是个健身狂人。",
+          "py": "Tā měitiān dōu qù jiànshēnfáng, zhēnshi ge jiànshēn kuángrén.",
+          "ko": "그는 매일 헬스장에 가요, 진짜 헬창이에요."
+        }
+      ]
+    },
+    {
+      "code": "Df56TkBRJ5I",
+      "title": "上头 / 下头",
+      "tag": "上头/下头",
+      "likes": "",
+      "date": "2026-11-06",
+      "url": "https://www.instagram.com/reel/Df56TkBRJ5I/",
+      "phrases": [
+        {
+          "hz": "这首歌太上头了,我循环了一晚上。",
+          "py": "Zhè shǒu gē tài shàngtóu le, wǒ xúnhuán le yì wǎnshang.",
+          "ko": "이 노래 너무 중독성 있어서 밤새 반복해서 들었어요."
+        },
+        {
+          "hz": "这部剧越看越上头,我一口气刷了二十集。",
+          "py": "Zhè bù jù yuè kàn yuè shàngtóu, wǒ yìkǒuqì shuā le èrshí jí.",
+          "ko": "이 드라마 볼수록 빠져들어서 단숨에 20화를 정주행했어요."
+        },
+        {
+          "hz": "这个游戏玩着玩着就上头了,根本停不下来。",
+          "py": "Zhège yóuxì wánzhe wánzhe jiù shàngtóu le, gēnběn tíng bu xiàlái.",
+          "ko": "이 게임 하다 보니 빠져서 도저히 멈출 수가 없어요."
+        },
+        {
+          "hz": "听完那句话,我有点下头了。",
+          "py": "Tīng wán nà jù huà, wǒ yǒudiǎn xiàtóu le.",
+          "ko": "그 말 듣고 좀 정떨어졌어요."
+        }
+      ]
+    },
+    {
+      "code": "Df_NqH4RKzk",
+      "title": "인싸·아싸·집순이",
+      "tag": "社牛/社恐",
+      "likes": "",
+      "date": "2026-11-09",
+      "url": "https://www.instagram.com/reel/Df_NqH4RKzk/",
+      "phrases": [
+        {
+          "hz": "我朋友是社牛,去哪儿都能聊起来。",
+          "py": "Wǒ péngyou shì shè niú, qù nǎr dōu néng liáo qǐlái.",
+          "ko": "제 친구는 인싸라서 어디 가도 대화를 잘 이어가요."
+        },
+        {
+          "hz": "周末我是宅女,哪儿都不想去。",
+          "py": "Zhōumò wǒ shì zhái nǚ, nǎr dōu bù xiǎng qù.",
+          "ko": "주말에는 저는 집순이라 어디도 가기 싫어요."
+        },
+        {
+          "hz": "他三十岁了还是母胎单身。",
+          "py": "Tā sānshí suì le háishi mǔ tāi dān shēn.",
+          "ko": "그는 서른 살인데도 아직 모쏠이에요."
+        },
+        {
+          "hz": "我这个人比较佛系,什么都无所谓。",
+          "py": "Wǒ zhè ge rén bǐjiào fó xì, shénme dōu wúsuǒwèi.",
+          "ko": "저는 좀 무념무상 스타일이라 뭐든 상관없어요."
+        }
+      ]
+    },
+    {
+      "code": "Df1PFUKRuVi",
+      "title": "면접 첫인상 회화",
+      "tag": "面试",
+      "likes": "",
+      "date": "2026-11-10",
+      "url": "https://www.instagram.com/reel/Df1PFUKRuVi/",
+      "phrases": [
+        {
+          "hz": "请你先简单介绍一下自己。",
+          "py": "qǐng nǐ xiān jiǎndān jièshào yīxià zìjǐ.",
+          "ko": "먼저 간단하게 자기소개를 해 주세요."
+        },
+        {
+          "hz": "您好,我叫林晓,之前有相关行业的工作经验。",
+          "py": "nínhǎo, wǒ jiào Lín Xiǎo, zhīqián yǒu xiāngguān hángyè de gōngzuò jīngyàn.",
+          "ko": "안녕하세요. 저는 린샤오이고, 이전에 관련 업계에서 일한 경험이 있습니다."
+        },
+        {
+          "hz": "你为什么想应聘这个职位?",
+          "py": "nǐ wèi shénme xiǎng yìngpìn zhège zhíwèi?",
+          "ko": "왜 이 직무에 지원하셨나요?"
+        },
+        {
+          "hz": "我觉得这个岗位很适合我的专业背景。",
+          "py": "wǒ juéde zhège gǎngwèi hěn shìhé wǒ de zhuānyè bèijǐng.",
+          "ko": "이 직무가 제 전공 배경과 잘 맞는다고 생각합니다."
+        }
+      ]
+    },
+    {
+      "code": "DgJ6iwVxQjs",
+      "title": "직장인 푸념 · 为什么",
+      "tag": "为什么",
+      "likes": "",
+      "date": "2026-11-22",
+      "url": "https://www.instagram.com/reel/DgJ6iwVxQjs/",
+      "phrases": [
+        {
+          "hz": "这事为什么丢给我?",
+          "py": "zhè shì wèishénme diū gěi wǒ?",
+          "ko": "이 일은 왜 나한테 던지는 거야?"
+        },
+        {
+          "hz": "为什么又是我?",
+          "py": "wèishénme yòu shì wǒ?",
+          "ko": "왜 또 나야?"
+        },
+        {
+          "hz": "为啥",
+          "py": "wèishá",
+          "ko": "왜 (구어체) · 격식 자리에서는 为什么"
+        }
+      ]
+    },
+    {
+      "code": "Dea52TnR7DQ",
+      "title": "비 오는 날 우산 챙겨",
+      "tag": "带伞",
+      "likes": "",
+      "date": "2026-10-24",
+      "url": "https://www.instagram.com/reel/Dea52TnR7DQ/",
+      "phrases": [
+        {
+          "hz": "外面下雨了，一定要带伞。",
+          "py": "Wàimiàn xiàyǔ le, yídìng yào dài sǎn.",
+          "ko": "밖에 비 와요, 꼭 우산 챙기세요."
+        },
+        {
+          "hz": "今天会下雨，记得带伞。",
+          "py": "Jīntiān huì xiàyǔ, jìde dài sǎn.",
+          "ko": "오늘 비 올 거예요, 우산 챙기는 거 잊지 마세요."
+        },
+        {
+          "hz": "外面下大雨了，你别忘了带伞。",
+          "py": "Wàimiàn xià dàyǔ le, nǐ bié wàng le dài sǎn.",
+          "ko": "밖에 비가 많이 와요, 우산 가져가는 거 잊지 마세요."
+        },
+        {
+          "hz": "我给你拿一把伞吧。",
+          "py": "Wǒ gěi nǐ ná yì bǎ sǎn ba.",
+          "ko": "제가 우산 하나 챙겨 드릴게요."
+        }
+      ]
+    },
+    {
+      "code": "Df8g9FHInzL",
+      "title": "做家务 · 집안일",
+      "tag": "做家务",
+      "likes": "",
+      "date": "2026-11-02",
+      "url": "https://www.instagram.com/reel/Df8g9FHInzL/",
+      "phrases": [
+        {
+          "hz": "先扫地,再拖地。",
+          "py": "Xiān sǎo dì, zài tuō dì.",
+          "ko": "먼저 바닥을 쓸고, 그다음에 걸레질해요."
+        },
+        {
+          "hz": "我来洗碗,你去倒垃圾。",
+          "py": "Wǒ lái xǐ wǎn, nǐ qù dào lājī.",
+          "ko": "제가 설거지할 테니 쓰레기 버려 주세요."
+        },
+        {
+          "hz": "洗完衣服,要叠衣服、挂衣服,还要熨衣服。",
+          "py": "Xǐ wán yīfu, yào dié yīfu, guà yīfu, hái yào yùn yīfu.",
+          "ko": "빨래를 다 하면 옷을 개고, 걸고, 다림질도 해야 해요."
+        },
+        {
+          "hz": "我今天要擦桌子、擦窗户,还要抛光家具。",
+          "py": "Wǒ jīntiān yào cā zhuōzi, cā chuānghu, hái yào pāoguāng jiājù.",
+          "ko": "저는 오늘 탁자와 창문을 닦고 가구도 광내야 해요."
+        }
+      ]
+    },
+    {
+      "code": "DfMWzvFzgA5",
+      "title": "帮忙 vs 帮助",
+      "tag": "帮忙/帮助",
+      "likes": "45",
+      "date": "2026-11-01",
+      "url": "https://www.instagram.com/reel/DfMWzvFzgA5/",
+      "phrases": [
+        {
+          "hz": "你能帮我个忙吗?",
+          "py": "Nǐ néng bāng wǒ ge máng ma?",
+          "ko": "부탁 하나만 들어줄 수 있어요?"
+        },
+        {
+          "hz": "他帮了我很大的忙。",
+          "py": "Tā bāng le wǒ hěn dà de máng.",
+          "ko": "그가 저를 크게 도와줬어요."
+        },
+        {
+          "hz": "老师帮助我提高了汉语水平。",
+          "py": "Lǎoshī bāngzhù wǒ tígāo le Hànyǔ shuǐpíng.",
+          "ko": "선생님이 제 중국어 실력이 오르도록 도와주셨어요."
+        },
+        {
+          "hz": "他帮助同学解决了问题。",
+          "py": "Tā bāngzhù tóngxué jiějué le wèntí.",
+          "ko": "그가 반 친구의 문제를 해결하도록 도와줬어요."
+        }
+      ]
+    },
+    {
+      "code": "DfD1BuXTEeb",
+      "title": "你不也一样真是烦死了",
+      "tag": "烦死了",
+      "likes": "",
+      "date": "2026-11-05",
+      "url": "https://www.instagram.com/reel/DfD1BuXTEeb/",
+      "phrases": [
+        {
+          "hz": "你不也一样真是烦死了。",
+          "py": "Nǐ bù yě yíyàng zhēnshi fán sǐ le.",
+          "ko": "너도 마찬가지잖아요, 진짜 짜증나 죽겠어요."
+        },
+        {
+          "hz": "你不也一样?每次都迟到。",
+          "py": "Nǐ bù yě yíyàng? Měi cì dōu chídào.",
+          "ko": "너도 마찬가지잖아요? 매번 지각하면서."
+        },
+        {
+          "hz": "这么晚还不回我消息,真是烦死了。",
+          "py": "Zhème wǎn hái bù huí wǒ xiāoxi, zhēnshi fán sǐ le.",
+          "ko": "이렇게 늦게까지 답장도 안 하고, 진짜 짜증나 죽겠어요."
+        }
+      ]
+    },
+    {
+      "code": "DeOJdAkRJPw",
+      "title": "牛马 · 오늘도 소처럼",
+      "tag": "牛马",
+      "likes": "",
+      "date": "2026-11-18",
+      "url": "https://www.instagram.com/reel/DeOJdAkRJPw/",
+      "phrases": [
+        {
+          "hz": "今天也是当牛马的一天。",
+          "py": "Jīntiān yě shì dāng niúmǎ de yì tiān.",
+          "ko": "오늘도 소처럼 일하는 하루예요."
+        },
+        {
+          "hz": "早起挤地铁，开不完的会，加不完的班。",
+          "py": "Zǎo qǐ jǐ dìtiě, kāi bù wán de huì, jiā bù wán de bān.",
+          "ko": "일찍 일어나 지하철에 끼어 타고, 끝없는 회의에 끝없는 야근이에요."
+        },
+        {
+          "hz": "我们都是牛马，互相加油吧。",
+          "py": "Wǒmen dōu shì niúmǎ, hùxiāng jiāyóu ba.",
+          "ko": "우리 다 같은 직장인이니까 서로 힘내요."
         }
       ]
     }
