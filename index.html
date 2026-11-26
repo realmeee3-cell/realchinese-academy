@@ -23796,9 +23796,9 @@ window.V12 = (function () {
         <button class="job-card" data-rp="${r.id}">
           <b>${r.icon} ${r.name}</b><small>${r.sub}</small><em>${r.turns.length}턴 · +10G</em>
         </button>`).join('')}</div>
-      <div class="small-note">실전 교재 전체와 1:1 Zoom 코칭이 궁금하다면? 아래 버튼으로 문의해 주세요.</div>
+      <div class="small-note">1:1 Zoom 코칭이 궁금하다면 아래 버튼으로 문의해 주세요. 교재는 「수업 자료」의 리틀리 링크에서 구매할 수 있어요.</div>
       <div class="v12-row" style="margin-top:8px">
-        <a class="v12-btn gold" href="https://open.kakao.com/o/sohrx3Ti" target="_blank" rel="noopener noreferrer">💬 실전 교재·코칭 문의</a>
+        <a class="v12-btn gold" href="https://open.kakao.com/o/sohrx3Ti" target="_blank" rel="noopener noreferrer">💬 Zoom 코칭·수업 문의</a>
       </div>`;
     sheet('roleplayModal', '🎙️ 실전 상황극 부스', body, '피부과 상담 · 비즈니스 미팅 · 공항/카페 주문').classList.add('show');
     V12.syncModalState();
@@ -23823,7 +23823,7 @@ window.V12 = (function () {
         <button class="job-opt" data-rpopt="${i}"><b>${esc(o.t)}</b><small>${esc(o.py || '')}</small><small>${esc(o.ko)}</small></button>`).join('')}</div>
       <div class="job-score" id="rpFb"></div>
       <div class="v12-row" style="margin-top:10px">
-        <a class="v12-btn gold" href="https://open.kakao.com/o/sohrx3Ti" target="_blank" rel="noopener noreferrer">💬 교재·Zoom 코칭 문의</a>
+        <a class="v12-btn gold" href="https://open.kakao.com/o/sohrx3Ti" target="_blank" rel="noopener noreferrer">💬 Zoom 코칭·수업 문의</a>
         <button class="v12-btn" id="rpQuit">나가기</button>
       </div>`;
     sheet('roleplayModal', '🎙️ 실전 상황극 부스', body, '상대 대사를 듣고 알맞은 중국어로 대답해 보세요').classList.add('show');
@@ -23860,9 +23860,9 @@ window.V12 = (function () {
     try { Titles.unlock('actor'); } catch (e) {}
     const body = `
       <div class="job-done">🎉 상황극 완료!<br><b>🪙 +10G</b> · 칭호 🎙️ 상황극 배우</div>
-      <div class="small-note">실전 교재 전체와 1:1 Zoom 코칭이 궁금하다면? 카카오톡 오픈채팅으로 문의해 주세요.</div>
+      <div class="small-note">1:1 Zoom 코칭이 궁금하다면 카카오톡 오픈채팅으로 문의해 주세요. 교재는 리틀리에서 구매할 수 있어요.</div>
       <div class="v12-row" style="margin-top:10px">
-        <a class="v12-btn gold" href="https://open.kakao.com/o/sohrx3Ti" target="_blank" rel="noopener noreferrer">💬 실전 교재·1:1 Zoom 코칭 문의</a>
+        <a class="v12-btn gold" href="https://open.kakao.com/o/sohrx3Ti" target="_blank" rel="noopener noreferrer">💬 1:1 Zoom 코칭 문의</a>
         <button class="v12-btn primary" id="rpAgain">한 번 더</button>
       </div>`;
     sheet('roleplayModal', '🎙️ 실전 상황극 부스', body, '완료!').classList.add('show');
@@ -46721,8 +46721,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     const el = V16.modal('v16PdfModal', b.ic + ' ' + b.title,
       (b.cn || '') + ' · ' + b.pages + '쪽 · ' + (b.level || ''));
     const body = V16.bodyOf(el);
-    const buyBtn = '<a class="v12-btn primary v16-buy" href="' + LITTLY + '" target="_blank" rel="noopener noreferrer" data-littly>🛒 리틀리에서 바로 구매</a>' +
-      '<button class="v12-btn gold v16-buy" type="button" data-buy>💬 1:1 카톡 문의</button>';
+    const buyBtn = '<a class="v12-btn primary v16-buy" href="' + LITTLY + '" target="_blank" rel="noopener noreferrer" data-littly>🛒 리틀리에서 바로 구매</a>';
     body.innerHTML =
       buyBtn +
       '<div class="v16-total"><span><b>' + b.title + '</b><br><small style="color:#8a7a63">' + (b.cn || '') +
@@ -46741,7 +46740,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
           '<button type="button" data-pdf="' + i + '">🔊</button></div>';
       }).join('') +
       '<div class="v16-note">미리보기는 대표 표현 ' + (b.previews || []).length + '개예요. <b>전체 본문·수록 표현은 PDF 전체본</b>에서 확인하세요. ' +
-      '교재 파일은 앱에 올라가 있지 않고, 구매는 리틀리에서, 수업·제작 문의는 1:1 카톡으로 받아요.</div>' +
+      '교재 파일은 앱에 올라가 있지 않아요. 전체본 구매는 리틀리 스토어에서 바로 할 수 있어요.</div>' +
       buyBtn;
     body.querySelectorAll('[data-pdf]').forEach(function (btn) {
       btn.onclick = function () {
@@ -46755,12 +46754,6 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       btn.onclick = function () {
         try { window.open(LITTLY, '_blank'); } catch (e) { err('littly:' + e.message); }
         V16.say('🛒 리틀리 교재 스토어', '전체본 PDF를 바로 구매할 수 있어요', 2400);
-      };
-    });
-    body.querySelectorAll('[data-buy]').forEach(function (btn) {
-      btn.onclick = function () {
-        try { window.open(KAKAO, '_blank'); } catch (e) { err('kakao:' + e.message); }
-        V16.say('💬 1:1 카톡 문의', '전체본 PDF · 수업 문의로 연결해요', 2400);
       };
     });
     V16.open(el);
@@ -48279,8 +48272,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const box = document.createElement('div');
       box.id = 'v164LibCta'; box.className = 'v164-lib';
       box.innerHTML = '<div class="v164-lib-hd">📚 교재 구매 · PDF 전체본</div>' +
-        '<div class="v164-lib-row"><a href="' + LITTLY + '" target="_blank" rel="noopener noreferrer">🛒 리틀리에서 바로 구매</a>' +
-        '<a href="' + KAKAO + '" target="_blank" rel="noopener noreferrer">💬 1:1 카톡 문의</a></div>';
+        '<div class="v164-lib-row"><a href="' + LITTLY + '" target="_blank" rel="noopener noreferrer">🛒 리틀리에서 바로 구매</a></div>';
       body.insertBefore(box, body.firstChild);
     } catch (e) {}
   }
