@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer" />
 <link rel="preconnect" href="https://translate.google.com" crossorigin />
 <link rel="preconnect" href="https://translate.googleapis.com" crossorigin />
-<meta name="app-build" content="2026-11-26-v16.3-sims-autonomous-journal" />
+<meta name="app-build" content="2026-11-27-v16.4-daily-npc-winter-seongsu-voicecast" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <title>리얼통번역 중국어 학원 · 3D 캠퍼스</title>
 <style>
@@ -1304,7 +1304,10 @@ body.driving #cafeBar,body.driving #bookBar,body.driving #ktvBar,body.driving #t
 #btnMore{font-size:17px}
 #moreSheet{position:fixed;left:64px;top:calc(140px + env(safe-area-inset-top));z-index:59;width:228px;display:none;
   flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--glass);backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.7);box-shadow:0 24px 50px -22px rgba(50,38,24,.6)}
+  border:1px solid rgba(255,255,255,.7);box-shadow:0 24px 50px -22px rgba(50,38,24,.6);
+  max-height:calc(100vh - 152px - env(safe-area-inset-top));overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch}
+@supports (max-height:100dvh){#moreSheet{max-height:calc(100dvh - 152px - env(safe-area-inset-top))}}
 #moreSheet.show{display:flex}
 #moreSheet button{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 10px;border-radius:14px;
   background:rgba(255,255,255,.6);font-size:12.5px;color:var(--ink);text-align:left}
@@ -1389,7 +1392,9 @@ body.driving #cafeBar,body.driving #bookBar,body.driving #ktvBar,body.driving #t
   #sitBar .btn-sit{min-height:38px;padding:6px 15px;font-size:12.5px}
 }
 @media (max-width:430px){
-  #moreSheet{left:8px;top:calc(224px + env(safe-area-inset-top));width:196px}
+  #moreSheet{left:8px;top:calc(224px + env(safe-area-inset-top));width:196px;
+    max-height:calc(100vh - 236px - env(safe-area-inset-top))}
+  @supports (max-height:100dvh){#moreSheet{max-height:calc(100dvh - 236px - env(safe-area-inset-top))}}
   #petBar{bottom:calc(176px + env(safe-area-inset-bottom));max-width:calc(100vw - 140px)}
   .mg-grid{gap:5px}
   .board-list{max-height:46vh}
@@ -6893,7 +6898,7 @@ seatNpc('보화', 'c12', { shirt: 0x8ea6b8, pants: 0x3f4652 });
 seatNpc('예솔', 's1', { shirt: 0xb0a6c4, longHair: true, hair: 0x2e231e });
 seatNpc('안우바리', 't2', { shirt: 0xd8b7a0, pants: 0x574d46, hair: 0x2b211c });
 // 라운지
-seatNpc('Jason', 'l0', { shirt: 0x9fb0a2, pants: 0x4a4e56, skin: 0xf0cfae });
+seatNpc('안소미', 'l0', { shirt: 0xc9a0b4, pants: 0x4a4e56, skin: 0xf3d2b4, longHair: true, hair: 0x3a2b23 });
 
 // 선생님
 const teacher = createAvatar({ name: '王老师', shirt: 0xe6d8c2, pants: 0x3b3a41, hair: 0x241d19, longHair: true, skin: 0xf3d5b6, labelBg: 'rgba(63,84,62,.92)' });
@@ -7911,6 +7916,135 @@ function pickZhVoice() {
   };
   return pool.slice().sort((a, b) => rank(b) - rank(a))[0];
 }
+/* =====================================================================
+   v16.4 VOICE — 🎭 캐릭터별 목소리 (기기 내장 음성만 · 비용 0)
+   ---------------------------------------------------------------------
+   · speechSynthesis 에 있는 한국어/중국어 음성을 모두 모아 자연스러운 순
+     (Enhanced · Premium · Natural · Google · Siri · Tingting · Meijia ·
+      Yuna · Minsu …)으로 정렬한다
+   · 캐릭터마다 다른 음성 + 음높이(pitch) · 속도(rate)를 배정한다
+   · 한국어는 한국어 음성, 중국어는 중국어 음성만 쓴다 (hzOf/koOf 유지)
+   ===================================================================== */
+window.VoiceCast = (function () {
+  const FEMALE = /yuna|yubin|sora|meijia|mei-jia|tingting|ting-ting|xiaoxiao|xiao-xiao|xiaoyi|xiaomo|sinji|sin-ji|li-mu|yu-shu|female|여성|女/i;
+  const MALE = /minsu|min-su|yunxi|yun-xi|yunjian|kangkang|liang|male|남성|男/i;
+  const NATURAL = /enhanced|premium|natural|neural|siri|google/i;
+
+  /* 이름별 개성 — 없으면 이름 해시로 자동 배정 */
+  const CAST = {
+    '수연': { g: 'f', p: 1.06, r: 0.94 },
+    '해리': { g: 'f', p: 1.2, r: 1.06 },
+    '보화': { g: 'f', p: 1.0, r: 0.88 },
+    '예솔': { g: 'f', p: 1.12, r: 0.98 },
+    '안우바리': { g: 'f', p: 1.16, r: 0.9 },
+    '샤오위': { g: 'f', p: 1.1, r: 1.0 },
+    '안소미': { g: 'f', p: 1.12, r: 1.0 },
+    '王老师': { g: 'f', p: 0.98, r: 0.9 },
+    '小周': { g: 'f', p: 1.1, r: 1.0 },
+    '小丽': { g: 'f', p: 1.14, r: 1.02 },
+    '小陈': { g: 'f', p: 1.12, r: 0.98 },
+    '小美': { g: 'f', p: 1.08, r: 1.0 },
+    '小雨': { g: 'f', p: 1.04, r: 0.94 },
+    '리리': { g: 'f', p: 1.18, r: 1.04 },
+    '밍밍': { g: 'f', p: 1.02, r: 0.96 },
+    '성수유나': { g: 'f', p: 1.08, r: 0.96 },
+    '성수민지': { g: 'f', p: 1.14, r: 1.02 },
+    '王大厨': { g: 'm', p: 0.84, r: 0.9 },
+    '大卫': { g: 'm', p: 0.9, r: 0.94 },
+    '张伟': { g: 'm', p: 0.88, r: 1.0 },
+    '성수지훈': { g: 'm', p: 0.94, r: 1.0 },
+    '성수알렉스': { g: 'm', p: 0.92, r: 0.96 },
+    '일론 머스크': { g: 'm', p: 0.8, r: 0.92 },
+    '심사관': { g: 'm', p: 0.86, r: 0.94 },
+    '카트상인': { g: 'm', p: 0.9, r: 1.0 },
+    '야시장상인': { g: 'm', p: 0.88, r: 0.96 },
+    '마라탕점원': { g: 'm', p: 0.92, r: 1.0 },
+    '지훈': { g: 'm', p: 0.94, r: 1.02 },
+    '민재': { g: 'm', p: 0.9, r: 1.0 },
+    '도윤': { g: 'm', p: 0.96, r: 1.04 },
+    '태현': { g: 'm', p: 0.92, r: 0.98 },
+    '예준': { g: 'm', p: 0.88, r: 1.02 },
+    '상혁': { g: 'm', p: 0.86, r: 1.02 },
+    '준호': { g: 'm', p: 0.9, r: 0.98 },
+    '현우': { g: 'm', p: 0.94, r: 1.0 },
+    '재민': { g: 'm', p: 0.92, r: 0.96 },
+    '서연': { g: 'f', p: 1.08, r: 0.98 },
+    '하은': { g: 'f', p: 1.1, r: 1.0 },
+    '유진': { g: 'f', p: 1.06, r: 0.96 },
+    '지아': { g: 'f', p: 1.14, r: 1.02 },
+    '수빈': { g: 'f', p: 1.04, r: 0.94 },
+    '미영': { g: 'f', p: 1.08, r: 1.0 },
+    '나영': { g: 'f', p: 1.02, r: 0.96 },
+    '소라': { g: 'f', p: 1.12, r: 1.02 },
+  };
+
+  const cache = { zh: [], ko: [], sig: '' };
+  function sigOf(vs) { return vs.map((v) => v.name + '/' + v.lang).join(','); }
+  function isZh(v) { return /^zh/i.test(v.lang || '') || /chinese|mandarin|普通话|中文/i.test(v.name || ''); }
+  function isKo(v) { return /^ko/i.test(v.lang || '') || /korean|한국/i.test(v.name || ''); }
+  function rank(v) {
+    let s = 0;
+    if (NATURAL.test(v.name || '')) s += 30;
+    if (/google|siri/i.test(v.name || '')) s += 18;
+    if (v.localService) s += 6;
+    if (/^zh-cn/i.test(v.lang || '') || /^ko-kr/i.test(v.lang || '')) s += 4;
+    return s;
+  }
+  function collect() {
+    if (!('speechSynthesis' in window)) return;
+    let vs = [];
+    try { vs = Array.from(speechSynthesis.getVoices() || []); } catch (e) { vs = []; }
+    const sig = sigOf(vs);
+    if (sig === cache.sig) return;
+    cache.sig = sig;
+    cache.zh = vs.filter(isZh).sort((a, b) => rank(b) - rank(a));
+    cache.ko = vs.filter(isKo).sort((a, b) => rank(b) - rank(a));
+  }
+  function hash(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0);
+  }
+  function profileOf(name) {
+    const c = CAST[name];
+    if (c) return { g: c.g, pitch: c.p, rate: c.r };
+    const h = hash(String(name || 'guest'));
+    return { g: (h & 1) ? 'f' : 'm', pitch: 0.92 + ((h >> 3) % 22) / 100, rate: 0.92 + ((h >> 9) % 12) / 100 };
+  }
+  function pick(name, lang) {
+    collect();
+    const pool = lang === 'ko' ? cache.ko : cache.zh;
+    if (!pool.length) return null;
+    const prof = profileOf(name);
+    const gendered = pool.filter((v) => (prof.g === 'f' ? FEMALE.test(v.name || '') : MALE.test(v.name || '')));
+    const list = gendered.length ? gendered : pool;
+    return list[hash(String(name || '') + '|' + lang) % list.length];
+  }
+  const API = {
+    current: '',
+    profile: profileOf,
+    voice: pick,
+    list: (lang) => { collect(); return (lang === 'ko' ? cache.ko : cache.zh).slice(); },
+    refresh: collect,
+    cast: () => CAST,
+    info: () => ({
+      zh: cache.zh.map((v) => v.name + ' (' + v.lang + ')'),
+      ko: cache.ko.map((v) => v.name + ' (' + v.lang + ')'),
+      sample: ['수연', '해리', '王老师', '王大厨', '성수민지'].map((n) => ({
+        n: n, pitch: profileOf(n).pitch, rate: profileOf(n).rate,
+        zh: (pick(n, 'zh') || {}).name || null, ko: (pick(n, 'ko') || {}).name || null,
+      })),
+    }),
+  };
+  try {
+    if ('speechSynthesis' in window) {
+      collect();
+      speechSynthesis.addEventListener('voiceschanged', collect);
+    }
+  } catch (e) {}
+  return API;
+})();
+
 
 /* --- MP3 엔진: 실제 중국어 원어민 발음 ---
    iOS 사파리·인앱 브라우저는 speechSynthesis가 무음이 되는 경우가 많아
@@ -8023,16 +8157,17 @@ function speakMp3(text, btn, onFail) {
 }
 
 /* 음성합성 엔진: 반드시 클릭 핸들러 안에서 동기적으로 speak() */
-function speakSynth(str, btn, isFallback) {
+function speakSynth(str, btn, isFallback, who) {
   loadVoices();
   const started = { v: false };
   try {
     const u = new SpeechSynthesisUtterance(str);
     u.lang = 'zh-CN';
     u.volume = 1;
-    u.rate = 0.85;
-    u.pitch = 1.02;
-    const v = pickZhVoice();
+    const cast = (window.VoiceCast && VoiceCast.profile(who)) || null;
+    u.rate = cast ? cast.rate : 0.85;
+    u.pitch = cast ? cast.pitch : 1.02;
+    const v = (window.VoiceCast && VoiceCast.voice(who, 'zh')) || pickZhVoice();
     if (v) {
       u.voice = v;
       if (/^zh/i.test(v.lang || '')) u.lang = v.lang;
@@ -8096,11 +8231,12 @@ function speak(text, btn, opts) {
   if (!text || !String(text).trim()) return false;
   const raw = String(text).trim();
   const mode = (opts && opts.lang) || 'auto';
-  if (mode === 'ko') return speakKo(koOf(raw) || raw, btn);
+  const who = (opts && opts.who) || (window.VoiceCast && VoiceCast.current) || '';
+  if (mode === 'ko') return speakKo(koOf(raw) || raw, btn, who);
   const zh = hzOf(raw);
   if (!zh) {
     // 한자가 없으면 중국어 음성으로 읽지 않는다 (한국어 문장은 한국어 음성으로)
-    if (hasKo(raw)) return speakKo(koOf(raw) || raw, btn);
+    if (hasKo(raw)) return speakKo(koOf(raw) || raw, btn, who);
     return false;
   }
   const str = zh;
@@ -8109,7 +8245,7 @@ function speak(text, btn, opts) {
   // iOS(사파리·인앱 브라우저)는 음성합성이 무음인 경우가 많아 MP3를 먼저 재생한다
   if (IS_IOS) {
     return speakMp3(str, markBtn, () => {
-      if (hasSynth) speakSynth(str, markBtn, true);
+      if (hasSynth) speakSynth(str, markBtn, true, who);
       else toast('이 브라우저는 음성 합성을 지원하지 않아요. 병음을 참고해 주세요.');
     });
   }
@@ -8119,7 +8255,7 @@ function speak(text, btn, opts) {
       toast('이 브라우저는 음성 재생을 지원하지 않아요. 병음을 참고해 주세요.');
     });
   }
-  return speakSynth(str, markBtn, false);
+  return speakSynth(str, markBtn, false, who);
 }
 
 /* ---------------- 수업 데이터 ---------------- */
@@ -11770,6 +11906,11 @@ const Talk = {
       { hz: '我们互相练习对话吧。', py: 'wǒmen hùxiāng liànxí duìhuà ba.', ko: '우리 서로 대화 연습해요.' },
       { hz: '明天有听写考试。', py: 'míngtiān yǒu tīngxiě kǎoshì.', ko: '내일 받아쓰기 시험이 있어요.' },
     ],
+    '안소미': [
+      { hz: '我在准备中文口译考试，今天也在练。', py: 'wǒ zài zhǔnbèi zhōngwén kǒuyì kǎoshì, jīntiān yě zài liàn.', ko: '저는 중국어 통역 시험을 준비하고 있어요, 오늘도 연습 중이에요.' },
+      { hz: '我更喜欢坐在角落，安静。', py: 'wǒ gèng xǐhuan zuò zài jiǎoluò, ānjìng.', ko: '저는 구석에 앉는 게 더 좋아요, 조용해서요.' },
+      { hz: '这句翻成中文怎么说比较好？', py: 'zhè jù fān chéng zhōngwén zěnme shuō bǐjiào hǎo?', ko: '이 문장은 중국어로 어떻게 옮기면 좋을까요?' },
+    ],
     '안우바리': [
       { hz: '你好！我叫安乌巴里，请多关照。', py: 'nǐ hǎo! wǒ jiào Ān wū bā lǐ, qǐng duō guānzhào.', ko: '안녕하세요! 저는 안우바리예요, 잘 부탁해요.' },
       { hz: '这个字的声调我总是记不住。', py: 'zhège zì de shēngdiào wǒ zǒngshì jì bú zhù.', ko: '이 글자 성조를 자꾸 잊어버려요.' },
@@ -11922,12 +12063,15 @@ function pickKoVoice() {
   if (!ko.length) return null;
   return ko.slice().sort((a, b) => (b.localService ? 1 : 0) - (a.localService ? 1 : 0))[0];
 }
-function speakKoSynth(str, btn, isFallback) {
+function speakKoSynth(str, btn, isFallback, who) {
   try {
     const u = new SpeechSynthesisUtterance(str);
     u.lang = 'ko-KR';
-    u.volume = 1; u.rate = 1.0; u.pitch = 1.0;
-    const v = pickKoVoice();
+    u.volume = 1;
+    const cast = (window.VoiceCast && VoiceCast.profile(who)) || null;
+    u.rate = cast ? cast.rate : 1.0;
+    u.pitch = cast ? cast.pitch : 1.0;
+    const v = (window.VoiceCast && VoiceCast.voice(who, 'ko')) || pickKoVoice();
     if (v) { u.voice = v; u.lang = v.lang || 'ko-KR'; }
     u.onstart = () => { koLast = isFallback ? 'ko-synth-fallback' : 'ko-synth'; markSpeaking(btn, true); };
     u.onend = () => markSpeaking(btn, false);
@@ -11946,18 +12090,19 @@ function speakKoSynth(str, btn, isFallback) {
   }
   return true;
 }
-function speakKo(text, btn) {
+function speakKo(text, btn, who) {
   if (!text || !String(text).trim()) return false;
   const str = String(text).trim();
+  const speaker = who || (window.VoiceCast && VoiceCast.current) || '';
   const hasSynth = ('speechSynthesis' in window);
   if (IS_IOS) {
     return speakKoMp3(str, btn, () => {
-      if (hasSynth) speakKoSynth(str, btn, true);
+      if (hasSynth) speakKoSynth(str, btn, true, speaker);
       else toast('이 브라우저는 음성 합성을 지원하지 않아요.');
     });
   }
   if (!hasSynth) return speakKoMp3(str, btn, () => toast('음성 재생을 지원하지 않는 환경이에요.'));
-  return speakKoSynth(str, btn, false);
+  return speakKoSynth(str, btn, false, speaker);
 }
 
 /* ---------------- 🎙️ 녹음 (최대 6초) ---------------- */
@@ -13735,6 +13880,22 @@ function createCatModel(cfg) {
     patch2.scale.set(1, 0.5, 1);
     patch2.position.set(-0.07, 0.06, 0.04);
     head.add(patch2);
+  } else if (cfg.pattern === 'spot') {
+    /* 얼룩이 — 크고 작은 반점이 몸통·머리·꼬리에 흩어진 무늬 */
+    [[0.11, 0.34, 0.04, 0.075, 0x6b5644], [-0.1, 0.3, -0.08, 0.065, 0x4a3a2c], [0.03, 0.37, -0.16, 0.05, 0x6b5644], [-0.12, 0.24, 0.12, 0.045, 0x4a3a2c]].forEach(([x, y, z, r, col]) => {
+      const p = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 6), new THREE.MeshStandardMaterial({ color: col, roughness: 0.95 }));
+      p.scale.set(1, 0.42, 1.05);
+      p.position.set(x, y, z);
+      bodyG.add(p);
+    });
+    const earPatch = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), new THREE.MeshStandardMaterial({ color: 0x4a3a2c, roughness: 0.95 }));
+    earPatch.scale.set(1, 0.55, 1);
+    earPatch.position.set(-0.07, 0.1, 0.02);
+    head.add(earPatch);
+    const chin = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), lightM);
+    chin.scale.set(1.1, 0.6, 0.8);
+    chin.position.set(0.02, -0.06, 0.09);
+    head.add(chin);
   } else {
     const bib = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), lightM);
     bib.scale.set(0.9, 1.1, 0.55);
@@ -13796,6 +13957,8 @@ const Cats = {
       { name: '치즈', fur: 0xd99b52, dark: 0xa96f2f, light: 0xf8ead2, eye: 0x9ec46a, pattern: 'tabby', collar: 0xb04a3a, tailTip: true, spawn: [3.4, 5.4], zone: 'in', size: 1.06 },
       { name: '삼색', fur: 0xf2ebdf, dark: 0x7d5230, light: 0xfffaf0, eye: 0x6fa8c4, pattern: 'calico', collar: 0x3f6b7a, tailTip: true, spawn: [-2.4, 16.2], zone: 'out', size: 1.0 },
       { name: '흰둥', fur: 0xeeeade, dark: 0xbfb7a8, light: 0xffffff, eye: 0x8fb2d8, pattern: 'plain', collar: 0xc2453c, spawn: [5.6, 4.0], zone: 'in', size: 0.96 },
+      { name: '얼룩이', fur: 0xf2e8d6, dark: 0x5a4a3a, light: 0xfffaf0, eye: 0xd6a94a, pattern: 'spot', collar: 0x2f8f7a, tailTip: true, spawn: [-4.6, 5.2], zone: 'in', size: 0.92,
+        words: ['喵~ 摸摸我 🐾', '猫猫来了 我来了', '今天想睡一整天 ٩(๑•̀ω•́๑)۶', '罐头 time! 吃罐罐', '一起学习吧 一起加油', '喵喵 我在这儿'] },
     ];
     this.loadPets();
     defs.forEach((d, i) => {
@@ -13977,7 +14140,7 @@ const Cats = {
     cat.happy = 0.9;
     cat.state = 'look';
     cat.timer = 1.4;
-    const word = CAT_WORDS[Math.floor(Math.random() * CAT_WORDS.length)];
+    const word = (cat.words && cat.words.length ? cat.words : CAT_WORDS)[Math.floor(Math.random() * (cat.words && cat.words.length ? cat.words.length : CAT_WORDS.length))];
     if (cat.bubble) { try { cat.root.remove(cat.bubble); } catch (e) {} }
     const sp = labelSprite(word, { fontSize: 34, scale: 0.0032, bg: 'rgba(255,252,246,.97)', color: '#3c3126' });
     sp.position.set(0, 0.82, 0.1);
@@ -19820,7 +19983,7 @@ const Greeter = {
     bar.classList.add('show');
     // NPC 가 다가오기
     this.walk = { from: n.avatar.root.position.clone(), t: 0 };
-    try { speak(l.hz); } catch (e) {}
+    try { speak(l.hz, null, { who: (n.avatar && n.avatar.name) || '' }); } catch (e) {}
     n.avatar.say && n.avatar.say(l.hz, 2600);
   },
   answer(a) {
@@ -40792,7 +40955,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (!cfg) return;
     try {
       if (V12.say) V12.say('🧑‍💼 ' + (cfg.name || '점원'), cfg.greet, 3400);
-      setTimeout(() => { try { speak(cfg.greet); } catch (e) {} }, 500);
+      setTimeout(() => { try { speak(cfg.greet, null, { who: cfg.name || '' }); } catch (e) {} }, 500);
     } catch (e) {}
   }
   function hookEnter() {
@@ -40831,7 +40994,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
           const cfg = r.__clerkCfg;
           if (!cfg) return;
           try { V12.say('🧑‍💼 ' + (cfg.name || '점원'), cfg.greet + ' (' + cfg.ko + ')', 4200); } catch (e) {}
-          try { speak(cfg.greet); } catch (e) {}
+          try { speak(cfg.greet, null, { who: cfg.name || '' }); } catch (e) {}
         };
       });
     } catch (e) {}
@@ -46515,6 +46678,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   V16.pdfReady = true;
   const err = V16.err;
   const KAKAO = 'https://open.kakao.com/o/sohrx3Ti';
+  const LITTLY = 'https://litt.ly/creatorrealchines';
   const BOOKS = (V16.PDFBOOKS = [ { "slug": "biz-situation", "ic": "💼", "title": "비즈니스 회화 · 상황별 실전", "cn": "商务中文会话 · 场景实战", "pages": 50, "level": "중급~고급 · B1~B2", "desc": "방문 목적 설명부터 제품 소개, 가격 협상, 계약 조건 검토, 클레임 대응까지 — 중국 출장·거래처 응대의 42개 실전 상황을 대화·어휘·문형·역할극으로 익힙니다. 중국어 원문 + 한국어 해석 + 바로 쓰는 문형이 한 페이지에 함께 있어 수업 중 바로 꺼내 쓸 수 있습니다.", "specs": [ "50쪽", "실전 상황 42개", "회의·협상·계약·물류", "원문+해석+문형", "역할극 과제" ], "tocNote": "42개 상황 전체", "toc": [ "01 첫인사와 명함 교환", "02 방문 목적 설명", "03 일정 조율", "04 회의 시작과 안건 확인", "05 의견 제시와 동의", "06 정중한 반대와 조정", "07 제품 소개", "08 가격 문의와 견적", "09 가격 협상", "10 최소 주문량과 샘플", "11 납기와 생산 일정", "12 품질 기준과 검사", "13 계약 조건 검토", "14 결제와 송장", "19 고객 불만 접수", "21 물류와 통관", "27 프레젠테이션 진행", "33 출장 예약과 호텔", "39 합의 사항 요약", "42 업무 표현 종합 복습" ], "previews": [ { "hz": "请问您这次来主要是为了什么项目？", "py": "Qǐng wèn nín zhè cì lái zhǔ yào shì wèi le shén me xiàng mù？", "ko": "이번 방문은 어떤 프로젝트 때문이신가요?" }, { "hz": "我们想了解贵公司的新产品，并讨论一下代理合作的可能性。", "py": "Wǒ men xiǎng liǎo jiě guì gōng sī de xīn chǎn pǐn，bìng tǎo lùn yī xià dài lǐ hé zuò de kě néng xìng。", "ko": "귀사의 신제품을 알아보고 대리점 협력 가능성을 논의하고 싶습니다." }, { "hz": "没问题。我们可以先介绍产品，再具体谈合作条件。", "py": "Méi wèn tí。wǒ men kě yǐ xiān jiè shào chǎn pǐn，zài jù tǐ tán hé zuò tiáo jiàn。", "ko": "물론입니다. 먼저 제품을 소개한 뒤 협력 조건을 구체적으로 논의하겠습니다." }, { "hz": "好的。我们也准备了市场数据，供贵公司参考。", "py": "Hǎo de。wǒ men yě zhǔn bèi le shì chǎng shù jù，gōng guì gōng sī cān kǎo。", "ko": "좋습니다. 저희도 참고하실 수 있도록 시장 데이터를 준비했습니다." }, { "hz": "您好，我是韩国明诚公司的金代理。很高兴认识您。", "py": "Nín hǎo，wǒ shì hán guó míng chéng gōng sī de jīn dài lǐ。hěn gāo xìng rèn shí nín。", "ko": "안녕하세요, 저는 한국 명성회사 김 대리입니다. 만나 뵙게 되어 반갑습니다." }, { "hz": "这是我的名片，请多关照。", "py": "Zhè shì wǒ de míng piàn，qǐng duō guān zhào。", "ko": "명함입니다. 잘 부탁드립니다." }, { "hz": "您看明天下午三点方便吗？", "py": "Nín kàn míng tiān xià wǔ sān diǎn fāng biàn ma？", "ko": "내일 오후 3시 괜찮으세요?" } ] }, { "slug": "ginseng", "ic": "🌿", "title": "정관장 · 홍삼 실무 중국어", "cn": "高丽参实务中文", "pages": 50, "level": "중상급~고급 실무", "desc": "정관장 중국 주재원의 실제 업무를 가정해 만든 맞춤형 교재입니다. 홍삼·고려삼 제품 지식, 품질·규정 준수, 시장·유통 채널, 회의 발언 구조, 중국 현지 생활(입주·등록·통신)까지 6개 유닛으로 다룹니다.", "specs": [ "50쪽", "6개 유닛", "제품·품질·규정·유통", "회의 발언 훈련", "중한 통번역" ], "tocNote": "6개 유닛 · 48개 과", "toc": [ "UNIT 01 정관장과 중국 사업 이해 (01–10)", "UNIT 02 연구개발과 원료 과학 (11–18)", "UNIT 03 중국 식품 규정과 표시 준수 (19–24)", "UNIT 04 중국 시장과 유통 채널 (25–32)", "UNIT 05 회의 진행과 발언 구조 (33–39)", "UNIT 06 중국 현지 생활: 입주·등록·통신 (40–48)" ], "previews": [ { "hz": "我目前在中国负责当地业务的协调与推进。", "py": "Wǒ mùqián zài Zhōngguó fùzé dāngdì yèwù de xiétiáo yǔ tuījìn.", "ko": "저는 현재 중국에서 현지 업무의 조율과 추진을 담당하고 있습니다." }, { "hz": "我们主要围绕高丽参及其深加工产品开展业务。", "py": "Wǒmen zhǔyào wéirào Gāolìshēn jí qí shēnjiāgōng chǎnpǐn kāizhǎn yèwù.", "ko": "저희는 고려삼 및 그 가공 제품을 중심으로 사업을 전개합니다." }, { "hz": "红参是人参经过清洗、蒸制和干燥等工序加工而成的产品。", "py": "Hóngshēn shì rénshēn jīngguò qīngxǐ, zhēngzhì hé gānzào děng gōngxù jiāgōng ér chéng de chǎnpǐn.", "ko": "홍삼은 인삼을 세척하고 증숙·건조 등의 공정을 거쳐 가공한 제품입니다." }, { "hz": "在介绍产品时，应以产品标签和适用法规中的名称为准。", "py": "Zài jièshào chǎnpǐn shí, yīng yǐ chǎnpǐn biāoqiān hé shìyòng fǎguī zhōng de míngchēng wéi zhǔn.", "ko": "제품을 소개할 때는 제품 라벨과 적용 법규에 기재된 명칭을 기준으로 해야 합니다." }, { "hz": "请确认检测报告中总皂苷的检测方法和计量单位。", "py": "Qǐng quèrèn jiǎncè bàogào zhōng zǒng zàogān de jiǎncè fāngfǎ hé jìliàng dānwèi.", "ko": "검사 보고서의 총 사포닌 검사 방법과 측정 단위를 확인해 주십시오." }, { "hz": "每次会议结束前，请用中文概括结论、责任人和完成时限。", "py": "Měi cì huìyì jiéshù qián, qǐng yòng Zhōngwén gàikuò jiélùn, zérènrén hé wánchéng shíxiàn.", "ko": "회의 종료 전 결론·담당자·완료 기한을 중국어로 요약해 주십시오." } ] }, { "slug": "hsk4-field", "ic": "🧭", "title": "HSK 4급 현지 실전 회화", "cn": "HSK4级 当地实战会话", "pages": 30, "level": "HSK 4급 · B1~B2", "desc": "교과서 문장 대신 중국인이 실제로 입에 달고 사는 표현 132개를 22개 상황으로 묶었습니다. 카페 커스텀 주문부터 부드러운 거절, 환불·AS, 병원·약국, 직장 협업까지 6줄 대화로 병음·뜻·뉘앙스까지 한눈에 익힙니다.", "specs": [ "30쪽", "실전 상황 22개", "현지 구어 132개", "6줄 대화 22편", "바꿔 말하기 패턴" ], "tocNote": "22개 상황 전체", "toc": [ "01 카페 · 밀크티 커스텀", "02 식당 주문 · 배달", "03 위챗 · 메신저", "04 직장 · 협업", "05 부드러운 거절 · 일정 조율", "06 쇼핑 · 흥정", "07 환불 · 교환 · AS", "08 택시 · 길 찾기", "09 지하철 · 버스", "10 미용실", "11 병원 · 약국", "12 감정 · 공감 리액션", "13 칭찬 · 농담 · 수다", "14 부탁 · 양해", "15 사과 · 늦을 때", "16 약속 · 초대", "18 호텔 · 여행", "19 택배 · 배송", "20 학교 · 수업 · 시험", "21 전화 · 통화", "22 앱 · 결제 · 네트워크" ], "previews": [ { "hz": "您好，喝点儿什么？", "py": "Nín hǎo, hē diǎnr shénme?", "ko": "안녕하세요, 뭐 드릴까요?" }, { "hz": "来一杯生椰拿铁，少冰，半糖。", "py": "Lái yì bēi shēngyē nátiě, shǎo bīng, bàn táng.", "ko": "생코코넛 라떼 한 잔, 얼음 적게, 반당으로요." }, { "hz": "在这儿喝还是打包？", "py": "Zài zhèr hē háishi dǎbāo?", "ko": "드시고 가세요, 포장이세요?" }, { "hz": "打包。能换成燕麦奶吗？", "py": "Dǎbāo. Néng huàn chéng yànmài nǎi ma?", "ko": "포장이요. 오트밀크로 바꿀 수 있어요?" }, { "hz": "这个要微辣，不要香菜。", "py": "Zhège yào wēi là, bú yào xiāngcài.", "ko": "이건 살짝 맵게 해 주시고, 고수는 빼 주세요." }, { "hz": "等太久了，帮我催一下。", "py": "Děng tài jiǔ le, bāng wǒ cuī yíxià.", "ko": "너무 오래 기다렸어요, 좀 재촉해 주세요." } ] }, { "slug": "marketing", "ic": "💄", "title": "뷰티 · 마케팅 실무 회화", "cn": "美妆与市场营销", "pages": 30, "level": "HSK 5급 기반 실무", "desc": "화장품 브랜드 실무자를 위한 교재입니다. 브랜드 포지셔닝, 중국 SNS 채널 운영, KOL/KOC 협업, 라이브커머스, 마케팅 지표 보고, 광고 카피 검수까지 10개 단원 + 브랜드 론칭 통합 실습(CASE)으로 구성했습니다.", "specs": [ "30쪽", "10개 단원 + CASE", "SNS·인플루언서 협업", "성과 지표 보고", "카피 검수 원칙" ], "tocNote": "PART 1 · 10개 단원 + 실습", "toc": [ "01 마케팅 기본 개념과 전략 어휘", "02 뷰티 제품·피부 고민·성분 표현", "03 브랜드 포지셔닝과 타깃 고객", "04 중국 SNS 채널과 콘텐츠 운영", "05 KOL/KOC 및 인플루언서 협업", "06 이커머스·라이브 커머스·프로모션", "07 마케팅 지표와 성과 보고", "08 광고 카피와 효능 표현 검수", "09 시장 조사와 경쟁사 분석", "10 현지화·회의·비즈니스 커뮤니케이션", "CASE 브랜드 론칭 통합 실습", "PRACTICE 어휘·번역·역할극 연습" ], "previews": [ { "hz": "我们的核心目标是提高品牌知名度。", "py": "Wǒmen de héxīn mùbiāo shì tígāo pǐnpái zhīmíngdù.", "ko": "우리의 핵심 목표는 브랜드 인지도를 높이는 것입니다." }, { "hz": "与竞争品牌相比，我们的产品更注重成分和使用体验。", "py": "Yǔ jìngzhēng pǐnpái xiāngbǐ, wǒmen de chǎnpǐn gèng zhùzhòng chéngfèn hé shǐyòng tǐyàn.", "ko": "경쟁 브랜드와 비교하면, 우리 제품은 성분과 사용 경험을 더 중시합니다." }, { "hz": "我们需要根据目标客户的需求调整推广策略。", "py": "Wǒmen xūyào gēnjù mùbiāo kèhù de xūqiú tiáozhěng tuīguǎng cèlüè.", "ko": "타깃 고객의 수요에 맞춰 홍보 전략을 조정해야 합니다." }, { "hz": "这款精华质地轻薄，使用后不会有明显的黏腻感。", "py": "Zhè kuǎn jīnghuá zhìdì qīngbáo, shǐyòng hòu bú huì yǒu míngxiǎn de niánnì gǎn.", "ko": "이 세럼은 제형이 가볍고 사용 후 끈적임이 두드러지지 않습니다." }, { "hz": "如果您比较在意肤感，可以先试用，再决定是否购买。", "py": "Rúguǒ nín bǐjiào zàiyì fūgǎn, kěyǐ xiān shìyòng, zài juédìng shìfǒu gòumǎi.", "ko": "사용감을 중요하게 생각하신다면 먼저 체험해 본 뒤 구매를 결정하셔도 됩니다." }, { "hz": "具体优惠条件、库存和发货时间，请以商品页面说明为准。", "py": "Jùtǐ yōuhuì tiáojiàn, kùcún hé fāhuò shíjiān, qǐng yǐ shāngpǐn yèmiàn shuōmíng wéi zhǔn.", "ko": "구체적인 할인 조건, 재고, 발송 시간은 상품 페이지 안내를 기준으로 확인해 주세요." } ] }, { "slug": "derma", "ic": "🩺", "title": "피부과 상담 회화", "cn": "皮肤科实用中文", "pages": 31, "level": "의료통역 · 실무", "desc": "피부과 상담실에서 바로 쓰는 한국어↔중국어 표현집입니다. 문진 → 기대 파악 → 설명 → 재확인 → 마무리의 상담 6단계를 기준으로, 여드름·색소·홍조·주름·시술 전후 안내까지 현장 대화문과 통역 연습으로 익힙니다.", "specs": [ "31쪽", "상담 6단계", "시술 전후 안내", "현장 대화문 4편", "통역 실전 연습" ], "tocNote": "00~29 · 30개 장", "toc": [ "00 이 교재를 현장에서 쓰는 방법", "01 피부의 구조와 기본 용어", "02 피부 타입과 피부 고민", "03 증상·감각을 묘사하는 표현", "04 초진 문진과 병력 확인", "05 여드름·피지·모공", "06 색소·기미·잡티", "07 홍조·민감성·염증성 피부", "08 주름·탄력·노화", "09 레이저·광치료 용어", "10 필링·피부관리·재생 관리", "11 주사 시술: 톡신·필러·스킨부스터", "12 상담 중 자주 묻는 질문", "13 시술 전 안내와 동의 확인", "15 시술 후 공통 안내", "17~20 대화문 ①~④", "25 두피·탈모·모발이식 상담", "26~28 통역 실전 연습과 정답" ], "previews": [ { "hz": "您今天主要想咨询哪方面的问题？", "py": "Nín jīn tiān zhǔ yào xiǎng zī xún nǎ fāng miàn de wèn tí？", "ko": "오늘은 주로 어떤 부분이 가장 불편하셔서 오셨나요?" }, { "hz": "皮肤表面比较干燥，摸起来也有些粗糙。", "py": "Pí fū biǎo miàn bǐ jiào gān zào，mō qǐ lái yě yǒu xiē cū cāo。", "ko": "피부 표면이 비교적 건조해서 만져 보면 조금 거칠어요." }, { "hz": "洗完脸后，皮肤会觉得很紧绷吗？", "py": "Xǐ wán liǎn hòu，pí fū huì jué de hěn jǐn bēng ma？", "ko": "세안 후에 피부가 많이 당기시나요?" }, { "hz": "涂护肤品后会有刺痛感或泛红吗？", "py": "Tú hù fū pǐn hòu huì yǒu cì tòng gǎn huò fàn hóng ma？", "ko": "화장품을 바른 뒤 따가운 느낌이나 붉어짐이 있으신가요?" }, { "hz": "在某些情况下，您的脸容易泛红吗？", "py": "Zài mǒu xiē qíng kuàng xià，nín de liǎn róng yì fàn hóng ma？", "ko": "특정 상황에서 얼굴이 쉽게 붉어지시나요?" }, { "hz": "具体情况需要由医生检查皮肤后再为您说明。", "py": "Jù tǐ qíng kuàng xū yào yóu yī shēng jiǎn chá pí fū hòu zài wèi nín shuō míng。", "ko": "정확한 상태는 의료진이 피부를 확인한 뒤 안내해 드립니다." } ] }, { "slug": "zaochun", "ic": "🌸", "title": "《早春晴朗》 50장면 비즈니스 회화", "cn": "早春晴朗 50场景", "pages": 54, "level": "중급~고급 · 회화", "desc": "드라마 《早春晴朗》의 분위기에서 착안해 새로 쓴 창작 대화집입니다. 면접·출근·보고·협상 같은 직장 장면 20개, 쇼핑·식사·여행 등 일상 장면 30개를 8마디 대화로 담았습니다. 각 장면마다 병음·한국어 번역·핵심 어휘·문형·말하기 응용이 붙습니다.", "specs": [ "54쪽", "50개 장면", "대사 400줄", "병음·번역 수록", "문형 응용 훈련" ], "tocNote": "50장면 전체", "toc": [ "01 면접 첫인상", "02 지원 동기", "03 첫 출근", "05 일정 조율", "06 기획안 검토", "07 보고서 제출", "08 회의에서 발언하기", "10 마감 기한", "11 고객 불만 대응", "13 실수 보고", "14 정중하게 사과하기", "19 고객과 조건 협의", "21 커피 주문", "23 길 묻기", "26 식당에서 주문", "31 늦을 때 연락하기", "38 초대하기", "39 정중하게 거절하기", "45 앞으로의 계획", "47 다툼 후 화해", "50 다시 시작하기" ], "previews": [ { "hz": "请你先简单介绍一下自己。", "py": "Qǐng nǐ xiān jiǎn dān jiè shào yī xià zì jǐ。", "ko": "먼저 간단하게 자기소개를 해 주세요." }, { "hz": "您好，我叫林晓，之前有相关行业的工作经验。", "py": "Nín hǎo，wǒ jiào lín xiǎo，zhī qián yǒu xiāng guān háng yè de gōng zuò jīng yàn。", "ko": "안녕하세요. 저는 린샤오이고, 이전에 관련 업계에서 일한 경험이 있습니다." }, { "hz": "你为什么想应聘这个职位？", "py": "Nǐ wèi shén me xiǎng yìng pìn zhè ge zhí wèi？", "ko": "왜 이 직무에 지원하셨나요?" }, { "hz": "我觉得这个岗位很适合我的专业背景。", "py": "Wǒ jué de zhè ge gǎng wèi hěn shì hé wǒ de zhuān yè bèi jǐng。", "ko": "이 직무가 제 전공 배경과 잘 맞는다고 생각합니다." }, { "hz": "你认为自己最大的优势是什么？", "py": "Nǐ rèn wéi zì jǐ zuì dà de yōu shì shì shén me？", "ko": "본인의 가장 큰 장점은 무엇이라고 생각하세요?" }, { "hz": "我学习能力比较强，也很重视团队合作。", "py": "Wǒ xué xí néng lì bǐ jiào qiáng，yě hěn zhòng shì tuán duì hé zuò。", "ko": "저는 학습 능력이 좋은 편이고 팀워크도 중요하게 생각합니다." } ] }, { "slug": "basic-wb", "ic": "📗", "title": "기초회화 종합워크북", "cn": "基础会话综合练习册", "pages": 61, "level": "초급 · A1–A2", "desc": "기초회화 22단원을 읽고·쓰고·바꿔 말하며 손과 입에 익히는 연습장입니다. 단원마다 핵심 표현 → 문법 → 한 단계 더 말하기 → 어휘 다지기 → 어순 배열 → 대화 완성 → 한중 작문 순서로 반복하고, 누적 테스트 4회와 종합 모의고사, 전체 정답·해설을 담았습니다.", "specs": [ "61쪽", "22단원", "누적 테스트 4회 + 모의고사", "한중 작문", "정답·해설 수록" ], "tocNote": "22단원 전체", "toc": [ "01 인사와 자기소개", "02 숫자·시간·약속", "03 식당에서 주문", "04 카페·음료 테이크아웃", "05 가격 묻고 결제", "06 편의점·마트", "07 길 묻기·장소 찾기", "08 지하철·버스", "09 택시·차량 호출", "10 호텔 체크인", "11 공항 체크인·수하물", "12 위챗 메시지", "13 약속 잡기·변경", "14 부탁·감사 표현", "15 몸이 아플 때·약국", "16 집·일상생활", "17 날씨·계획·제안", "18 취미·취향·의견", "19 회사·학교 업무", "20 미용실·네일숍", "21 옷·사이즈 교환", "22 택배·환불" ], "previews": [ { "hz": "你好 / 您好", "py": "Nǐ hǎo / Nín hǎo", "ko": "안녕하세요 / 더 공손한 표현" }, { "hz": "我叫……", "py": "Wǒ jiào...", "ko": "제 이름은 …예요" }, { "hz": "我来自韩国。", "py": "Wǒ láizì Hánguó.", "ko": "저는 한국에서 왔어요" }, { "hz": "认识你很高兴。", "py": "Rènshi nǐ hěn gāoxìng.", "ko": "만나서 반가워요" }, { "hz": "请多关照。", "py": "Qǐng duō guānzhào.", "ko": "잘 부탁드립니다" }, { "hz": "请问，您怎么称呼？", "py": "Qǐngwèn, nín zěnme chēnghu?", "ko": "실례합니다, 어떻게 불러 드리면 될까요?" }, { "hz": "我在一家贸易公司上班。", "py": "Wǒ zài yì jiā màoyì gōngsī shàngbān.", "ko": "저는 무역회사에서 일해요." } ] } ]);
 
   function fmtKb() { return ''; }
@@ -46525,7 +46689,8 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     const el = V16.modal('v16PdfModal', b.ic + ' ' + b.title,
       (b.cn || '') + ' · ' + b.pages + '쪽 · ' + (b.level || ''));
     const body = V16.bodyOf(el);
-    const buyBtn = '<button class="v12-btn primary v16-buy" type="button" data-buy>💬 PDF 전체본 구매 · 1:1 카톡 문의</button>';
+    const buyBtn = '<a class="v12-btn primary v16-buy" href="' + LITTLY + '" target="_blank" rel="noopener noreferrer" data-littly>🛒 리틀리에서 바로 구매</a>' +
+      '<button class="v12-btn gold v16-buy" type="button" data-buy>💬 1:1 카톡 문의</button>';
     body.innerHTML =
       buyBtn +
       '<div class="v16-total"><span><b>' + b.title + '</b><br><small style="color:#8a7a63">' + (b.cn || '') +
@@ -46544,7 +46709,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
           '<button type="button" data-pdf="' + i + '">🔊</button></div>';
       }).join('') +
       '<div class="v16-note">미리보기는 대표 표현 ' + (b.previews || []).length + '개예요. <b>전체 본문·수록 표현은 PDF 전체본</b>에서 확인하세요. ' +
-      '교재 파일은 앱에 올라가 있지 않고, 구매·수업 문의 후 1:1 카톡으로 보내 드려요.</div>' +
+      '교재 파일은 앱에 올라가 있지 않고, 구매는 리틀리에서, 수업·제작 문의는 1:1 카톡으로 받아요.</div>' +
       buyBtn;
     body.querySelectorAll('[data-pdf]').forEach(function (btn) {
       btn.onclick = function () {
@@ -46552,6 +46717,12 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         if (!p) return;
         V16.tts(p.hz);
         V16.say('🔊 ' + p.hz, p.py || p.ko || '', 2200);
+      };
+    });
+    body.querySelectorAll('[data-littly]').forEach(function (btn) {
+      btn.onclick = function () {
+        try { window.open(LITTLY, '_blank'); } catch (e) { err('littly:' + e.message); }
+        V16.say('🛒 리틀리 교재 스토어', '전체본 PDF를 바로 구매할 수 있어요', 2400);
       };
     });
     body.querySelectorAll('[data-buy]').forEach(function (btn) {
@@ -46604,17 +46775,17 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   }, 700);
 })();
 /* =====================================================================
-   v16.3 SIMS 모듈 (심즈식 자율 생활 · 오프라인 학원 일지)
+   v16.3 SIMS 모듈 (심즈식 자율 생활 · 오프라인 '학원에서 있었던 일')
    ===================================================================== */
 /* =====================================================================
-   v16.3 SIMS — 🫧 심즈식 자율 생활 + 오프라인 학원 일지
+   v16.3 SIMS — 🫧 심즈식 자율 생활 + 오프라인 '학원에서 있었던 일'
    ---------------------------------------------------------------------
    · 수강생 NPC 5명(수연·해리·보화·예솔·안우바리)의 상태를 localStorage 에
      영구 저장한다 (HSK 급수·경험치·기분·현재 행동·친밀도·관계 메모)
    · 화면을 켜 두면 20~30초마다 스스로 행동을 바꾸고, 가끔 둘이 마주치면
      한국어+중국어 짧은 말풍선 대화를 나누며 경험치·기분이 변한다
    · 마지막 접속 시각(lastActiveAt)을 기억했다가, 다시 오면 그동안 학원에서
-     일어난 일을 「📋 학원 일지」로 만들어 준다 (상한 12시간)
+     일어난 일을 「📋 학원에서 있었던 일」로 만들어 준다 (상한 12시간)
    · 유료 API · 외부 서버 없음 — 전부 이 브라우저에서 계산한다
    ===================================================================== */
 (function () {
@@ -46733,6 +46904,25 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     { a: '해리', b: '예솔', place: 'ktv',
       la: { ko: '중국어 노래 한 곡 어때?', hz: '来一首中文歌吧?', bub: '한 곡 어때?' },
       lb: { ko: '《小幸运》 불러 볼게', hz: '我唱《小幸运》', bub: '小幸运!' } },
+    /* v16.4 — 오늘의 현실 화제 (탕후루·성수 팝업·우주·로봇개·양파식 옷차림) */
+    { a: '수연', b: '예솔', place: 'seongsu',
+      la: { ko: '성수동 크리스마스 팝업 갔어?', hz: '你去圣水洞的圣诞快闪了吗?', bub: '팝업 갔어?' },
+      lb: { ko: '응, 눈사람 앞에서 사진 찍었어', hz: '去了，在雪人前面拍了照', bub: '눈사람 사진!' } },
+    { a: '해리', b: '보화', place: 'cafe',
+      la: { ko: '탕후루 나왔대, 같이 살래?', hz: '糖葫芦上市了，一起去买吗?', bub: '탕후루 갈래?' },
+      lb: { ko: '좋아, 내가 살게!', hz: '好啊，我请客!', bub: '내가 살게!' } },
+    { a: '안우바리', b: '수연', place: 'study',
+      la: { ko: '쑤저우 소방 로봇개가 1000도 화장에 들어간대', hz: '听说苏州的消防机器狗能进一千度的火场', bub: '로봇개 대단해' },
+      lb: { ko: '진짜? 너무 대단하다', hz: '真的? 太厉害了', bub: '진짜 대단해' } },
+    { a: '예솔', b: '해리', place: 'lobby',
+      la: { ko: '나 요즘 “양파식 겹쳐입기” 연습 중이야', hz: '我最近在练“洋葱式穿搭”', bub: '양파식 옷차림' },
+      lb: { ko: '하하, 겨울에 제일 실용적이지', hz: '哈哈，冬天最实用', bub: '겨울엔 최고' } },
+    { a: '보화', b: '안우바리', place: 'mala',
+      la: { ko: '겨울엔 마라탕이 최고야', hz: '冬天吃麻辣烫最幸福', bub: '마라탕 최고' },
+      lb: { ko: '군고구마도 하나 먹자!', hz: '再来一个烤红薯!', bub: '군고구마도!' } },
+    { a: '수연', b: '안우바리', place: 'class',
+      la: { ko: '선저우 24호에 외국인 우주비행사가 탔대', hz: '神舟二十四号有外国航天员!', bub: '외국인 우주비행사!' },
+      lb: { ko: '나도 뉴스에서 봤어, 파키스탄 사람이라던데', hz: '我看新闻了，是巴基斯坦人', bub: '뉴스에서 봤어' } },
   ];
 
   const INIT = {
@@ -47105,10 +47295,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       const d = document.createElement('div');
       d.className = 'modal';
       d.id = 'v163SimsModal';
-      d.setAttribute('aria-label', '학원 일지 · 심즈 리포트');
+      d.setAttribute('aria-label', '학원에서 있었던 일 · 자율 생활 기록');
       d.innerHTML = '<div class="sheet v163-sheet">' +
         '<button class="v12-x" id="v163X" aria-label="닫기">✕</button>' +
-        '<div class="v163-hd"><div><b>📋 학원 일지</b><small>SIMS REPORT · 자율 생활</small></div>' +
+        '<div class="v163-hd"><div><b>📋 학원에서 있었던 일</b><small>ACADEMY DIARY · 자율 생활</small></div>' +
         '<div class="v163-rep" id="v163Rep">⭐ 0<i>학원 평판</i></div></div>' +
         '<div class="v163-tabs" id="v163Tabs">' +
         '<button type="button" data-t="live" class="on">🫧 지금 학원</button>' +
@@ -47280,7 +47470,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     D.rep = clampN((D.rep || 0) + (p.rep || 0), 0, 9999);
     try { if (V16.gold) V16.gold(p.coins); } catch (e) {}
     push({ t: Date.now(), ic: '🪙', kind: 'reward',
-      txt: '학원 일지 보상 수령 — +' + p.coins + ' 코인 · 평판 +' + p.rep });
+      txt: '학원에서 있었던 일 보상 수령 — +' + p.coins + ' 코인 · 평판 +' + p.rep });
     save();
     render();
     try { if (window.toast) toast('🪙 ' + p.coins + ' 코인 · 평판 +' + p.rep + ' 받았어요!', 2600); } catch (e) {}
@@ -47327,7 +47517,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         const b = document.createElement('button');
         b.id = 'v163More';
         b.type = 'button';
-        b.innerHTML = '<span aria-hidden="true">📋</span> 심즈 학원 일지';
+        b.innerHTML = '<span aria-hidden="true">📋</span> 학원에서 있었던 일';
         b.onclick = function () {
           try { document.getElementById('moreClose').click(); } catch (e) {}
           open();
@@ -47394,9 +47584,9 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         hintShown = true;
         if (D.hintDone) return;
         D.hintDone = 1; save();
-        if (D.pending && !D.pending.claimed) return;   /* 일지가 먼저 뜨면 안내는 생략 */
+        if (D.pending && !D.pending.claimed) return;   /* 기록 창이 먼저 뜨면 안내는 생략 */
         setTimeout(function () {
-          try { if (V16.say) V16.say('📋 심즈 학원 일지', '더보기(🎛️)에서 수강생들의 자율 생활을 볼 수 있어요', 4600); } catch (e) {}
+          try { if (V16.say) V16.say('📋 학원에서 있었던 일', '더보기(🎛️)에서 수강생들의 자율 생활을 볼 수 있어요', 4600); } catch (e) {}
         }, 2200);
       } catch (e) {}
     }, 1500);
@@ -47438,6 +47628,1043 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       return out;
     },
   };
+})();
+
+/* =====================================================================
+   v16.4 CONTENT — 🗣️ 날짜별 NPC 대화 · 🎄 성수 겨울 팝업/노점
+   ---------------------------------------------------------------------
+   · NPC 를 누를 때 나오는 대사에 "오늘 날짜"로 도는 대화 풀을 더한다
+     (학생 5명 · 원장 · 성수/강남/여의도/북촌/공항/상하이/베이징 NPC 전부)
+   · 성수동에 겨울 홀리데이 포토존과 탕후루·군고구마 노점을 세운다
+   · 유료 API 없음 — 전부 브라우저 안에서 계산/저장
+   ===================================================================== */
+(function () {
+  const V14 = window.V14, V12 = window.V12, V15 = window.V15;
+  if (!V14 || !V12) return;
+  const err = (m) => { try { if (V15 && V15.err) V15.err('v164:' + m); } catch (e) {} };
+  const V164 = window.V164 = window.V164 || { errors: [] };
+  const E = (m) => { try { V164.errors.push(String(m).slice(0, 160)); } catch (e) {} };
+
+  /* ---------------- 오늘 날짜 (기기 시간대) ---------------- */
+  function today() {
+    const d = new Date();
+    return {
+      key: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'),
+      y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate(),
+      wd: d.getDay(),
+    };
+  }
+  function hash(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0);
+  }
+  const season = () => {
+    const t = today();
+    return t.m >= 11 || t.m <= 2 ? 'winter' : t.m <= 5 ? 'spring' : t.m <= 8 ? 'summer' : 'autumn';
+  };
+
+  /* ---------------- 오늘의 화제 (날짜로 돌아간다) ---------------- */
+  const TRENDS = [
+    { ic: '🍡', hz: '冰糖葫芦', py: 'bīngtáng húlu', ko: '탕후루 — 겨울이면 중국 길거리마다 등장. 산시(山楂) 산사 열매에 설탕옷을 입혀요.' },
+    { ic: '🍠', hz: '烤红薯', py: 'kǎo hóngshǔ', ko: '군고구마 — 손난로 대용. 중국에서는 겨울 노점 단골이에요.' },
+    { ic: '🧅', hz: '洋葱式穿搭', py: 'yángcōng shì chuāndā', ko: '양파식 겹쳐입기 — 얇게 여러 겹 입고 기온에 따라 벗는 방식.' },
+    { ic: '🥤', hz: 'Becoming Chinese', py: 'hē rèshuǐ · yǎngshēng', ko: '따뜻한 물·족욕·팥죽 같은 중국식 양생을 따라 하는 글로벌 밈.' },
+    { ic: '🚀', hz: '神舟二十四号', py: 'shénzhōu èrshísì hào', ko: '선저우 24호 — 첫 외국인(파키스탄) 우주비행사와 함께 톈궁에 입주.' },
+    { ic: '⛄', hz: '哈尔滨大雪人', py: 'hā’ěrbīn dà xuěrén', ko: '하얼빈 음악회랑 19.5m 눈사람 — 해마다 겨울 대표 포토존.' },
+    { ic: '🤖', hz: '消防侦察狗', py: 'xiāofáng zhēnchá gǒu', ko: '1000℃를 견디는 소방 정찰 로봇개(하공대 쑤저우).' },
+    { ic: '🛰️', hz: '遥感四十九号', py: 'yáogǎn sìshíjiǔ hào', ko: '야오간 49호 01조 위성 — 창정 2호정으로 681번째 발사.' },
+    { ic: '🎄', hz: '圣诞快闪店', py: 'shèngdàn kuàishǎn diàn', ko: '크리스마스 팝업 — 성수동 연말 시즌 한정 스토어.' },
+    { ic: '🎨', hz: '酸蘸儿', py: 'suān zhànr', ko: '지난(济南)에서 탕후루를 부르는 이름. 톈진은 糖堆儿.' },
+  ];
+  function todayTrend(offset) {
+    const t = today();
+    return TRENDS[(hash(t.key) + (offset || 0)) % TRENDS.length];
+  }
+
+  /* ---------------- 대화 풀 ---------------- */
+  const P = {};
+  P.student = [
+    { hz: '今天零下三度，我穿了“洋葱式穿搭”。', py: 'jīntiān líng xià sān dù, wǒ chuān le “yángcōng shì chuāndā”.', ko: '오늘 영하 3도라서 양파식 겹쳐입기 했어요.' },
+    { hz: '你喝热水了吗？最近“Becoming Chinese”特别火。', py: 'nǐ hē rèshuǐ le ma? zuìjìn “Becoming Chinese” tèbié huǒ.', ko: '따뜻한 물 마셨어요? 요즘 “Becoming Chinese”가 엄청 유행이에요.' },
+    { hz: '下课去吃糖葫芦吧？听说今年花样特别多。', py: 'xiàkè qù chī tánghúlu ba? tīngshuō jīnnián huāyàng tèbié duō.', ko: '수업 끝나고 탕후루 먹으러 갈래요? 올해 종류가 엄청 많대요.' },
+    { hz: '烤红薯比咖啡更暖手。', py: 'kǎo hóngshǔ bǐ kāfēi gèng nuǎn shǒu.', ko: '군고구마가 커피보다 손을 더 따뜻하게 해 줘요.' },
+    { hz: '神舟二十四号把外籍航天员送上“天宫”了！', py: 'shénzhōu èrshísì hào bǎ wàijí hángtiānyuán sòng shàng “tiāngōng” le!', ko: '선저우 24호가 외국인 우주비행사를 톈궁에 올려보냈대요!' },
+    { hz: '哈尔滨的大雪人今年有十九点五米高。', py: 'hā’ěrbīn de dà xuěrén jīnnián yǒu shíjiǔ diǎn wǔ mǐ gāo.', ko: '하얼빈 큰 눈사람이 올해 19.5m 높이래요.' },
+    { hz: '新闻里说，法院都用上十五种语言的AI翻译屏了。', py: 'xīnwén lǐ shuō, fǎyuàn dōu yòng shàng shíwǔ zhǒng yǔyán de AI fānyì píng le.', ko: '뉴스에서 법원도 15개 언어 AI 통역 화면을 쓴대요.' },
+    { hz: '那只耐一千摄氏度的消防机器狗太帅了。', py: 'nà zhī nài yìqiān shèshìdù de xiāofáng jīqì gǒu tài shuài le.', ko: '1000도를 견디는 소방 로봇개 진짜 멋있어요.' },
+    { hz: '明天要下雪，记得带伞。', py: 'míngtiān yào xià xuě, jìde dài sǎn.', ko: '내일 눈 온대요, 우산 챙기세요.' },
+    { hz: '你的围巾真好看，在哪儿买的？', py: 'nǐ de wéijīn zhēn hǎokàn, zài nǎr mǎi de?', ko: '목도리 정말 예쁘다, 어디서 샀어요?' },
+    { hz: '快年底了，我们一起定个HSK小目标吧？', py: 'kuài niándǐ le, wǒmen yìqǐ dìng ge HSK xiǎo mùbiāo ba?', ko: '연말이 다가오니 HSK 작은 목표 같이 세워요?' },
+    { hz: '学中文最快的办法是多说话，热水只是加分项。', py: 'xué zhōngwén zuì kuài de bànfǎ shì duō shuōhuà, rèshuǐ zhǐshì jiāfēn xiàng.', ko: '중국어는 많이 말하는 게 제일 빨라요. 뜨거운 물은 보너스고요.' },
+  ];
+  P.seongsu = [
+    { hz: '快来！这个圣诞快闪只开到二十五号。', py: 'kuài lái! zhège shèngdàn kuàishǎn zhǐ kāi dào èrshíwǔ hào.', ko: '빨리 와요! 이 크리스마스 팝업은 25일까지만 열어요.' },
+    { hz: '糖葫芦要选山楂的，酸甜刚刚好。', py: 'tánghúlu yào xuǎn shānzhā de, suāntián gānggāng hǎo.', ko: '탕후루는 산사(山楂) 열매로 된 걸 고르세요. 새콤달콤 딱이에요.' },
+    { hz: '烤红薯掰开的时候会冒热气，太治愈了。', py: 'kǎo hóngshǔ bāi kāi de shíhou huì mào rèqì, tài zhìyù le.', ko: '군고구마를 쪼개면 김이 올라와요, 너무 힐링이에요.' },
+    { hz: '在雪人前面拍一张，我要发小红书。', py: 'zài xuěrén qiánmiàn pāi yì zhāng, wǒ yào fā Xiǎohóngshū.', ko: '눈사람 앞에서 한 장 찍어서 샤오홍슈에 올릴 거예요.' },
+    { hz: '今年冬天流行“洋葱式穿搭”，一层一层地脱。', py: 'jīnnián dōngtiān liúxíng “yángcōng shì chuāndā”, yì céng yì céng de tuō.', ko: '올겨울엔 양파식 겹쳐입기가 유행이에요. 한 겹씩 벗는 거죠.' },
+    { hz: '你听过“Becoming Chinese”吗？外国朋友都在喝热水。', py: 'nǐ tīngguò “Becoming Chinese” ma? wàiguó péngyou dōu zài hē rèshuǐ.', ko: '“Becoming Chinese” 들어봤어요? 외국인 친구들이 다 따뜻한 물을 마셔요.' },
+    { hz: '老板，来两串糖葫芦，谢谢！', py: 'lǎobǎn, lái liǎng chuàn tánghúlu, xièxie!', ko: '사장님, 탕후루 두 꼬치 주세요, 감사합니다!' },
+    { hz: '这里的灯晚上七点亮，那时候拍照最好看。', py: 'zhèlǐ de dēng wǎnshang qī diǎn liàng, nà shíhou pāizhào zuì hǎokàn.', ko: '여기 조명은 저녁 7시에 켜져요. 그때 찍는 사진이 제일 예뻐요.' },
+  ];
+  P.gangnam = [
+    { hz: '年底加班，先来一杯冰美式。', py: 'niándǐ jiābān, xiān lái yì bēi bīngměishì.', ko: '연말 야근이라 아이스 아메리카노부터 마셔요.' },
+    { hz: '商场的圣诞装饰已经挂起来了。', py: 'shāngchǎng de shèngdàn zhuāngshì yǐjīng guà qǐlái le.', ko: '백화점에 크리스마스 장식이 벌써 걸렸어요.' },
+    { hz: '今天风大，围巾一定要戴。', py: 'jīntiān fēng dà, wéijīn yídìng yào dài.', ko: '오늘 바람이 세니까 목도리 꼭 하세요.' },
+    { hz: '听说周末这里有限定快闪店。', py: 'tīngshuō zhōumò zhèlǐ yǒu xiàndìng kuàishǎn diàn.', ko: '주말에 여기 한정 팝업스토어가 있대요.' },
+    { hz: '地铁末班车是几点？', py: 'dìtiě mòbānchē shì jǐ diǎn?', ko: '지하철 막차가 몇 시예요?' },
+    { hz: '新年你们公司放几天假？', py: 'xīnnián nǐmen gōngsī fàng jǐ tiān jià?', ko: '새해에 회사가 며칠 쉬어요?' },
+  ];
+  P.yeouido = [
+    { hz: '今天大盘又跌了，喝口热水冷静一下。', py: 'jīntiān dàpán yòu diē le, hē kǒu rèshuǐ lěngjìng yíxià.', ko: '오늘 시장이 또 빠졌어요. 뜨거운 물 마시고 진정해요.' },
+    { hz: '年终奖金什么时候发啊？', py: 'niánzhōng jiǎngjīn shénme shíhou fā a?', ko: '연말 상여금은 언제 나와요?' },
+    { hz: '汉江边风太大，我们走快点。', py: 'hànjiāng biān fēng tài dà, wǒmen zǒu kuài diǎn.', ko: '한강변 바람이 너무 세요, 빨리 걸어요.' },
+    { hz: '报告写完了吗？客户在等。', py: 'bàogào xiě wán le ma? kèhù zài děng.', ko: '보고서 다 썼어요? 고객이 기다려요.' },
+    { hz: '明年我想学中文，从HSK四级开始。', py: 'míngnián wǒ xiǎng xué zhōngwén, cóng HSK sì jí kāishǐ.', ko: '내년에 중국어를 배우고 싶어요. HSK 4급부터요.' },
+    { hz: '晚上聚餐吃烤肉还是麻辣烫？', py: 'wǎnshang jùcān chī kǎoròu háishì málàtàng?', ko: '저녁 회식은 고기구이 아니면 마라탕?' },
+  ];
+  P.cafe = [
+    { hz: '天冷了，来杯热姜茶吧。', py: 'tiān lěng le, lái bēi rè jiāngchá ba.', ko: '추워졌으니 따뜻한 생강차 어때요?' },
+    { hz: '糖葫芦在门口摊上买，五块一串。', py: 'tánghúlu zài ménkǒu tān shàng mǎi, wǔ kuài yí chuàn.', ko: '탕후루는 문 앞 노점에서 사세요, 한 꼬치 5위안이에요.' },
+    { hz: '圣诞限定拿铁今天开始卖。', py: 'shèngdàn xiàndìng nǎtiě jīntiān kāishǐ mài.', ko: '크리스마스 한정 라테가 오늘부터 나와요.' },
+    { hz: '外面冷，进来暖暖手。', py: 'wàimiàn lěng, jìnlái nuǎn nuǎn shǒu.', ko: '밖이 추우니 들어와서 손 좀 녹여요.' },
+  ];
+  P.mala = [
+    { hz: '天冷，来碗热汤面吧。', py: 'tiān lěng, lái wǎn rè tāngmiàn ba.', ko: '추우니 따뜻한 탕면 한 그릇 어때요?' },
+    { hz: '微辣还是特辣？', py: 'wēilà háishì tèlà?', ko: '약간 맵게요, 아주 맵게요?' },
+    { hz: '糖葫芦饭后吃，解辣。', py: 'tánghúlu fànhòu chī, jiě là.', ko: '탕후루는 식후에 먹으면 매운맛이 가셔요.' },
+    { hz: '红薯刚烤好，热乎的！', py: 'hóngshǔ gāng kǎo hǎo, rèhu de!', ko: '고구마 방금 구웠어요, 따끈따끈해요!' },
+  ];
+  P.dept = [
+    { hz: '圣诞限定礼盒到了。', py: 'shèngdàn xiàndìng lǐhé dào le.', ko: '크리스마스 한정 선물 세트가 들어왔어요.' },
+    { hz: '这条围巾很配你。', py: 'zhè tiáo wéijīn hěn pèi nǐ.', ko: '이 목도리가 잘 어울리세요.' },
+    { hz: '外面很冷，慢慢逛。', py: 'wàimiàn hěn lěng, mànman guàng.', ko: '밖이 추우니 천천히 둘러보세요.' },
+    { hz: '二楼新开了一家快闪店。', py: 'èr lóu xīn kāi le yì jiā kuàishǎn diàn.', ko: '2층에 팝업스토어가 새로 열었어요.' },
+  ];
+  P.bukchon = [
+    { hz: '屋檐下挂冰柱了，小心。', py: 'wūyán xià guà bīngzhù le, xiǎoxīn.', ko: '처마에 고드름이 생겼어요, 조심하세요.' },
+    { hz: '来一杯热柚子茶吧。', py: 'lái yì bēi rè yòuzichá ba.', ko: '따뜻한 유자차 한 잔 하세요.' },
+    { hz: '雪落在瓦片上特别好看。', py: 'xuě luò zài wǎpiàn shàng tèbié hǎokàn.', ko: '기와에 눈이 쌓인 게 정말 예뻐요.' },
+    { hz: '韩服外面套件大衣就不冷了。', py: 'hánfú wàimiàn tào jiàn dàyī jiù bù lěng le.', ko: '한복 위에 코트를 입으면 안 추워요.' },
+  ];
+  P.airport = [
+    { hz: '请出示护照。', py: 'qǐng chūshì hùzhào.', ko: '여권을 보여 주세요.' },
+    { hz: '行李请放这里。', py: 'xíngli qǐng fàng zhèlǐ.', ko: '짐은 여기에 놓아 주세요.' },
+    { hz: '飞往上海的航班开始登机了。', py: 'fēi wǎng Shànghǎi de hángbān kāishǐ dēngjī le.', ko: '상하이행 항공편 탑승이 시작됐습니다.' },
+  ];
+  P.shanghai = [
+    { hz: '外滩的夜景太美了！', py: 'wàitān de yèjǐng tài měi le!', ko: '와이탄 야경 정말 아름다워요!' },
+    { hz: '江边风冷，戴好帽子。', py: 'jiāng biān fēng lěng, dài hǎo màozi.', ko: '강변 바람이 차니 모자 잘 쓰세요.' },
+    { hz: '这栋楼有一百多年历史了。', py: 'zhè dòng lóu yǒu yìbǎi duō nián lìshǐ le.', ko: '이 건물은 백 년이 넘었어요.' },
+    { hz: '听说法院有AI同声翻译，十五种语言。', py: 'tīngshuō fǎyuàn yǒu AI tóngshēng fānyì, shíwǔ zhǒng yǔyán.', ko: '법원에 15개 언어 AI 동시통역이 있다고 들었어요.' },
+  ];
+  P.beijing = [
+    { hz: '冰糖葫芦！五块一串！', py: 'bīngtáng húlu! wǔ kuài yí chuàn!', ko: '탕후루! 한 꼬치 5위안!' },
+    { hz: '烤红薯刚出炉，热乎的！', py: 'kǎo hóngshǔ gāng chū lú, rèhu de!', ko: '군고구마 방금 나왔어요, 뜨거워요!' },
+    { hz: '北京冬天干冷，多喝热水。', py: 'Běijīng dōngtiān gān lěng, duō hē rèshuǐ.', ko: '베이징 겨울은 건조하고 추워요, 물 많이 드세요.' },
+    { hz: '夜市八点最热闹。', py: 'yèshì bā diǎn zuì rènao.', ko: '야시장은 8시가 제일 북적여요.' },
+  ];
+  P.teacher = [
+    { hz: '今天的发音很棒，继续保持！', py: 'jīntiān de fāyīn hěn bàng, jìxù bǎochí!', ko: '오늘 발음 좋았어요, 계속 유지해요!' },
+    { hz: '冬天嗓子容易干，多喝热水。', py: 'dōngtiān sǎngzi róngyì gān, duō hē rèshuǐ.', ko: '겨울엔 목이 건조해지니 따뜻한 물을 많이 드세요.' },
+    { hz: '年末了，明年一起冲HSK五级吧。', py: 'niánmò le, míngnián yìqǐ chōng HSK wǔ jí ba.', ko: '연말이에요, 내년에 같이 HSK 5급 도전해요.' },
+    { hz: '快闪店我只逛十分钟，哈哈。', py: 'kuàishǎn diàn wǒ zhǐ guàng shí fēnzhōng, hāhā.', ko: '팝업스토어는 10분만 볼 거예요, 하하.' },
+    { hz: '学语言像穿洋葱，一层一层来。', py: 'xué yǔyán xiàng chuān yángcōng, yì céng yì céng lái.', ko: '언어 배우기는 양파처럼 한 겹씩 하는 거예요.' },
+    { hz: '一月开新班，记得来试听。', py: 'yī yuè kāi xīn bān, jìde lái shìtīng.', ko: '1월에 새 반이 열려요, 시험 수업 들으러 와요.' },
+  ];
+  P.generic = [
+    { hz: '你好！今天真冷。', py: 'nǐ hǎo! jīntiān zhēn lěng.', ko: '안녕하세요! 오늘 정말 춥네요.' },
+    { hz: '这边人真多。', py: 'zhèbiān rén zhēn duō.', ko: '이쪽 사람 정말 많네요.' },
+    { hz: '一起拍张照吗？', py: 'yìqǐ pāi zhāng zhào ma?', ko: '같이 사진 한 장 찍을래요?' },
+  ];
+
+  const NAMEMAP = {};
+  ['수연', '해리', '보화', '예솔', '안우바리', '샤오위', '안소미'].forEach((n) => { NAMEMAP[n] = 'student'; });
+  NAMEMAP['王老师'] = 'teacher';
+  NAMEMAP['小周'] = 'cafe';
+  ['王大厨', '小美', '大卫', '张伟', '마라탕점원'].forEach((n) => { NAMEMAP[n] = 'mala'; });
+  ['小丽', '小陈'].forEach((n) => { NAMEMAP[n] = 'dept'; });
+  ['小雨', '한복집 주인', '찻집 주인'].forEach((n) => { NAMEMAP[n] = 'bukchon'; });
+  ['심사관', '카트상인'].forEach((n) => { NAMEMAP[n] = 'airport'; });
+  ['야시장상인', '야시장손님'].forEach((n) => { NAMEMAP[n] = 'beijing'; });
+  ['성수지훈', '성수민지', '성수알렉스', '성수유나'].forEach((n) => { NAMEMAP[n] = 'seongsu'; });
+  ['지훈', '서연', '민재', '하은', '도윤', '유진', '지아', '태현', '수빈', '예준'].forEach((n) => { NAMEMAP[n] = 'gangnam'; });
+  ['상혁', '미영', '준호', '나영', '재민', '소라', '현우', '자전거 타는 사람'].forEach((n) => { NAMEMAP[n] = 'yeouido'; });
+
+  function zoneKey() {
+    let z = '';
+    try { z = String(currentZone() || ''); } catch (e) { z = ''; }
+    if (!z) { try { z = (document.getElementById('zoneTag') || {}).textContent || ''; } catch (e) {} }
+    if (/성수|圣水/.test(z)) return 'seongsu';
+    if (/강남|江南/.test(z)) return 'gangnam';
+    if (/여의도|汝矣岛/.test(z)) return 'yeouido';
+    if (/북촌|北村/.test(z)) return 'bukchon';
+    if (/공항|机场/.test(z)) return 'airport';
+    if (/상하이|上海/.test(z)) return 'shanghai';
+    if (/베이징|北京/.test(z)) return 'beijing';
+    if (/마라탕|麻辣烫/.test(z)) return 'mala';
+    if (/카페|咖啡/.test(z)) return 'cafe';
+    if (/백화점|百货/.test(z)) return 'dept';
+    return '';
+  }
+  function poolOf(name) {
+    if (!name) return P.generic;
+    const k = NAMEMAP[name] || (/^성수/.test(name) ? 'seongsu' : zoneKey());
+    return P[k] || P.generic;
+  }
+
+  /* 오늘의 3줄 — 날짜 시드로 뽑는다 (같은 날엔 같은 3줄, 날이 바뀌면 다른 3줄) */
+  function dayLines(name, n) {
+    const pool = poolOf(name);
+    const t = today();
+    const cnt = Math.min(n || 3, pool.length);
+    const start = hash(name + '|' + t.key) % pool.length;
+    const out = [];
+    for (let i = 0; i < cnt; i++) out.push(pool[(start + i) % pool.length]);
+    return out;
+  }
+
+  /* ---------------- Talk 패치: 클릭할 때마다 다른 대사 ---------------- */
+  const BASE = {};          /* 이름별 원본 대사 (모듈이 만든 병합본이 아님) */
+  const BASE_REF = {};
+  const MERGED = {};
+  const CLICK = {};
+  let dayStamp = 'init';
+
+  function baseOf(name) {
+    const cur = (typeof Talk !== 'undefined' && Talk.lines && Talk.lines[name]) || [];
+    if (BASE_REF[name] !== cur) {         /* greetLines 처럼 배열이 교체되면 원본을 갱신 */
+      BASE_REF[name] = cur;
+      BASE[name] = cur.slice();
+    }
+    return BASE[name] || [];
+  }
+  function merged(name) {
+    if (!name) return [];
+    const base = baseOf(name);
+    return base.concat(dayLines(name, 3));
+  }
+  function resetDay() {
+    const t = today().key;
+    if (dayStamp === t) return;
+    dayStamp = t;
+    Object.keys(MERGED).forEach((k) => { delete MERGED[k]; });
+  }
+  setInterval(resetDay, 60000);
+
+  function whoNow(name) {
+    try { if (window.VoiceCast) VoiceCast.current = name; } catch (e) {}
+  }
+
+  function patchTalk() {
+    const T = (typeof Talk !== 'undefined') ? Talk : null;
+    if (!T || T.__v164) return;
+    T.__v164 = true;
+
+    T.render = function (speakZh) {
+      const nm = this.cur && this.cur.name;
+      const list = merged(nm);
+      const l = list[this.idx % Math.max(1, list.length)];
+      if (!l) return;
+      const hz = document.getElementById('talkHz');
+      const py = document.getElementById('talkPy');
+      const ko = document.getElementById('talkKo');
+      if (hz) hz.textContent = l.hz;
+      if (py) py.textContent = l.py;
+      if (ko) ko.textContent = l.ko;
+      whoNow(nm);
+      if (speakZh) speak(l.hz, document.getElementById('talkSpeak'), { who: nm });
+    };
+
+    const origOpen = T.open.bind(T);
+    T.open = function (av) {
+      if (!av) return;
+      const list = merged(av.name);
+      const t = today();
+      CLICK[av.name] = (CLICK[av.name] || 0) + 1;
+      origOpen(av);                                   /* 모달 열기 + render */
+      if (!list.length) return;
+      this.idx = (hash(av.name + '|' + t.key) + CLICK[av.name]) % list.length;
+      this.render(true);                              /* 열 때마다 다른 줄부터 */
+      whoNow(av.name);
+    };
+
+    T.next = function () {
+      const list = merged(this.cur && this.cur.name);
+      if (!list.length) return;
+      this.idx = (this.idx + 1) % list.length;
+      this.render(true);
+    };
+
+    T.koSpeak = function () {
+      const list = merged(this.cur && this.cur.name);
+      const l = list[this.idx % Math.max(1, list.length)];
+      if (l) speakKo(l.ko, document.getElementById('talkKoSpeak'), this.cur && this.cur.name);
+    };
+
+    /* 역할 표시 — 라운지의 안소미는 통역 준비생 */
+    try {
+      if (!Talk.roleOf.__v164) {
+        const oldRole = Talk.roleOf.bind(Talk);
+        const fn = function (av) {
+          const n = av && av.name;
+          const ROLE = {
+            '안소미': '라운지 친구 · 통역 준비생 · 口译准备生',
+            '수연': '수강생 · 同学', '해리': '수강생 · 同学', '보화': '수강생 · 同学',
+            '예솔': '수강생 · 同学', '안우바리': '수강생 · 同学',
+          };
+          if (ROLE[n]) return ROLE[n];
+          return oldRole(av);
+        };
+        fn.__v164 = true;
+        Talk.roleOf = fn;
+      }
+    } catch (e) {}
+
+    /* 🔊 버튼도 병합 목록을 읽도록 다시 연결 */
+    const tSp = document.getElementById('talkSpeak');
+    if (tSp) {
+      tSp.onclick = () => {
+        const nm = Talk.cur && Talk.cur.name;
+        const list = merged(nm);
+        const l = list[Talk.idx % Math.max(1, list.length)];
+        if (l) speak(l.hz, tSp, { who: nm });
+      };
+    }
+  }
+
+  /* ---------------- Greeter(먼저 말 거는 NPC)도 날짜별로 ---------------- */
+  function patchGreeter() {
+    const G = (typeof Greeter !== 'undefined') ? Greeter : null;
+    if (!G || !G.lines || G.__v164) return;
+    G.__v164 = true;
+    const base = {};
+    Object.keys(G.lines).forEach((nm) => { base[nm] = G.lines[nm].slice(); });
+    const choices = [
+      { hz: '好啊，我也这么想！', py: 'hǎo a, wǒ yě zhème xiǎng!', ko: '좋아요, 저도 그렇게 생각해요!', ok: true },
+      { hz: '是吗？再说说看。', py: 'shì ma? zài shuō shuo kàn.', ko: '그래요? 더 얘기해 봐요.', ok: null },
+    ];
+    Object.keys(base).forEach((nm) => {
+      const extra = dayLines(nm, 2).map((l) => ({
+        hz: l.hz, py: l.py, ko: l.ko,
+        a: choices.map((c) => Object.assign({}, c)),
+      }));
+      G.lines[nm] = base[nm].concat(extra);
+    });
+    const orig = G.start.bind(G);
+    G.start = function (n, l) {
+      if (n && n.avatar && n.avatar.name) whoNow(n.avatar.name);
+      return orig(n, l);
+    };
+  }
+
+  /* ---------------- 성수 겨울 : 홀리데이 포토존 + 탕후루/군고구마 노점 ---------------- */
+  const WKEY = 'rtb_v164_winter_v1';
+  const W = { built: false };
+  function wLoad() {
+    try {
+      const o = JSON.parse(localStorage.getItem(WKEY) || 'null');
+      const t = today().key;
+      if (o && o.d === t) return o;
+    } catch (e) {}
+    return { d: today().key, got: {} };
+  }
+  function wSave(o) { try { localStorage.setItem(WKEY, JSON.stringify(o)); } catch (e) {} }
+
+  function buildWinter() {
+    if (W.built) return;
+    const g = V14.G3 && V14.G3.seongsu;
+    if (!g) return;
+    W.built = true;
+    try {
+      const { std, basic, box, cyl, board } = V14;
+      V15.inSpace('seongsu', function () {
+        /* ---- 1) 홀리데이 스노우 포토존 ---- */
+        const px = -49.6, pz = -46.3;
+        const white = 0xf6f3ea, ice = 0xdfeef7, red = 0xb8352c, green = 0x2f6b4a, gold = 0xd8ab4b;
+        /* 눈 원형 무대 */
+        g.add(cyl(2.1, 2.1, 0.10, std(white, { roughness: .85 }), px, 0.05, pz, 26));
+        g.add(cyl(1.55, 1.55, 0.12, std(0xeef6fb, { roughness: .6 }), px, 0.11, pz, 24));
+        /* 사진 프레임 */
+        const fm = std(0xf3efe4, { roughness: .7 });
+        [-1.7, 1.7].forEach((dx) => { g.add(box(0.16, 2.9, 0.16, fm, px + dx, 1.45, pz - 0.9)); });
+        g.add(box(3.6, 0.16, 0.16, fm, px, 2.9, pz - 0.9));
+        /* 전구 줄 */
+        for (let i = 0; i < 7; i++) {
+          const b = new THREE.Mesh(new THREE.SphereGeometry(0.075, 6, 5),
+            new THREE.MeshBasicMaterial({ color: i % 2 ? 0xffe9a8 : 0xffd2e2 }));
+          b.position.set(px - 1.5 + i * 0.5, 2.74 - Math.abs(i - 3) * 0.05, pz - 0.82);
+          g.add(b);
+        }
+        /* 눈사람 */
+        const snow = std(0xfbfdff, { roughness: .95 });
+        g.add(new THREE.Mesh(new THREE.SphereGeometry(0.72, 14, 12), snow).translateX(px).translateY(0.82).translateZ(pz + 0.15));
+        g.add(new THREE.Mesh(new THREE.SphereGeometry(0.52, 14, 12), snow).translateX(px).translateY(1.72).translateZ(pz + 0.15));
+        g.add(new THREE.Mesh(new THREE.SphereGeometry(0.36, 12, 10), snow).translateX(px).translateY(2.4).translateZ(pz + 0.15));
+        /* 눈·코·단추 */
+        [-0.13, 0.13].forEach((dx) => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 5), basic(0x241d19));
+          eye.position.set(px + dx, 2.48, pz + 0.47);
+          g.add(eye);
+        });
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.34, 8), basic(0xe07a2a));
+        nose.rotation.x = Math.PI / 2;
+        nose.position.set(px, 2.38, pz + 0.58);
+        g.add(nose);
+        [1.9, 1.72, 1.54].forEach((y) => {
+          const bt = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 5), basic(0x241d19));
+          bt.position.set(px, y, pz + 0.5);
+          g.add(bt);
+        });
+        /* 빨간 목도리·모자 */
+        g.add(cyl(0.4, 0.4, 0.14, std(red, { roughness: .9 }), px, 2.1, pz + 0.15, 14));
+        g.add(box(0.2, 0.42, 0.1, std(red, { roughness: .9 }), px + 0.22, 1.86, pz + 0.4));
+        g.add(cyl(0.3, 0.32, 0.34, std(red, { roughness: .9 }), px, 2.78, pz + 0.15, 14));
+        g.add(cyl(0.46, 0.46, 0.06, std(0x8f2a22, { roughness: .9 }), px, 2.62, pz + 0.15, 16));
+        /* 팔 */
+        [-1, 1].forEach((s) => {
+          const arm = cyl(0.035, 0.035, 0.72, std(0x6b4a32), px + s * 0.62, 1.92, pz + 0.15, 6);
+          arm.rotation.z = s * 1.05;
+          g.add(arm);
+        });
+        /* 선물 상자 */
+        [[-0.95, 0.35, red], [1.02, -0.15, green], [0.7, 0.62, gold]].forEach(([dx, dz, col]) => {
+          g.add(box(0.42, 0.36, 0.42, std(col, { roughness: .7 }), px + dx, 0.18, pz + dz));
+          g.add(box(0.06, 0.38, 0.44, basic(0xfff3d0), px + dx, 0.18, pz + dz));
+          g.add(box(0.44, 0.38, 0.06, basic(0xfff3d0), px + dx, 0.18, pz + dz));
+        });
+        /* 간판 */
+        const sign1 = board(3.5, 1.15, [
+          { t: '🎄 HOLIDAY SNOW POP-UP', c: '#fff3d2', s: .3 },
+          { t: '성수 겨울 포토존 · 圣水圣诞快闪', c: '#ffd9a0', s: .2 },
+        ], { bg: '#25302c' });
+        sign1.position.set(px, 3.35, pz - 0.85);
+        g.add(sign1);
+        const hit1 = new THREE.Mesh(new THREE.BoxGeometry(4.0, 3.0, 2.6),
+          new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+        hit1.position.set(px, 1.5, pz);
+        g.add(hit1);
+        V12.hit(hit1, 'v164:photo');
+
+        /* ---- 2) 겨울 간식 노점 (탕후루 · 군고구마) ---- */
+        const cx = -55.4, cz = -46.2;
+        /* 차양 */
+        const canopy = box(2.6, 0.12, 1.7, std(red, { roughness: .75 }), cx, 2.42, cz);
+        g.add(canopy);
+        for (let i = 0; i < 6; i++) {
+          g.add(box(0.44, 0.12, 1.7, i % 2 ? basic(0xfaf6ea) : std(red, { roughness: .75 }), cx - 1.1 + i * 0.44, 2.42, cz));
+        }
+        [[-1.15, -0.7], [-1.15, 0.7], [1.15, -0.7], [1.15, 0.7]].forEach(([dx, dz]) => {
+          g.add(cyl(0.04, 0.04, 2.4, std(0x8a8578, { metalness: .4 }), cx + dx, 1.2, cz + dz, 6));
+        });
+        /* 카트 */
+        g.add(box(2.3, 0.9, 1.1, std(0xb8352c, { roughness: .7 }), cx, 0.75, cz));
+        g.add(box(2.34, 0.1, 1.14, basic(0xfaf6ea), cx, 1.22, cz));
+        [-0.85, 0.85].forEach((dx) => {
+          const wh = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.08, 12), std(0x2f2b26));
+          wh.rotation.z = Math.PI / 2;
+          wh.position.set(cx + dx, 0.26, cz + 0.56);
+          g.add(wh);
+        });
+        /* 탕후루 진열 (유리 진열대) */
+        g.add(box(1.5, 0.66, 0.56, new THREE.MeshStandardMaterial({ color: 0xdfeef7, transparent: true, opacity: .38, roughness: .1 }), cx - 0.35, 1.6, cz));
+        for (let i = 0; i < 5; i++) {
+          const sx = cx - 0.95 + i * 0.3;
+          g.add(cyl(0.02, 0.02, 0.56, std(0xd8cbb2), sx, 1.62, cz, 5));
+          for (let k = 0; k < 3; k++) {
+            const berry = new THREE.Mesh(new THREE.SphereGeometry(0.075, 6, 5), std(0xc8322a, { roughness: .35 }));
+            berry.position.set(sx, 1.44 + k * 0.13, cz);
+            g.add(berry);
+          }
+        }
+        /* 군고구마 드럼 */
+        const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.9, 14), std(0x3f3b36, { metalness: .35, roughness: .6 }));
+        drum.rotation.x = Math.PI / 2;
+        drum.position.set(cx + 0.72, 0.95, cz);
+        g.add(drum);
+        for (let i = 0; i < 3; i++) {
+          const sp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 6), std(0x8a5a34, { roughness: .9 }));
+          sp.scale.set(1.5, 0.8, 1);
+          sp.position.set(cx + 0.5 + i * 0.2, 1.34, cz + 0.24);
+          g.add(sp);
+        }
+        /* 가격판 · 간판 */
+        const sign2 = board(2.5, 1.2, [
+          { t: '冰糖葫芦 · 烤红薯', c: '#fff3d2', s: .33 },
+          { t: '탕후루 · 군고구마 · 冬季限定', c: '#ffd9a0', s: .19 },
+        ], { bg: '#8f2a22' });
+        sign2.position.set(cx, 3.05, cz - 0.25);
+        g.add(sign2);
+        const price = board(1.5, 0.7, [
+          { t: '糖葫芦 5元 · 烤红薯 8元', c: '#3a241c', s: .28 },
+        ], { bg: '#f6ead0', border: false });
+        price.position.set(cx, 1.05, cz + 0.58);
+        g.add(price);
+        const hit2 = new THREE.Mesh(new THREE.BoxGeometry(2.9, 2.4, 1.8),
+          new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+        hit2.position.set(cx, 1.2, cz);
+        g.add(hit2);
+        V12.hit(hit2, 'v164:snack');
+        V14.addSolid(cx - 1.2, cx + 1.2, cz - 0.6, cz + 0.6, 'wintercart');
+
+        /* NPC 한 명 — 노점 주인 (성수민지 대사 재사용) */
+        try {
+          V14.makeCrowd({ x: cx + 1.5, z: cz + 0.9, name: '성수민지', yaw: -1.2, shirt: 0xb8352c, pants: 0x2f2b26, skin: 0xf2cfae, hair: 0x241d19, bag: true });
+        } catch (e) {}
+      });
+    } catch (e) { E('build:' + e.message); }
+  }
+
+  /* ---------------- 겨울 모달 UI ---------------- */
+  const CSS = [
+    '.w164-sheet{width:min(520px,95vw);max-height:88vh;overflow-y:auto;overscroll-behavior:contain}',
+    '.w164-hd b{display:block;font-family:var(--serif,Georgia,serif);font-size:18px;line-height:1.25}',
+    '.w164-hd small{display:block;font-size:10px;letter-spacing:.07em;color:#8b7c66;margin-top:3px}',
+    '.w164-note{font-size:10.5px;color:#9a8d79;margin:6px 0 10px}',
+    '.w164-sec{margin:0 0 12px}',
+    '.w164-sec h3{font-size:12px;color:#3f382e;margin:0 0 6px;letter-spacing:.02em}',
+    '.w164-line{font-size:12.5px;line-height:1.5;color:#5c5145;background:#f7f2e6;border:1px solid rgba(200,184,158,.45);border-radius:12px;padding:8px 10px;margin:0 0 8px}',
+    '.w164-line b{display:block;font-size:14px;color:#2f2a23}',
+    '.w164-line small{display:block;font-size:10.5px;color:#8a7a63;margin-top:2px}',
+    '.w164-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}',
+    '@media (max-width:400px){.w164-grid{grid-template-columns:1fr}}',
+    '.w164-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:52px;padding:8px 10px;border-radius:13px;background:#fff;border:1px solid rgba(200,184,158,.6);text-align:left}',
+    '.w164-btn b{font-size:12.5px;color:#2f2a23}',
+    '.w164-btn small{font-size:10px;color:#8a7a63;line-height:1.35}',
+    '.w164-btn:active{transform:scale(.99)}',
+    '.w164-tip{font-size:11px;line-height:1.55;color:#6b5a44;background:#f3ece0;border-radius:12px;padding:8px 10px;margin:8px 0 0}',
+  ].join('\n');
+
+  const POSES = [
+    { id: 'snow', ic: '⛄', name: '눈사람 앞에서', hz: '在雪人前面拍一张，笑一个！', py: 'zài xuěrén qiánmiàn pāi yì zhāng, xiào yí ge!', ko: '눈사람 앞에서 한 장, 웃어 봐요!', tip: '프레임 안에 눈사람과 나무 간판이 함께 들어오게 — 拍到了吗?(찍었어요?)' },
+    { id: 'tanghulu', ic: '🍡', name: '탕후루 들고 한 장', hz: '举着糖葫芦，看镜头！', py: 'jǔ zhe tánghúlu, kàn jìngtóu!', ko: '탕후루 들고 카메라 봐요!', tip: '빨간 탕후루는 배경이 어두워도 잘 살아요. 再来一张(한 장 더) 로 각도만 살짝 바꿔 보세요.' },
+    { id: 'snowball', ic: '❄️', name: '스노우볼 앞에서', hz: '往左一点，再来一张。', py: 'wǎng zuǒ yìdiǎn, zàilái yì zhāng.', ko: '조금 왼쪽으로, 한 장 더요.', tip: '전구 줄을 배경으로 넣으면 얼굴이 밝게 나와요. 光太亮了(빛이 너무 밝아요) 라고 말해도 좋아요.' },
+  ];
+  const SNACKS = [
+    { id: 'thl', ic: '🍡', name: '糖葫芦 한 꼬치 (5元)', hz: '老板，来一串糖葫芦！', py: 'lǎobǎn, lái yì chuàn tánghúlu!', ko: '사장님, 탕후루 한 꼬치 주세요!', tip: '山楂(산사) 열매가 기본. 겨울엔 얼려 먹어서 더 바삭해요. 济南叫“酸蘸儿”, 天津叫“糖堆儿”.' },
+    { id: 'goguma', ic: '🍠', name: '烤红薯 하나 (8元)', hz: '要一个烤红薯，热乎的。', py: 'yào yí ge kǎo hóngshǔ, rèhu de.', ko: '군고구마 하나, 따뜻한 걸로요.', tip: '“热乎的(따끈한 걸로)”는 겨울 노점 필수 표현. 손이 시릴 때 진짜 손난로가 돼요.' },
+    { id: 'price', ic: '💰', name: '값 물어보기', hz: '多少钱？能便宜点吗？', py: 'duōshao qián? néng piányi diǎn ma?', ko: '얼마예요? 조금 깎아 주실 수 있어요?', tip: '시장·노점에서는 能便宜点吗? 한마디면 분위기가 확 풀려요. (사진 찍어도 되냐고 물을 땐 可以拍照吗?)' },
+    { id: 'culture', ic: '📖', name: '이름 이야기', hz: '糖葫芦的“葫芦”谐音“福禄”。', py: 'tánghúlu de “húlu” xiéyīn “fúlù”.', ko: '탕후루의 “후루(葫芦)”는 “복록(福禄)”과 발음이 비슷해요.', tip: '호리병 모양에서 온 이름. 복과 녹을 뜻해서 겨울·설날 간식으로도 사랑받아요.' },
+  ];
+
+  function openWinter(kind) {
+    let d = document.getElementById('w164Winter');
+    if (!d) {
+      const st = document.createElement('style'); st.id = 'w164css'; st.textContent = CSS;
+      document.head.appendChild(st);
+      d = document.createElement('div');
+      d.className = 'modal'; d.id = 'w164Winter';
+      d.innerHTML = '<div class="sheet w164-sheet">' +
+        '<button class="v12-x" id="w164X" aria-label="닫기">✕</button>' +
+        '<div class="w164-hd"><b id="w164Title">🎄 성수 겨울 포토존</b><small>SEONGSU WINTER POP-UP · 圣水圣诞快闪</small></div>' +
+        '<div class="w164-note">버튼을 누르면 중국어로 읽어 줘요 · 하루 한 번 보상</div>' +
+        '<div id="w164Body"></div></div>';
+      document.body.appendChild(d);
+      d.querySelector('#w164X').onclick = () => closeWinter();
+      d.addEventListener('click', (e) => { if (e.target === d) closeWinter(); });
+    }
+    renderWinter(kind);
+    d.classList.add('show');
+    try { document.body.classList.add('modal-open'); } catch (e) {}
+  }
+  function closeWinter() {
+    const d = document.getElementById('w164Winter');
+    if (d) d.classList.remove('show');
+    try { document.body.classList.remove('modal-open'); } catch (e) {}
+  }
+  function renderWinter(kind) {
+    const body = document.getElementById('w164Body');
+    const title = document.getElementById('w164Title');
+    if (!body || !title) return;
+    const store = wLoad();
+    const got = store.got || {};
+    title.textContent = kind === 'snack' ? '🍡 성수 겨울 노점' : '🎄 성수 겨울 포토존';
+    const poseHtml = POSES.map((p) => '<button class="w164-btn" data-pose="' + p.id + '"><b>' + p.ic + ' ' + p.name + (got['p:' + p.id] ? ' ✅' : '') + '</b><small>' + p.hz + '</small></button>').join('');
+    const snackHtml = SNACKS.map((s) => '<button class="w164-btn" data-snack="' + s.id + '"><b>' + s.ic + ' ' + s.name + (got['s:' + s.id] ? ' ✅' : '') + '</b><small>' + s.hz + '</small></button>').join('');
+    body.innerHTML =
+      '<div class="w164-sec"><h3>📸 인증샷 포즈 · 拍照姿势</h3><div class="w164-grid">' + poseHtml + '</div></div>' +
+      '<div class="w164-sec"><h3>🍡 겨울 간식 주문 · 点单</h3><div class="w164-grid">' + snackHtml + '</div></div>' +
+      '<div class="w164-tip">오늘의 화제 · <b>' + todayTrend(1).ic + ' ' + todayTrend(1).hz + '</b> — ' + todayTrend(1).ko + '</div>' +
+      '<div id="w164Out" class="w164-tip" style="display:none"></div>';
+    const out = document.getElementById('w164Out');
+    function show(line, award) {
+      out.style.display = 'block';
+      out.innerHTML = '<b>' + line.hz + '</b><br><small>' + line.py + '</small><br>' + line.ko + (line.tip ? '<br><span style="color:#8a7a63">' + line.tip + '</span>' : '') +
+        (award ? '<br><b style="color:#7a5a12">+' + award + ' G</b>' : '');
+      try { speak(line.hz, null, { who: '성수민지' }); } catch (e) {}
+      try { if (typeof V12.say === 'function') V12.say('🍡 성수 겨울 노점', line.ko, 2600); } catch (e) {}
+    }
+    body.querySelectorAll('[data-pose]').forEach((b) => {
+      b.onclick = () => {
+        const p = POSES.filter((x) => x.id === b.dataset.pose)[0];
+        if (!p) return;
+        const st = wLoad();
+        let award = 0;
+        if (!st.got['p:' + p.id]) { st.got['p:' + p.id] = 1; award = 3; wSave(st); try { Gold.add(award); } catch (e) {} try { Level.add(12, 'shop'); } catch (e) {} }
+        show(p, award);
+        renderWinter(kind);
+        const o2 = document.getElementById('w164Out'); if (o2) { o2.style.display = 'block'; o2.innerHTML = '<b>' + p.hz + '</b><br><small>' + p.py + '</small><br>' + p.ko + (award ? '<br><b style="color:#7a5a12">+' + award + ' G</b>' : ''); }
+      };
+    });
+    body.querySelectorAll('[data-snack]').forEach((b) => {
+      b.onclick = () => {
+        const s = SNACKS.filter((x) => x.id === b.dataset.snack)[0];
+        if (!s) return;
+        const st = wLoad();
+        let award = 0;
+        if (!st.got['s:' + s.id]) { st.got['s:' + s.id] = 1; award = 3; wSave(st); try { Gold.add(award); } catch (e) {} try { Level.add(12, 'shop'); } catch (e) {} }
+        show(s, award);
+        renderWinter(kind);
+        const o2 = document.getElementById('w164Out'); if (o2) { o2.style.display = 'block'; o2.innerHTML = '<b>' + s.hz + '</b><br><small>' + s.py + '</small><br>' + s.ko + (s.tip ? '<br><span style="color:#8a7a63">' + s.tip + '</span>' : '') + (award ? '<br><b style="color:#7a5a12">+' + award + ' G</b>' : ''); }
+      };
+    });
+  }
+
+  V12.tapHandlers['v164:photo'] = () => openWinter('photo');
+  V12.tapHandlers['v164:snack'] = () => openWinter('snack');
+
+  /* ---------------- 교재 구매 CTA (수업 자료 패널) ---------------- */
+  const LITTLY = 'https://litt.ly/creatorrealchines';
+  const KAKAO = 'https://open.kakao.com/o/sohrx3Ti';
+  function injectLibCta() {
+    try {
+      const panel = document.getElementById('libPanel');
+      if (!panel) return;
+      const body = panel.querySelector('.panel-body');
+      if (!body) return;
+      if (panel.querySelector('#v164LibCta')) return;
+      const st = document.getElementById('v164LibCss');
+      if (!st) {
+        const css = document.createElement('style'); css.id = 'v164LibCss';
+        css.textContent = '.v164-lib{margin:0 0 10px;padding:9px 10px;border-radius:14px;background:linear-gradient(150deg,#fff8e6,#f4ead8);border:1px solid rgba(201,154,63,.45)}' +
+          '.v164-lib-hd{font-size:11px;font-weight:800;color:#7a5a12;margin-bottom:6px}' +
+          '.v164-lib-row{display:flex;gap:6px;flex-wrap:wrap}' +
+          '.v164-lib-row a{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:38px;padding:0 10px;border-radius:11px;font-size:11.5px;font-weight:800;text-decoration:none;background:#2f3b53;color:#fff}' +
+          '.v164-lib-row a+a{background:#b8862c;color:#fffaf0}';
+        document.head.appendChild(css);
+      }
+      const box = document.createElement('div');
+      box.id = 'v164LibCta'; box.className = 'v164-lib';
+      box.innerHTML = '<div class="v164-lib-hd">📚 교재 구매 · PDF 전체본</div>' +
+        '<div class="v164-lib-row"><a href="' + LITTLY + '" target="_blank" rel="noopener noreferrer">🛒 리틀리에서 바로 구매</a>' +
+        '<a href="' + KAKAO + '" target="_blank" rel="noopener noreferrer">💬 1:1 카톡 문의</a></div>';
+      body.insertBefore(box, body.firstChild);
+    } catch (e) {}
+  }
+
+  /* ---------------- 부팅 ---------------- */
+  function boot() {
+    try { patchTalk(); } catch (e) { E('talk:' + e.message); }
+    try { patchGreeter(); } catch (e) { E('greeter:' + e.message); }
+    try { buildWinter(); } catch (e) { E('winter:' + e.message); }
+    try { injectLibCta(); } catch (e) { E('libcta:' + e.message); }
+  }
+  setTimeout(boot, 2600);
+  setInterval(() => { try { buildWinter(); } catch (e) {} try { injectLibCta(); } catch (e) {} }, 2500);
+  /* 성수 구역을 처음 열 때도 바로 세운다 */
+  try {
+    const prev = V14.onSeongsu;
+    V14.onSeongsu = function () { try { if (prev) prev(); } catch (e) {} try { buildWinter(); } catch (e) {} };
+  } catch (e) {}
+
+  V164.info = function () {
+    let voices = { zh: 0, ko: 0 };
+    try { if (window.VoiceCast) voices = { zh: VoiceCast.list('zh').length, ko: VoiceCast.list('ko').length }; } catch (e) {}
+    return {
+      built: W.built, trend: todayTrend(1), date: today().key, season: season(),
+      voices: voices, errors: V164.errors.slice(0, 6),
+      npc: { 수연: dayLines('수연', 3).map((l) => l.hz), 성수민지: dayLines('성수민지', 3).map((l) => l.hz), 王老师: dayLines('王老师', 3).map((l) => l.hz) },
+    };
+  };
+  V164.open = openWinter;
+  V164.close = closeWinter;
+  V164.pool = (name) => merged(name);
+  V164.dayLines = dayLines;
+})();
+
+
+/* =====================================================================
+   v16.4 HOME — 🛋️ 학원 인테리어 업그레이드 · 🐱 고양이 돌보기
+   ---------------------------------------------------------------------
+   · 골드로 로비에 3D 소품(캣타워·트리·에스프레소 머신·황금 칠판)을 산다
+   · 사면 실제 3D 로비에 세워지고, 방치 수익·평판 보너스가 붙는다
+   · 고양이(치즈·삼색·흰둥·얼룩이)에게 간식을 주면 친밀도·하트·중국어 반응
+   · 모두 localStorage 저장 · 유료 API 없음
+   ===================================================================== */
+(function () {
+  const V164 = window.V164, V12 = window.V12, V14 = window.V14;
+  if (!V164 || !V12 || !V14) return;
+  const E = (m) => { try { V164.errors.push('home:' + String(m).slice(0, 140)); } catch (e) {} };
+  const IKEY = 'rtb_v164_interior_v1';
+  const CKEY = 'rtb_v164_cats_v1';
+  const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
+  const ITEMS = [
+    { id: 'cattower', ic: '🐈', name: '3D 캣타워', price: 60, desc: '고양이가 올라가 낮잠을 자요', bonus: '방치 수익 +10%', ry: 0.6, cands: [[-12.2, 2.6], [-12.2, 4.6], [-12.6, 0.6]] },
+    { id: 'tree', ic: '🎄', name: '겨울 크리스마스 트리', price: 90, desc: '전구가 반짝이는 로비 트리', bonus: '보상 코인 +10%', ry: 0, cands: [[-7.4, 2.2], [-5.6, 0.8], [-9.4, 2.2]] },
+    { id: 'espresso', ic: '☕', name: '프리미엄 에스프레소 머신', price: 120, desc: '라운지에 놓이는 머신', bonus: '방치 수익 +15%', ry: Math.PI, cands: [[7.2, 4.6], [7.6, 5.8], [6.4, 4.2]] },
+    { id: 'goldboard', ic: '🏆', name: '황금 칠판', price: 150, desc: '명예의 황금 칠판', bonus: '평점 +10%', ry: Math.PI, cands: [[4.6, 9.2], [4.2, 8.0], [-4.6, 9.2]] },
+  ];
+  const TREATS = [
+    { id: 'churu', ic: '🍥', name: '츄르', price: 5, aff: 3, hz: '喵呜~ 还要！', py: 'miāo wū~ hái yào!', ko: '야옹~ 더 줘!' },
+    { id: 'fish', ic: '🐟', name: '말린 생선', price: 8, aff: 5, hz: '小鱼干最好吃！', py: 'xiǎo yúgān zuì hǎochī!', ko: '말린 생선이 제일 맛있어!' },
+    { id: 'nip', ic: '🌿', name: '캣닢', price: 12, aff: 8, hz: '好香啊……我要睡了。', py: 'hǎo xiāng a…… wǒ yào shuì le.', ko: '향 좋다…… 잘래.' },
+  ];
+
+  function load(k, def) {
+    try { const o = JSON.parse(localStorage.getItem(k) || 'null'); if (o && typeof o === 'object') return o; } catch (e) {}
+    return def;
+  }
+  function save(k, o) { try { localStorage.setItem(k, JSON.stringify(o)); } catch (e) {} }
+  const state = { items: {}, cats: { aff: {}, treats: { day: '', n: 0 } }, groups: {}, spots: {} };
+
+  function loadState() {
+    const a = load(IKEY, {});
+    state.items = a.items && typeof a.items === 'object' ? a.items : {};
+    const b = load(CKEY, {});
+    state.cats.aff = b.aff && typeof b.aff === 'object' ? b.aff : {};
+    state.cats.treats = b.treats && typeof b.treats === 'object' ? b.treats : { day: '', n: 0 };
+    if (state.cats.treats.day !== todayKey()) state.cats.treats = { day: todayKey(), n: 0 };
+  }
+  function saveItems() { save(IKEY, { items: state.items }); }
+  function saveCats() { save(CKEY, { aff: state.cats.aff, treats: state.cats.treats }); }
+  loadState();
+
+  function owned(id) { return !!state.items[id]; }
+  function bonus() {
+    const c = 1 + (owned('cattower') ? 0.10 : 0) + (owned('tree') ? 0.10 : 0) + (owned('espresso') ? 0.15 : 0);
+    const r = 1 + (owned('goldboard') ? 0.10 : 0);
+    return { coins: c, rep: r };
+  }
+
+  function freeSpot(id) {
+    const it = ITEMS.filter((x) => x.id === id)[0];
+    if (!it) return { x: 0, z: 0 };
+    if (state.spots[id]) return state.spots[id];
+    let obs = [];
+    try { obs = (typeof obstacles !== 'undefined' && obstacles) ? obstacles : []; } catch (e) { obs = []; }
+    let best = { x: it.cands[0][0], z: it.cands[0][1] }, bestD = -1;
+    it.cands.forEach(([x, z]) => {
+      let d = 99;
+      for (let i = 0; i < obs.length; i++) {
+        const o = obs[i];
+        if (!o || !(o.r > 0.05)) continue;
+        d = Math.min(d, Math.hypot(o.x - x, o.z - z) - o.r);
+      }
+      if (d > bestD) { bestD = d; best = { x: x, z: z }; }
+    });
+    state.spots[id] = best;
+    return best;
+  }
+
+  /* ---------------- 3D 소품 ---------------- */
+  function buildItem(id) {
+    if (state.groups[id]) return state.groups[id];
+    const { std, basic, box, cyl, board } = V14;
+    const it = ITEMS.filter((x) => x.id === id)[0] || { ry: 0 };
+    const spot = freeSpot(id);
+    const g = new THREE.Group();
+    g.name = 'v164_' + id;
+    try {
+      if (id === 'cattower') {
+        g.add(box(1.0, 0.1, 1.0, std(0xc9b59a, { roughness: .9 }), 0, 0.05, 0));
+        g.add(cyl(0.07, 0.07, 2.3, std(0x8a6440), -0.4, 1.15, -0.4, 8));
+        [[0.7, 0.75], [1.35, -0.1], [1.95, 0.35]].forEach(([y, s], i) => {
+          g.add(box(0.86, 0.08, 0.86, std(0xd8c9a6, { roughness: .85 }), 0, y, i % 2 ? 0.1 : -0.1));
+          g.add(cyl(0.07, 0.07, y, std(0x8a6440), 0.38, y / 2, 0.38, 8));
+        });
+        g.add(cyl(0.34, 0.28, 0.3, std(0xb08b6a, { roughness: .8 }), 0, 2.14, 0));
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), std(0xc2453c));
+        ball.position.set(0.34, 1.62, 0);
+        g.add(ball);
+        g.add(cyl(0.012, 0.012, 0.4, std(0xd8cbb2), 0.34, 1.85, 0, 5));
+      } else if (id === 'tree') {
+        g.add(cyl(0.1, 0.13, 0.5, std(0x6b4a32), 0, 0.25, 0, 8));
+        [[0.95, 1.3, 0.85], [0.72, 1.1, 1.5], [0.46, 0.9, 2.05]].forEach(([r, h, y]) => {
+          g.add(cyl(0.02, r, h, std(0x2f6b4a, { roughness: .9 }), 0, y, 0, 12));
+        });
+        const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.14), new THREE.MeshBasicMaterial({ color: 0xffd66a }));
+        star.position.set(0, 2.62, 0);
+        g.add(star);
+        const cols = [0xc8322a, 0xd8ab4b, 0x5aa9e6, 0xf2c14e, 0xb8352c, 0x8ed081];
+        for (let i = 0; i < 8; i++) {
+          const b = new THREE.Mesh(new THREE.SphereGeometry(0.055, 6, 5), new THREE.MeshBasicMaterial({ color: cols[i % cols.length] }));
+          const a = i * 0.9, r = 0.55 - (i % 3) * 0.1;
+          b.position.set(Math.cos(a) * r, 0.75 + (i % 3) * 0.45, Math.sin(a) * r);
+          g.add(b);
+        }
+      } else if (id === 'espresso') {
+        g.add(box(0.6, 0.08, 0.5, std(0x3a3a3e, { metalness: .5, roughness: .4 }), 0, 0.04, 0));
+        g.add(box(0.52, 0.62, 0.42, std(0x4b4c50, { metalness: .55, roughness: .35 }), 0, 0.39, 0));
+        g.add(box(0.5, 0.16, 0.04, basic(0xd7b46a), 0, 0.56, 0.22));
+        g.add(box(0.16, 0.18, 0.1, std(0x8a8578, { metalness: .6 }), 0, 0.5, 0.24));
+        g.add(cyl(0.05, 0.04, 0.08, std(0xfaf6ea), 0, 0.3, 0.24, 10));
+        g.add(box(0.54, 0.03, 0.44, std(0x2f2b26), 0, 0.72, 0));
+      } else if (id === 'goldboard') {
+        [-0.85, 0.85].forEach((x) => { g.add(cyl(0.05, 0.05, 2.0, std(0xb08b3a, { metalness: .7, roughness: .35 }), x, 1.0, 0, 8)); });
+        g.add(box(2.0, 1.2, 0.1, std(0xc9a13a, { metalness: .75, roughness: .3 }), 0, 1.42, 0));
+        g.add(box(1.84, 1.04, 0.06, std(0x1f3a2c, { roughness: .9 }), 0, 1.42, 0.06));
+        const bd = board(1.6, 0.5, [
+          { t: '🏆 명예의 칠판', c: '#ffd66a', s: .34 },
+          { t: '荣誉黑板 · 오늘의 최고 발음', c: '#e8f6ff', s: .16 },
+        ], { bg: '#12281e', borderColor: '#c9a13a' });
+        bd.position.set(0, 1.5, 0.09);
+        g.add(bd);
+      }
+      const hit = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 1.2), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+      hit.position.set(0, 1.1, 0);
+      g.add(hit);
+      V12.hit(hit, 'v164:item:' + id);
+      g.position.set(spot.x, 0, spot.z);
+      g.rotation.y = it.ry || 0;
+      scene.add(g);
+      V14.addSolid(spot.x - 0.5, spot.x + 0.5, spot.z - 0.5, spot.z + 0.5, 'v164' + id);
+      state.groups[id] = g;
+    } catch (e) { E('build:' + id + ':' + e.message); }
+    return g;
+  }
+
+  function buildOwned() {
+    ITEMS.forEach((it) => { if (owned(it.id)) buildItem(it.id); });
+    patchCats();
+  }
+
+  /* ---------------- 고양이 친밀도 ---------------- */
+  function affOf(name) { return Number(state.cats.aff[name]) || 0; }
+  function addAff(name, n) {
+    state.cats.aff[name] = Math.min(999, affOf(name) + n);
+    saveCats();
+  }
+  const AFF_LV = [
+    { at: 25, n: '절친', ic: '💖' },
+    { at: 10, n: '단골', ic: '💛' },
+    { at: 0, n: '새 친구', ic: '🤍' },
+  ];
+  function affLevel(n) { return AFF_LV.filter((l) => n >= l.at)[0]; }
+
+  function patchCats() {
+    try {
+      if (typeof Cats === 'undefined' || Cats.__v164) return;
+      Cats.__v164 = true;
+      const origPet = Cats.pet.bind(Cats);
+      Cats.pet = function (cat) {
+        const r = origPet(cat);
+        try { if (cat && cat.name) addAff(cat.name, 1); } catch (e) {}
+        return r;
+      };
+      const origPick = Cats.pickTarget.bind(Cats);
+      Cats.pickTarget = function (cat) {
+        try {
+          if (owned('cattower') && cat && cat.zone === 'in' && Math.random() < 0.3) {
+            const sp = freeSpot('cattower');
+            cat.path = [{ x: sp.x + 0.9, z: sp.z + 0.4 }];
+            cat.state = 'walk'; cat.timer = 0;
+            return;
+          }
+        } catch (e) {}
+        return origPick(cat);
+      };
+    } catch (e) { E('cats:' + e.message); }
+  }
+
+  function feedCat(cat, treat) {
+    if (!cat || !treat) return null;
+    if (state.cats.treats.n >= 8) { try { toast('오늘 간식은 8번까지예요 · 내일 또 주세요', 2000); } catch (e) {} return null; }
+    let ok = false;
+    try { ok = Gold.spend(treat.price); } catch (e) { ok = false; }
+    if (!ok) { try { toast('골드가 부족해요 (' + treat.price + 'G)', 2000); } catch (e) {} return null; }
+    state.cats.treats.n += 1;
+    addAff(cat.name, treat.aff + (owned('cattower') ? 1 : 0));
+    saveCats();
+    try { if (typeof Cats !== 'undefined' && Cats.pet) Cats.pet(cat); } catch (e) {}
+    try { speak(treat.hz, null, { who: '고양이' }); } catch (e) {}
+    try { V12.say((cat.name || '고양이') + ' ' + treat.ic, treat.hz + ' · ' + treat.ko, 2600); } catch (e) {}
+    render();
+    return { name: cat.name, aff: affOf(cat.name), treat: treat.id };
+  }
+
+  /* ---------------- 보상 보너스 (방치 수익·평판) ---------------- */
+  function patchSims() {
+    try {
+      const sims = window.V16 && V16.sims;
+      if (!sims || sims.__v164bonus) return;
+      const orig = sims.claim;
+      sims.claim = function () {
+        try {
+          const p = sims.data && sims.data.pending;
+          if (p && !p.claimed && !p.__v164) {
+            const b = bonus();
+            p.coins = Math.max(1, Math.round(p.coins * b.coins));
+            p.rep = Math.max(1, Math.round(p.rep * b.rep));
+            p.__v164 = 1;
+          }
+        } catch (e) {}
+        return orig.apply(sims, arguments);
+      };
+      sims.__v164bonus = true;
+    } catch (e) { E('sims:' + e.message); }
+  }
+
+  /* ---------------- UI ---------------- */
+  const CSS = [
+    '.v164h-sheet{width:min(520px,95vw);max-height:88vh;overflow-y:auto;overscroll-behavior:contain}',
+    '.v164h-hd b{display:block;font-family:var(--serif,Georgia,serif);font-size:18px;line-height:1.25}',
+    '.v164h-hd small{display:block;font-size:10px;letter-spacing:.07em;color:#8b7c66;margin-top:3px}',
+    '.v164h-tabs{display:flex;gap:6px;margin:9px 0 10px}',
+    '.v164h-tabs button{flex:1;min-height:38px;border-radius:12px;background:rgba(94,80,62,.07);font-size:11.5px;font-weight:800;color:#6b6252}',
+    '.v164h-tabs button.on{background:linear-gradient(150deg,#8aa885,#4f6a4c);color:#fdfaf2}',
+    '.v164h-sum{font-size:10.5px;color:#7a5a12;background:#fdf1d2;border:1px solid rgba(201,154,63,.45);border-radius:11px;padding:6px 9px;margin:0 0 10px;line-height:1.45}',
+    '.v164h-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}',
+    '@media (max-width:400px){.v164h-grid{grid-template-columns:1fr}}',
+    '.v164h-card{border-radius:13px;border:1px solid rgba(200,184,158,.6);background:#fff;padding:8px 10px;display:flex;flex-direction:column;gap:3px;text-align:left}',
+    '.v164h-card b{font-size:12.5px;color:#2f2a23}',
+    '.v164h-card small{font-size:10px;color:#8a7a63;line-height:1.35}',
+    '.v164h-card em{font-style:normal;font-size:10px;color:#7a5a12;font-weight:800}',
+    '.v164h-card.on{background:linear-gradient(160deg,#f4f9ef,#e8f2e2);border-color:#a8cf9f}',
+    '.v164h-cat{display:flex;align-items:center;gap:8px;border-radius:13px;border:1px solid rgba(200,184,158,.5);padding:8px 10px;margin:0 0 6px;background:#fff}',
+    '.v164h-cat .nm{flex:1 1 auto;min-width:0}',
+    '.v164h-cat .nm b{display:block;font-size:12.5px}',
+    '.v164h-cat .nm small{font-size:10px;color:#8a7a63}',
+    '.v164h-bar{height:6px;border-radius:99px;background:rgba(94,80,62,.12);margin-top:4px;overflow:hidden}',
+    '.v164h-bar i{display:block;height:100%;background:linear-gradient(90deg,#e2979f,#c2453c)}',
+    '.v164h-treats{display:flex;gap:4px;flex-wrap:wrap}',
+    '.v164h-treats button{min-height:34px;padding:0 8px;border-radius:10px;background:#f7f2e6;border:1px solid rgba(200,184,158,.6);font-size:10.5px;font-weight:800;color:#5c5145}',
+  ].join('\n');
+
+  let tab = 'interior';
+  function modal() {
+    let d = document.getElementById('v164Home');
+    if (d) return d;
+    const st = document.createElement('style'); st.id = 'v164hcss'; st.textContent = CSS;
+    document.head.appendChild(st);
+    d = document.createElement('div');
+    d.className = 'modal'; d.id = 'v164Home';
+    d.innerHTML = '<div class="sheet v164h-sheet">' +
+      '<button class="v12-x" id="v164hX" aria-label="닫기">✕</button>' +
+      '<div class="v164h-hd"><b>🛋️ 학원 인테리어 · 🐱 고양이</b><small>ACADEMY UPGRADE · 学院装修</small></div>' +
+      '<div class="v164h-tabs"><button type="button" data-t="interior">🛋️ 인테리어</button><button type="button" data-t="cat">🐱 고양이 돌보기</button></div>' +
+      '<div id="v164hBody"></div></div>';
+    document.body.appendChild(d);
+    d.querySelector('#v164hX').onclick = () => close();
+    d.addEventListener('click', (e) => { if (e.target === d) close(); });
+    d.querySelectorAll('.v164h-tabs button').forEach((b) => {
+      b.onclick = () => { tab = b.dataset.t; render(); };
+    });
+    return d;
+  }
+  function close() {
+    const d = document.getElementById('v164Home');
+    if (d) d.classList.remove('show');
+    try { document.body.classList.remove('modal-open'); } catch (e) {}
+  }
+  function money() { try { return Math.floor(Gold.gold); } catch (e) { return 0; } }
+
+  function render() {
+    const d = modal();
+    const body = d.querySelector('#v164hBody');
+    if (!body) return;
+    d.querySelectorAll('.v164h-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.t === tab));
+    const b = bonus();
+    if (tab === 'interior') {
+      body.innerHTML =
+        '<div class="v164h-sum">🪙 보유 골드 <b>' + money() + ' G</b> · 방치 수익 ×' + b.coins.toFixed(2) + ' · 평판 ×' + b.rep.toFixed(2) + '</div>' +
+        '<div class="v164h-grid">' + ITEMS.map((it) => {
+          const has = owned(it.id);
+          return '<button class="v164h-card' + (has ? ' on' : '') + '" data-item="' + it.id + '">' +
+            '<b>' + it.ic + ' ' + it.name + (has ? ' ✅' : '') + '</b>' +
+            '<small>' + it.desc + '</small>' +
+            '<em>' + (has ? '설치됨 · ' + it.bonus : it.price + ' G · ' + it.bonus) + '</em></button>';
+        }).join('') + '</div><div class="v164h-sum" style="margin-top:10px">설치한 소품은 로비에 실제로 나타나요. 방치 수익은 「📋 학원에서 있었던 일」 보상 받을 때 붙어요.</div>';
+      body.querySelectorAll('[data-item]').forEach((btn) => {
+        btn.onclick = () => buy(btn.dataset.item);
+      });
+    } else {
+      let cats = [];
+      try { cats = (typeof Cats !== 'undefined' && Cats.list) ? Cats.list : []; } catch (e) { cats = []; }
+      body.innerHTML = '<div class="v164h-sum">오늘 간식 <b>' + state.cats.treats.n + ' / 8</b> · 하루 8번까지 · 쓰다듬어도 친밀도가 올라요' +
+        (owned('cattower') ? ' · 캣타워 보너스 +1' : '') + '</div>' +
+        (cats.length ? cats.map((c, i) => {
+          const a = affOf(c.name), lv = affLevel(a);
+          return '<div class="v164h-cat"><span style="font-size:20px">🐱</span><span class="nm"><b>' + c.name + ' <small>' + lv.ic + ' ' + lv.n + ' · ' + a + '</small></b>' +
+            '<div class="v164h-bar"><i style="width:' + Math.min(100, a) + '%"></i></div></span>' +
+            '<span class="v164h-treats">' + TREATS.map((t) => '<button type="button" data-cat="' + i + '" data-treat="' + t.id + '">' + t.ic + ' ' + t.name + ' ' + t.price + 'G</button>').join('') + '</span></div>';
+        }).join('') : '<div class="v164h-sum">고양이를 찾을 수 없어요.</div>');
+      body.querySelectorAll('[data-cat]').forEach((btn) => {
+        btn.onclick = () => {
+          const cat = cats[Number(btn.dataset.cat)];
+          const t = TREATS.filter((x) => x.id === btn.dataset.treat)[0];
+          feedCat(cat, t);
+        };
+      });
+    }
+  }
+
+  function buy(id) {
+    const it = ITEMS.filter((x) => x.id === id)[0];
+    if (!it) return false;
+    if (owned(id)) { try { toast(it.name + '은(는) 이미 설치했어요', 1800); } catch (e) {} return false; }
+    let ok = false;
+    try { ok = Gold.spend(it.price); } catch (e) { ok = false; }
+    if (!ok) { try { toast('골드가 부족해요! (' + (it.price - money()) + 'G 남았어요)', 2400); } catch (e) {} return false; }
+    state.items[id] = 1;
+    saveItems();
+    buildItem(id);
+    try { Sound.correct(); } catch (e) {}
+    try { toast('🛋️ ' + it.name + ' 설치 완료! ' + it.bonus, 3000); } catch (e) {}
+    try { V12.say('🛋️ ' + it.name, it.bonus + ' · 로비에 설치했어요', 2800); } catch (e) {}
+    render();
+    return true;
+  }
+
+  function open(t) {
+    tab = t || tab;
+    modal().classList.add('show');
+    try { document.body.classList.add('modal-open'); } catch (e) {}
+    render();
+  }
+  V164.home = {
+    open: open, close: close, render: render, buy: buy, items: ITEMS, treats: TREATS,
+    owned: owned, bonus: bonus, aff: affOf, feed: (cat, id) => feedCat(cat, TREATS.filter((x) => x.id === id)[0]),
+    info: () => ({
+      items: ITEMS.map((i) => ({ id: i.id, owned: owned(i.id), price: i.price })),
+      bonus: bonus(), gold: money(),
+      cats: (function () { try { return Cats.list.map((c) => ({ name: c.name, aff: affOf(c.name) })); } catch (e) { return []; } })(),
+      treatsToday: state.cats.treats.n, spots: state.spots, built: Object.keys(state.groups),
+    }),
+  };
+
+  /* ---------------- 더보기 메뉴 버튼 ---------------- */
+  function addButtons() {
+    try {
+      const more = document.getElementById('moreSheet');
+      if (!more || document.getElementById('v164MoreHome')) return;
+      const mk = (id, icon, label, t, after) => {
+        const b = document.createElement('button');
+        b.id = id; b.type = 'button';
+        b.innerHTML = '<span aria-hidden="true">' + icon + '</span> ' + label;
+        b.onclick = function () { try { more.classList.remove('show'); } catch (e) {} open(t); };
+        const ref = more.querySelector(after) || null;
+        more.insertBefore(b, ref);
+        return b;
+      };
+      mk('v164MoreHome', '🛋️', '학원 인테리어', 'interior', '#moreJob');
+      mk('v164MoreCat', '🐱', '고양이 돌보기', 'cat', '#moreJob');
+    } catch (e) { E('menu:' + e.message); }
+  }
+
+  V12.tapHandlers['v164:item:cattower'] = () => open('interior');
+  V12.tapHandlers['v164:item:tree'] = () => open('interior');
+  V12.tapHandlers['v164:item:espresso'] = () => open('interior');
+  V12.tapHandlers['v164:item:goldboard'] = () => open('interior');
+
+  function boot() {
+    try { buildOwned(); } catch (e) { E('boot:' + e.message); }
+    try { patchSims(); } catch (e) {}
+    try { addButtons(); } catch (e) {}
+  }
+  setTimeout(boot, 3200);
+  setInterval(() => { try { addButtons(); } catch (e) {} }, 4000);
 })();
 
 /* =====================================================================

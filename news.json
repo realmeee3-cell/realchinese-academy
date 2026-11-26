@@ -1,88 +1,88 @@
 {
- "updated": "2026-11-26T05:12:19+09:00",
- "updatedLabel": "2026-11-26 05:12",
- "source": "中新网 (chinanews.com.cn) RSS",
+ "updated": "2026-11-27T04:40:00+09:00",
+ "updatedLabel": "2026-11-27 04:40",
+ "source": "中新网 (chinanews.com.cn) · 中国天气网",
  "count": 8,
  "news": [
   {
    "id": 1,
-   "tag": "中新网 即时新闻",
-   "date": "11-26 00:10",
-   "hz": "中国岭南首次发现丹尼索瓦人和10.1万年前未知古人类 (记者 孙自法)作为古人类演化、迁徙和扩散的关键地区之一，中国岭南是否生活过丹尼索瓦人？同期还有无其他古人类共存？这些议题一直因缺乏化石记录悬而未决，也备受关注。",
-   "title": "中国岭南首次发现丹尼索瓦人和10.1万年前未知古人类",
-   "py": "zhōng guó lǐng nán shǒu cì fā xiàn dān ní suǒ wǎ rén hé 10.1 wàn nián qián wèi zhī gǔ rén lèi  ( jì zhě   sūn zì fǎ ) zuò wéi gǔ rén lèi yǎn huà 、 qiān xǐ hé kuò sàn de guān jiàn dì qū zhī yī ， zhōng guó lǐng nán shì fǒu shēng huó guò dān ní suǒ wǎ rén ？ tóng qī hái yǒu wú qí tā gǔ rén lèi gòng cún ？ zhè xiē yì tí yì zhí yīn quē fá huà shí jì lù xuán ér wèi jué ， yě bèi shòu guān zhù 。",
-   "ko": "중국 링난(岭南) 지역에서 처음으로 데니소바인과 약 10만 1천 년 전 미지 고인류의 흔적이 발견됐습니다. 11월 26일 발표에 따르면 그동안 화석 기록이 없어 풀리지 않던 \"링난에 데니소바인이 살았는지, 같은 시기에 다른 고인류가 함께 있었는지\"라는 숙제에 실마리가 열렸습니다.",
-   "link": "https://www.chinanews.com.cn/gn/2026/11-26/10737857.shtml"
+   "tag": "中新网 航天",
+   "date": "11-26 19:59",
+   "title": "神舟二十四号乘组进驻“天宫” 中外航天员首次“太空握手”",
+   "hz": "神舟二十四号航天员乘组11月25日顺利进驻中国空间站“天宫”，与神舟二十三号乘组完成中国航天史上第9次“太空会师”。这是“天宫”首次迎来外籍航天员，巴基斯坦载荷专家穆罕默德·齐尚·阿里将在轨开展中巴合作科学实验。",
+   "ko": "선저우 24호 우주비행사 3명이 11월 25일 중국 우주정거장 ‘톈궁’에 입주해 선저우 23호 승조와 9번째 ‘우주 회합’을 했습니다. 톈궁에 외국인 우주비행사가 들어온 것은 이번이 처음으로, 파키스탄 출신 지샨 알리가 중-파 공동 과학실험을 수행합니다.",
+   "link": "https://www.chinanews.com.cn/gn/2026/11-26/10738363.shtml",
+   "py": "shén zhōu èr shí sì hào háng tiān yuán chéng zǔ 11 yuè 25 rì shùn lì jìn zhù zhōng guó kōng jiān zhàn “ tiān gōng ” ， yǔ shén zhōu èr shí sān hào chéng zǔ wán chéng zhōng guó háng tiān shǐ shàng dì 9 cì “ tài kōng huì shī ” 。 zhè shì “ tiān gōng ” shǒu cì yíng lái wài jí háng tiān yuán ， bā jī sī tǎn zài hè zhuān jiā mù hǎn mò dé · qí shàng · ā lǐ jiāng zài guǐ kāi zhǎn zhōng bā hé zuò kē xué shí yàn 。"
   },
   {
    "id": 2,
-   "tag": "中新网 即时新闻",
-   "date": "11-25 23:24",
-   "hz": "图说百科｜流感防治8问8答 急性呼吸道传染病已进入流行季。呼吸道感染可谓“多毒并存”，患者在出现相关症状后，除了要及时就诊，更要明确感染背后的“元凶”，做到有针对性治疗。",
-   "title": "图说百科｜流感防治8问8答",
-   "py": "tú shuō bǎi kē ｜ liú gǎn fáng zhì 8 wèn 8 dá   jí xìng hū xī dào chuán rǎn bìng yǐ jìn rù liú xíng jì 。 hū xī dào gǎn rǎn kě wèi “ duō dú bìng cún ”， huàn zhě zài chū xiàn xiāng guān zhèng zhuàng hòu ， chú le yào jí shí jiù zhěn ， gèng yào míng què gǎn rǎn bèi hòu de “ yuán xiōng ”， zuò dào yǒu zhēn duì xìng zhì liáo 。",
-   "ko": "급성 호흡기 감염병이 유행철에 들어섰습니다. 독감 예방과 대처를 8문 8답으로 정리했습니다. 호흡기 감염은 여러 병원체가 함께 도는 경우가 많아, 증상이 나오면 진료를 받는 것과 함께 어떤 병원체인지 확인해 맞춤 치료를 하는 것이 중요하다고 설명합니다.",
-   "link": "https://www.chinanews.com.cn/life/2026/11-25/10737850.shtml"
+   "tag": "中新网 科技",
+   "date": "11-26 19:52",
+   "title": "中国成功发射遥感四十九号01组卫星",
+   "hz": "11月26日17时38分，中国在西昌卫星发射中心使用长征二号丁运载火箭，成功将遥感四十九号01组卫星送入预定轨道。该卫星主要用于科学试验、国土资源普查、农产品估产和防灾减灾等领域。这是长征系列运载火箭第681次飞行。",
+   "ko": "11월 26일 17시 38분(베이징 시간), 중국이 시창 위성발사센터에서 창정 2호정 로켓으로 야오간(遥感) 49호 01조 위성을 궤도에 올렸습니다. 과학실험·국토조사·농작물 수확량 추정·재해 예방에 쓰이며, 창정 계열 681번째 발사입니다.",
+   "link": "https://www.chinanews.com.cn/gn/2026/11-26/10738335.shtml",
+   "py": "11 yuè 26 rì 17 shí 38 fēn ， zhōng guó zài xī chāng wèi xīng fā shè zhōng xīn shǐ yòng cháng zhēng èr hào dīng yùn zài huǒ jiàn ， chéng gōng jiāng yáo gǎn sì shí jiǔ hào 01 zǔ wèi xīng sòng rù yù dìng guǐ dào 。 gāi wèi xīng zhǔ yào yòng yú kē xué shì yàn 、 guó tǔ zī yuán pǔ chá 、 nóng chǎn pǐn gū chǎn hé fáng zāi jiǎn zāi děng lǐng yù 。 zhè shì cháng zhēng xì liè yùn zài huǒ jiàn dì 681 cì fēi xíng 。"
   },
   {
    "id": 3,
-   "tag": "中新网 即时新闻",
-   "date": "11-25 22:14",
-   "hz": "中外旅行商携手开发内蒙古冰雪旅游市场 (记者 张玮)“你好！中国”——2027冰雪主题旅游海外推广活动洽谈会25日晚在内蒙古自治区兴安盟阿尔山市举办。中外旅行商签署合作协议，携手开发内蒙古冰雪旅游市场。",
-   "title": "中外旅行商携手开发内蒙古冰雪旅游市场",
-   "py": "zhōng wài lǚ xíng shāng xié shǒu kāi fā nèi méng gǔ bīng xuě lǚ yóu shì chǎng  ( jì zhě   zhāng wěi )“ nǐ hǎo ！ zhōng guó ”——2027 bīng xuě zhǔ tí lǚ yóu hǎi wài tuī guǎng huó dòng qià tán huì 25 rì wǎn zài nèi méng gǔ zì zhì qū xīng ān méng ā ěr shān shì jǔ bàn 。 zhōng wài lǚ xíng shāng qiān shǔ hé zuò xié yì ， xié shǒu kāi fā nèi méng gǔ bīng xuě lǚ yóu shì chǎng 。",
-   "ko": "\"안녕! 중국\" 2027 겨울 테마 관광 해외 홍보 설명회가 25일 저녁 내몽골 자치구 싱안멍 아얼산시에서 열렸습니다. 중국과 외국 여행사들이 협력 협약을 맺고 내몽골의 겨울 관광 시장을 함께 개발하기로 했습니다.",
-   "link": "https://www.chinanews.com.cn/cj/2026/11-25/10737841.shtml"
+   "tag": "中新网 社会",
+   "date": "11-26 17:10",
+   "title": "15种语言在线“秒译”！上海国际商事法庭的AI翻译屏",
+   "hz": "上海国际商事法庭在立案、调解、法律咨询等窗口配备了多语种同声智能翻译屏，支持15种语言即时互译和双向显示。境外当事人用母语说话，译文同步显示在屏幕上，无需等待人工翻译。",
+   "ko": "상하이 국제상사법원이 접수·조정·법률상담 창구에 다국어 AI 동시통역 화면을 설치했습니다. 15개 언어를 실시간 양방향으로 번역해, 외국인 당사자가 모국어로 말하면 화면에 바로 통역이 뜹니다.",
+   "link": "https://www.chinanews.com.cn/sh/shipin/2026/11-26/news1076062.shtml",
+   "py": "shàng hǎi guó jì shāng shì fǎ tíng zài lì àn 、 tiáo jiě 、 fǎ lǜ zī xún děng chuāng kǒu pèi bèi le duō yǔ zhǒng tóng shēng zhì néng fān yì píng ， zhī chí 15 zhǒng yǔ yán jí shí hù yì hé shuāng xiàng xiǎn shì 。 jìng wài dāng shì rén yòng mǔ yǔ shuō huà ， yì wén tóng bù xiǎn shì zài píng mù shàng ， wú xū děng dài rén gōng fān yì 。"
   },
   {
    "id": 4,
-   "tag": "中新网 即时新闻",
-   "date": "11-25 21:55",
-   "hz": "英国能源限价2027年将大幅上调 (记者 欧阳开宇)英国能源监管机构天然气和电力市场办公室25日宣布，受中东地缘冲突持续扰动国际能源供应链、天然气价格走高影响，英国居民能源价格上限将自2027年1月起大幅上调26%，全国约2000万户家庭将面临冬季用能成本显著上涨。",
-   "title": "英国能源限价2027年将大幅上调",
-   "py": "yīng guó néng yuán xiàn jià 2027 nián jiāng dà fú shàng diào  ( jì zhě   ōu yáng kāi yǔ ) yīng guó néng yuán jiān guǎn jī gòu tiān rán qì hé diàn lì shì chǎng bàn gōng shì 25 rì xuān bù ， shòu zhōng dōng dì yuán chōng tū chí xù rǎo dòng guó jì néng yuán gōng yìng liàn 、 tiān rán qì jià gé zǒu gāo yǐng xiǎng ， yīng guó jū mín néng yuán jià gé shàng xiàn jiāng zì 2027 nián 1 yuè qǐ dà fú shàng diào 26%， quán guó yuē 2000 wàn hù jiā tíng jiāng miàn lín dōng jì yòng néng chéng běn xiǎn zhù shàng zhǎng 。",
-   "ko": "영국 에너지 규제기관 오프젬이 2027년 1월부터 가정용 에너지 가격 상한을 26% 올린다고 발표했습니다. 중동 정세로 국제 에너지 공급망이 흔들리고 가스 가격이 오른 영향으로, 약 2000만 가구가 겨울철 에너지 비용 부담을 크게 지게 됩니다.",
-   "link": "https://www.chinanews.com.cn/gj/2026/11-25/10737822.shtml"
+   "tag": "中新网 社会",
+   "date": "11-26 19:00",
+   "title": "哈尔滨19.5米“网红大雪人”开始造雪",
+   "hz": "随着气温持续走低，哈尔滨市道里区音乐长廊启动造雪作业，今冬网红大雪人成品高度将达到19.5米，创历年新高。大雪人延续红帽、红围巾、红心的经典造型，建造期间还将推出“云监工”慢直播。",
+   "ko": "하얼빈 다오리구 음악회랑이 인공제설을 시작했습니다. 올겨울 ‘인기 대형 눈사람’은 높이 19.5m로 역대 최대이며, 빨간 모자·목도리·하트 단추의 클래식 디자인을 이어갑니다. 만드는 과정은 실시간 중계로도 볼 수 있습니다.",
+   "link": "https://www.chinanews.com.cn/sh/2026/11-26/10738301.shtml",
+   "py": "suí zhe qì wēn chí xù zǒu dī ， hā ěr bīn shì dào lǐ qū yīn yuè cháng láng qǐ dòng zào xuě zuò yè ， jīn dōng wǎng hóng dà xuě rén chéng pǐn gāo dù jiāng dá dào 19 . 5 mǐ ， chuàng lì nián xīn gāo 。 dà xuě rén yán xù hóng mào 、 hóng wéi jīn 、 hóng xīn de jīng diǎn zào xíng ， jiàn zào qī jiān hái jiāng tuī chū “ yún jiān gōng ” màn zhí bō 。"
   },
   {
    "id": 5,
-   "tag": "中新网 即时新闻",
-   "date": "11-25 21:52",
-   "hz": "谷爱凌训练受伤肩膀脱臼：参加云顶世界杯站可能性较小 11月25日，谷爱凌发文，称前几天在奥地利训练中不幸受伤肩膀脱臼。“开车路程一小时后到达医院，立刻拍片子正骨位。我还在等待医生的判断，但目前能参加云顶世界杯站比赛的可能性较小。",
-   "title": "谷爱凌训练受伤肩膀脱臼：参加云顶世界杯站可能性较小",
-   "py": "gǔ ài líng xùn liàn shòu shāng jiān bǎng tuō jiù ： cān jiā yún dǐng shì jiè bēi zhàn kě néng xìng jiào xiǎo  11 yuè 25 rì ， gǔ ài líng fā wén ， chēng qián jǐ tiān zài ào dì lì xùn liàn zhōng bù xìng shòu shāng jiān bǎng tuō jiù 。“ kāi chē lù chéng yī xiǎo shí hòu dào dá yī yuàn ， lì kè pāi piān zi zhèng gǔ wèi 。 wǒ hái zài děng dài yī shēng de pàn duàn ， dàn mù qián néng cān jiā yún dǐng shì jiè bēi zhàn bǐ sài de kě néng xìng jiào xiǎo 。",
-   "ko": "아이린 구(谷爱凌)가 25일 오스트리아 훈련 중 어깨가 탈구되는 부상을 입었다고 밝혔습니다. 병원에서 곧바로 엑스레이 촬영과 정골 치료를 받고 의사 판단을 기다리고 있지만, 윈딩 월드컵 출전 가능성은 작다고 전했습니다. 티켓을 예매하고 응원을 준비한 팬들에게 미안하다고 덧붙였습니다.",
-   "link": "https://www.chinanews.com.cn/ty/2026/11-25/10737834.shtml"
+   "tag": "中新网 科技",
+   "date": "11-26 14:07",
+   "title": "耐1000℃消防侦察机器狗完成实战测试",
+   "hz": "11月25日，哈尔滨工业大学苏州高等研究院等团队研发的耐1000℃高温消防侦察机器狗，在苏州市消防救援支队完成实战测试。它穿着航天热防护材料的“防火衣”，可在千度火场连续作业10分钟，并穿透浓烟回传高清画面。",
+   "ko": "하얼빈공업대 쑤저우고등연구원 등이 만든 1000℃ 내열 소방 정찰 로봇개가 11월 25일 쑤저우 소방대에서 실전 테스트를 마쳤습니다. 우주선 열차폐 소재로 만든 ‘방화옷’을 입고 1000도 화장에서 10분간 버티며 연기를 뚫고 영상을 전송합니다.",
+   "link": "https://www.chinanews.com.cn/sh/shipin/cns-d/2026/11-26/news1076039.shtml",
+   "py": "11 yuè 25 rì ， hā ěr bīn gōng yè dà xué sū zhōu gāo děng yán jiū yuàn děng tuán duì yán fā de nài 1000 ℃ gāo wēn xiāo fáng zhēn chá jī qì gǒu ， zài sū zhōu shì xiāo fáng jiù yuán zhī duì wán chéng shí zhàn cè shì 。 tā chuān zhe háng tiān rè fáng hù cái liào de “ fáng huǒ yī ” ， kě zài qiān dù huǒ chǎng lián xù zuò yè 10 fēn zhōng ， bìng chuān tòu nóng yān huí chuán gāo qīng huà miàn 。"
   },
   {
    "id": 6,
-   "tag": "中新网 即时新闻",
-   "date": "11-25 21:46",
-   "hz": "黑龙江迎大范围降雪 局地暴雪伴雨夹雪 (记者 王妮娜)黑龙江省气象台25日发布消息，26日夜间至27日，黑龙江全省大部将出现降雪天气，东北部地区有大雪、局地暴雪，东南部地区有短时间雨夹雪，道路冰雪对交通影响较大。",
-   "title": "黑龙江迎大范围降雪 局地暴雪伴雨夹雪",
-   "py": "hēi lóng jiāng yíng dà fàn wéi jiàng xuě   jú dì bào xuě bàn yǔ jiā xuě  ( jì zhě   wáng nī nà ) hēi lóng jiāng shěng qì xiàng tái 25 rì fā bù xiāo xī ，26 rì yè jiān zhì 27 rì ， hēi lóng jiāng quán shěng dà bù jiāng chū xiàn jiàng xuě tiān qì ， dōng běi bù dì qū yǒu dà xuě 、 jú dì bào xuě ， dōng nán bù dì qū yǒu duǎn shí jiān yǔ jiā xuě ， dào lù bīng xuě duì jiāo tōng yǐng xiǎng jiào dà 。",
-   "ko": "헤이룽장성 기상대는 26일 밤부터 27일까지 성 대부분 지역에 눈이 내리고, 동북부는 큰 눈과 국지적 폭설, 동남부는 짧은 진눈깨비가 예상된다고 밝혔습니다. 도로 결빙으로 교통에 미치는 영향이 클 것으로 보여 주의가 필요합니다.",
-   "link": "https://www.chinanews.com.cn/sh/2026/11-25/10737825.shtml"
+   "tag": "中新网 文化",
+   "date": "11-26 16:20",
+   "title": "揭秘冰糖葫芦：又名“酸蘸儿” 寓意福禄绵长",
+   "hz": "入冬后冰糖葫芦迎来旺季。它在天津叫“糖堆儿”，济南叫“酸蘸儿”。葫芦形似“葫芦”，与“福禄”谐音，寓意甜美幸福。今年奶皮子、麻糍、冷萃酸奶等花式糖葫芦在社交平台走红，一串卖到十几元。",
+   "ko": "겨울이 되면 탕후루(빙탕후루)가 제철입니다. 톈진에서는 ‘탕두이얼’, 지난에서는 ‘쏸잔얼’이라고 부르며, 호리병 모양에서 이름이 나와 ‘복록(福禄)’을 뜻합니다. 올해는 유제품·찹쌀·요거트를 올린 화려한 탕후루가 SNS에서 인기를 끌고 있습니다.",
+   "link": "https://www.chinanews.com.cn/cul/2026/11-26/10738160.shtml",
+   "py": "rù dōng hòu bīng táng hú lú yíng lái wàng jì 。 tā zài tiān jīn jiào “ táng duī ér ” ， jǐ nán jiào “ suān zhàn ér ” 。 hú lú xíng sì “ hú lú ” ， yǔ “ fú lù ” xié yīn ， yù yì tián měi xìng fú 。 jīn nián nǎi pí zi 、 má cí 、 lěng cuì suān nǎi děng huā shì táng hú lú zài shè jiāo píng tái zǒu hóng ， yī chuàn mài dào shí jǐ yuán 。"
   },
   {
    "id": 7,
-   "tag": "中新网 即时新闻",
-   "date": "11-25 21:45",
-   "hz": "涉130万使用者个人信息！售票网站遭黑客入侵，香港有关部门已报警 香港特区政府康乐及文化事务署(简称“康文署”)25日公布，于24日接获城市售票网的外包承办商通报，发现城市售票网被黑客非法进入。承办商已即时采取措施防止黑客，并全面检视系统，确认系统可继续正常运作。",
-   "title": "涉130万使用者个人信息！售票网站遭黑客入侵，香港有关部门已报警",
-   "py": "shè 130 wàn shǐ yòng zhě gè rén xìn xī ！ shòu piào wǎng zhàn zāo hēi kè rù qīn ， xiāng gǎng yǒu guān bù mén yǐ bào jǐng   xiāng gǎng tè qū zhèng fǔ kāng lè jí wén huà shì wù shǔ ( jiǎn chēng “ kāng wén shǔ ”)25 rì gōng bù ， yú 24 rì jiē huò chéng shì shòu piào wǎng de wài bāo chéng bàn shāng tōng bào ， fā xiàn chéng shì shòu piào wǎng bèi hēi kè fēi fǎ jìn rù 。 chéng bàn shāng yǐ jí shí cǎi qǔ cuò shī fáng zhǐ hēi kè ， bìng quán miàn jiǎn shì xì tǒng ， què rèn xì tǒng kě jì xù zhèng cháng yùn zuò 。",
-   "ko": "홍콩 공연·전시 예매 사이트 어반 티켓팅(URBTIX·城市售票网)이 해커 침입을 당해 이용자 130만 명의 개인정보가 영향을 받았습니다. 홍콩 정부 레저문화서비스서는 24일 외주 운영사로부터 통보받아 즉시 차단 조치와 시스템 점검을 했고, 시스템은 계속 정상 운영된다고 밝혔습니다. 당국은 경찰에 신고했습니다.",
-   "link": "https://www.chinanews.com.cn/dwq/2026/11-25/10737828.shtml"
+   "tag": "中新网 健康",
+   "date": "11-26 21:50",
+   "title": "全国流感处于中流行水平 检测阳性率上升",
+   "hz": "中国疾控中心26日发布哨点监测：当前全国流感活动整体处于中流行水平，南北方省份流感病毒检测阳性率上升。检出阳性样本中A(H1N1)pdm09占65.0%，B(Victoria)系占25.3%，5—14岁人群阳性率高于其他年龄组。",
+   "ko": "중국질병통제센터가 11월 16~22일 감시 결과를 발표했습니다. 전국 인플루엔자 유행이 ‘중간 수준’이며 남북 모두 양성률이 오르고 있습니다. 양성 검체 중 A(H1N1)pdm09가 65.0%, B(Victoria)가 25.3%이고 5~14세 양성률이 가장 높습니다.",
+   "link": "https://www.chinanews.com.cn/jk/2026/11-26/10738453.shtml",
+   "py": "zhōng guó jí kòng zhōng xīn 26 rì fā bù shào diǎn jiān cè ： dāng qián quán guó liú gǎn huó dòng zhěng tǐ chǔ yú zhōng liú xíng shuǐ píng ， nán běi fāng shěng fèn liú gǎn bìng dú jiǎn cè yáng xìng lǜ shàng shēng 。 jiǎn chū yáng xìng yàng běn zhōng A ( H 1 N 1 ) p d m 09 zhàn 65 . 0 % ， B ( V i c t o r i a ) xì zhàn 25 . 3 % ， 5 — 14 suì rén qún yáng xìng lǜ gāo yú qí tā nián líng zǔ 。"
   },
   {
    "id": 8,
-   "tag": "中新网 即时新闻",
-   "date": "11-25 21:42",
-   "hz": "（机遇香港）报告预计今年香港IPO集资额居全球第二 “A+H”上市仍为重要动力 (记者 戴小橦)专业服务机构安永25日发布的《中国内地和香港IPO市场》报告显示，2026年香港IPO(首次公开招股)市场表现突出，集资额预计位居全球第二。",
-   "title": "（机遇香港）报告预计今年香港IPO集资额居全球第二 “A+H”上市仍为重要动力",
-   "py": "（ jī yù xiāng gǎng ） bào gào yù jì jīn nián xiāng gǎng IPO jí zī é jū quán qiú dì èr  “A+H” shàng shì réng wèi zhòng yào dòng lì  ( jì zhě   dài xiǎo tóng ) zhuān yè fú wù jī gòu ān yǒng 25 rì fā bù de 《 zhōng guó nèi dì hé xiāng gǎng IPO shì chǎng 》 bào gào xiǎn shì ，2026 nián xiāng gǎng IPO( shǒu cì gōng kāi zhāo gǔ ) shì chǎng biǎo xiàn tū chū ， jí zī é yù jì wèi jū quán qiú dì èr 。",
-   "ko": "회계법인 언스트앤영이 25일 발표한 보고서에 따르면 2026년 홍콩 IPO 시장은 자금 조달액 기준 세계 2위가 될 것으로 예상됩니다. 중국 본토와 홍콩에 동시 상장하는 \"A+H\" 상장이 여전히 중요한 원동력으로 분석됐습니다.",
-   "link": "https://www.chinanews.com.cn/dwq/2026/11-25/10737821.shtml"
+   "tag": "中国天气网 生活",
+   "date": "11-26 19:07",
+   "title": "降温后又回暖 “洋葱式穿搭”怎么穿",
+   "hz": "新冷空气上线，北方局地降温可达10℃以上，随后中东部又将大回暖。中国天气网推出“全国花式穿衣地图”：昼夜温差超过10℃的地区适合加厚版“洋葱式穿搭”，早晚穿羽绒服，中午减一层。",
+   "ko": "찬 공기가 내려와 북부 일부는 10℃ 이상 떨어졌다가 다시 크게 풀리겠습니다. 중국기상넷은 지역별 ‘옷차림 지도’를 공개하며, 일교차가 10℃를 넘는 곳은 아침저녁 두꺼운 ‘양파식 겹쳐입기’를, 낮에는 한 겹 벗는 방식을 권했습니다.",
+   "link": "https://www.dzwww.com/news/yw/202611/t20261126_18338477.htm",
+   "py": "xīn lěng kōng qì shàng xiàn ， běi fāng jú dì jiàng wēn kě dá 10 ℃ yǐ shàng ， suí hòu zhōng dōng bù yòu jiāng dà huí nuǎn 。 zhōng guó tiān qì wǎng tuī chū “ quán guó huā shì chuān yī dì tú ” ： zhòu yè wēn chà chāo guò 10 ℃ de dì qū shì hé jiā hòu bǎn “ yáng cōng shì chuān dā ” ， zǎo wǎn chuān yǔ róng fú ， zhōng wǔ jiǎn yī céng 。"
   }
  ]
 }
