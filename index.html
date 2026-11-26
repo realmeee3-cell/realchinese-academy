@@ -8058,6 +8058,7 @@ ttsAudio.setAttribute('webkit-playsinline', '');
 ttsAudio.preload = 'auto';
 ttsAudio.playbackRate = 0.9;
 let ttsPlayToken = 0;   // 연속 클릭 시 늦게 도착한 이벤트가 새 재생을 건드리지 않도록
+let iosSynthTrust = null;  // iOS 에서 음성합성이 실제로 소리를 내는지 (null=아직 모름)
 let ttsMp3Fail = 0;     // MP3 연속 실패 횟수 (미러 전환·진단용)
 let ttsLastPath = '';   // 마지막 재생 경로: mp3 / synth / synth-fallback / mp3-fail:…
 let ttsTimer = 0;
@@ -8108,7 +8109,7 @@ function markSpeaking(btn, on, label) {
 }
 
 /* MP3 재생: 성공하면 true, 실패하면 onFail()로 음성합성 폴백을 넘긴다 */
-function speakMp3(text, btn, onFail) {
+function speakMp3(text, btn, onFail, who) {
   const token = ++ttsPlayToken;
   let settled = false;
   const clearTimer = () => { if (ttsTimer) { clearTimeout(ttsTimer); ttsTimer = 0; } };
@@ -8130,6 +8131,11 @@ function speakMp3(text, btn, onFail) {
   };
   try { ttsAudio.pause(); } catch (e) {}
   try { ttsAudio.currentTime = 0; } catch (e) {}
+  /* 캐릭터별 속도 — MP3 경로에서도 목소리 개성을 조금 낸다 */
+  try {
+    const c = (window.VoiceCast && VoiceCast.profile(who)) || null;
+    ttsAudio.playbackRate = c ? Math.max(0.78, Math.min(1.12, 0.9 * c.rate / 0.94)) : 0.9;
+  } catch (e) {}
   ttsAudio.onplaying = ok;
   ttsAudio.onended = () => { if (token === ttsPlayToken) markSpeaking(btn, false); };
   ttsAudio.onerror = () => fail('error');
@@ -8157,7 +8163,7 @@ function speakMp3(text, btn, onFail) {
 }
 
 /* 음성합성 엔진: 반드시 클릭 핸들러 안에서 동기적으로 speak() */
-function speakSynth(str, btn, isFallback, who) {
+function speakSynth(str, btn, isFallback, who, onSilent) {
   loadVoices();
   const started = { v: false };
   try {
@@ -8175,6 +8181,7 @@ function speakSynth(str, btn, isFallback, who) {
     u.onstart = () => {
       started.v = true;
       ttsUnlocked = true;
+      if (IS_IOS) iosSynthTrust = true;
       ttsLastPath = isFallback ? 'synth-fallback' : 'synth';
       markSpeaking(btn, true);
     };
@@ -8193,12 +8200,14 @@ function speakSynth(str, btn, isFallback, who) {
     setTimeout(() => {
       if (!started.v) {
         markSpeaking(btn, false);
+        if (IS_IOS) iosSynthTrust = false;
+        if (onSilent) { try { onSilent(); } catch (e) {} return; }
         if (!ttsMuteHinted && IS_IOS) {
           ttsMuteHinted = true;
           toast('🔇 아이폰 측면 무음 모드를 끄면 발음이 더 잘 들려요', 3600);
         }
       }
-    }, 1600);
+    }, 1400);
   } catch (e) {
     markSpeaking(btn, false);
     toast('음성 재생이 지원되지 않는 환경이에요.');
@@ -8242,12 +8251,21 @@ function speak(text, btn, opts) {
   const str = zh;
   const markBtn = btn || null;
   const hasSynth = ('speechSynthesis' in window);
-  // iOS(사파리·인앱 브라우저)는 음성합성이 무음인 경우가 많아 MP3를 먼저 재생한다
+  // iOS(사파리·인앱 브라우저)는 음성합성이 무음인 경우가 많아 MP3를 먼저 재생한다.
+  // 다만 캐릭터별 음성이 2개 이상 있고 이전에 음성합성이 정상 동작했다면 그 목소리를 쓴다.
   if (IS_IOS) {
+    const zhN = (window.VoiceCast && VoiceCast.list('zh').length) || 0;
+    if (hasSynth && zhN >= 2 && iosSynthTrust !== false) {
+      return speakSynth(str, markBtn, false, who, () => {
+        speakMp3(str, markBtn, () => {
+          if (hasSynth) speakSynth(str, markBtn, true, who);
+        }, who);
+      });
+    }
     return speakMp3(str, markBtn, () => {
       if (hasSynth) speakSynth(str, markBtn, true, who);
       else toast('이 브라우저는 음성 합성을 지원하지 않아요. 병음을 참고해 주세요.');
-    });
+    }, who);
   }
   if (!hasSynth) {
     // 음성합성이 없는 브라우저는 MP3로 대신한다
@@ -12063,7 +12081,8 @@ function pickKoVoice() {
   if (!ko.length) return null;
   return ko.slice().sort((a, b) => (b.localService ? 1 : 0) - (a.localService ? 1 : 0))[0];
 }
-function speakKoSynth(str, btn, isFallback, who) {
+function speakKoSynth(str, btn, isFallback, who, onSilent) {
+  const started = { v: false };
   try {
     const u = new SpeechSynthesisUtterance(str);
     u.lang = 'ko-KR';
@@ -12073,7 +12092,7 @@ function speakKoSynth(str, btn, isFallback, who) {
     u.pitch = cast ? cast.pitch : 1.0;
     const v = (window.VoiceCast && VoiceCast.voice(who, 'ko')) || pickKoVoice();
     if (v) { u.voice = v; u.lang = v.lang || 'ko-KR'; }
-    u.onstart = () => { koLast = isFallback ? 'ko-synth-fallback' : 'ko-synth'; markSpeaking(btn, true); };
+    u.onstart = () => { started.v = true; if (IS_IOS) iosSynthTrust = true; koLast = isFallback ? 'ko-synth-fallback' : 'ko-synth'; markSpeaking(btn, true); };
     u.onend = () => markSpeaking(btn, false);
     u.onerror = (e) => {
       markSpeaking(btn, false);
@@ -12084,6 +12103,13 @@ function speakKoSynth(str, btn, isFallback, who) {
     if (speechSynthesis.paused) speechSynthesis.resume();
     if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
     speechSynthesis.speak(u);
+    setTimeout(() => {
+      if (!started.v) {
+        markSpeaking(btn, false);
+        if (IS_IOS) iosSynthTrust = false;
+        if (onSilent) { try { onSilent(); } catch (e) {} }
+      }
+    }, 1400);
   } catch (e) {
     markSpeaking(btn, false);
     toast('음성 재생이 지원되지 않는 환경이에요.');
@@ -12096,6 +12122,12 @@ function speakKo(text, btn, who) {
   const speaker = who || (window.VoiceCast && VoiceCast.current) || '';
   const hasSynth = ('speechSynthesis' in window);
   if (IS_IOS) {
+    const koN = (window.VoiceCast && VoiceCast.list('ko').length) || 0;
+    if (hasSynth && koN >= 2 && iosSynthTrust !== false) {
+      return speakKoSynth(str, btn, false, speaker, () => {
+        speakKoMp3(str, btn, () => { if (hasSynth) speakKoSynth(str, btn, true, speaker); });
+      });
+    }
     return speakKoMp3(str, btn, () => {
       if (hasSynth) speakKoSynth(str, btn, true, speaker);
       else toast('이 브라우저는 음성 합성을 지원하지 않아요.');
