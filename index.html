@@ -50635,6 +50635,20 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     }
     const L2 = b.learn;
     css();
+    /* 찻집은 차 한 잔 — 포만감·에너지 회복 (30분에 한 번) */
+    if (b.id === 'tea') {
+      try {
+        const nowT = Date.now();
+        if (nowT - (D.me.teaAt || 0) > 30 * 60000) {
+          D.me.teaAt = nowT;
+          D.me.food = clamp((D.me.food || 60) + 14, 0, 100);
+          D.me.energy = clamp((D.me.energy || 60) + 10, 0, 100);
+          save();
+          push('🍵', 'build', '도현', '[찻집] 야외 찻집에서 향긋한 차 한 잔 — 포만감 +14 · 에너지 +10', nowT);
+          toast('🍵 차 한 잔! 포만감 +14 · 에너지 +10', 2400);
+        }
+      } catch (e) {}
+    }
     const el = V16.modal('v166LearnModal', '📖 ' + L2.title, '도현이 지은 건물 · 클릭 학습');
     const body = V16.bodyOf(el);
     body.innerHTML = '<div class="v166-phrase"><b>' + L2.hz + '</b><small>' + L2.py + '</small><em>' + L2.ko + '</em></div>' +
