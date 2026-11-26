@@ -4330,7 +4330,7 @@ window.V9_CLASSROOM = {
   }
 
   /* ================= 학생 책상 8석 ================= */
-  const NAMES = ['리나', '小美', '민준', '大卫', '서연', '하오', '지우', '유진'];
+  const NAMES = ['수연', '해리', '보화', '예솔', '', '', '', ''];
   const deskKit = (g, i) => {
     const tint = i % 4;
     // 교재 (표지 색 + 흰 띠)
@@ -4361,7 +4361,7 @@ window.V9_CLASSROOM = {
     const card = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.008, 0.1), new THREE.MeshStandardMaterial({ color: 0xfbf3e0, roughness: .95 }));
     card.position.set(-0.06, 0.76, 0.3); card.rotation.y = 0.03;
     g.add(card);
-    const name = labelSprite((i + 1) + '. ' + NAMES[i], { fontSize: 26, scale: 0.0016, bg: null, color: '#8a6f4f' });
+    const name = labelSprite((i + 1) + '. ' + (NAMES[i] || '빈 자리'), { fontSize: 26, scale: 0.0016, bg: null, color: '#8a6f4f' });
     name.position.set(-0.06, 0.775, 0.3); name.rotation.x = -Math.PI / 2; name.rotation.z = Math.PI;
     name.scale.multiplyScalar(0.72);
     g.add(name);
@@ -6886,12 +6886,11 @@ function seatNpc(name, seatId, opt = {}) {
 }
 
 // 강의실 수강생
-seatNpc('리나', 'c00', { shirt: 0xc3a2a8, longHair: true, hair: 0x3a2b23, skin: 0xf5d6b8 });
-seatNpc('小美', 'c13', { shirt: 0xd7c9a8, longHair: true, hair: 0x241d19, skin: 0xf7dcc2 });
-seatNpc('민준', 'c12', { shirt: 0x8ea6b8, pants: 0x3f4652 });
+seatNpc('수연', 'c00', { shirt: 0xc3a2a8, longHair: true, hair: 0x3a2b23, skin: 0xf5d6b8 });
+seatNpc('해리', 'c13', { shirt: 0xd7c9a8, longHair: true, hair: 0x241d19, skin: 0xf7dcc2 });
+seatNpc('보화', 'c12', { shirt: 0x8ea6b8, pants: 0x3f4652 });
 // 자습실
-seatNpc('수현', 's1', { shirt: 0xb0a6c4, longHair: true, hair: 0x2e231e });
-seatNpc('장미', 't2', { shirt: 0xd8b7a0, pants: 0x574d46 });
+seatNpc('예솔', 's1', { shirt: 0xb0a6c4, longHair: true, hair: 0x2e231e });
 // 라운지
 seatNpc('Jason', 'l0', { shirt: 0x9fb0a2, pants: 0x4a4e56, skin: 0xf0cfae });
 
@@ -11719,11 +11718,26 @@ const Talk = {
       { hz: '池塘里有锦鲤，你看到了吗？', py: 'chítáng lǐ yǒu jǐnlǐ, nǐ kàndào le ma?', ko: '연못에 비단잉어가 있는데 봤어요?' },
       { hz: '春天的时候，这棵梅树会开花。', py: 'chūntiān de shíhou, zhè kē méishù huì kāihuā.', ko: '봄이 되면 이 매화나무가 꽃을 피워요.' },
     ],
-    '리나': [
+    '수연': [
       { hz: '这个位置看黑板很清楚。', py: 'zhège wèizhi kàn hēibǎn hěn qīngchu.', ko: '이 자리는 칠판이 잘 보여요.' },
       { hz: '下课后一起去咖啡厅吗？', py: 'xiàkè hòu yìqǐ qù kāfēitīng ma?', ko: '수업 끝나고 같이 카페 갈래요?' },
       { hz: '我昨天的作业写完了。', py: 'wǒ zuótiān de zuòyè xiě wán le.', ko: '저 어제 숙제 다 썼어요.' },
       { hz: '你的发音越来越好了。', py: 'nǐ de fāyīn yuè lái yuè hǎo le.', ko: '발음이 점점 좋아지네요.' },
+    ],
+    '해리': [
+      { hz: '今天的课文有点难。', py: 'jīntiān de kèwén yǒudiǎn nán.', ko: '오늘 본문은 조금 어려워요.' },
+      { hz: '老师，这个词怎么读？', py: 'lǎoshī, zhège cí zěnme dú?', ko: '선생님, 이 단어는 어떻게 읽어요?' },
+      { hz: '我每天都听中文歌。', py: 'wǒ měitiān dōu tīng Zhōngwén gē.', ko: '저는 매일 중국 노래를 들어요.' },
+    ],
+    '보화': [
+      { hz: '一起复习生词吧。', py: 'yìqǐ fùxí shēngcí ba.', ko: '같이 단어 복습해요.' },
+      { hz: '这道题我不太明白。', py: 'zhè dào tí wǒ bú tài míngbai.', ko: '이 문제는 잘 모르겠어요.' },
+      { hz: '发音要慢慢练。', py: 'fāyīn yào mànman liàn.', ko: '발음은 천천히 연습해야 해요.' },
+    ],
+    '예솔': [
+      { hz: '自習室很安静，适合学习。', py: 'zìxíshì hěn ānjìng, shìhé xuéxí.', ko: '자습실은 조용해서 공부하기 좋아요.' },
+      { hz: '我们互相练习对话吧。', py: 'wǒmen hùxiāng liànxí duìhuà ba.', ko: '우리 서로 대화 연습해요.' },
+      { hz: '明天有听写考试。', py: 'míngtiān yǒu tīngxiě kǎoshì.', ko: '내일 받아쓰기 시험이 있어요.' },
     ],
   },
   roleOf(av) {
@@ -19693,7 +19707,7 @@ const Greeter = {
         { hz: '谢谢老师！', py: 'xièxie lǎoshī!', ko: '감사합니다 선생님!', ok: true },
         { hz: '我不太会。', py: 'wǒ bú tài huì.', ko: '잘 못해요.', ok: false }] },
     ],
-    '리나': [
+    '수연': [
       { hz: '一起去喝杯奶茶吧？', py: 'yìqǐ qù hē bēi nǎichá ba?', ko: '같이 밀크티 한 잔 하러 갈래요?', a: [
         { hz: '好啊，走吧！', py: 'hǎo a, zǒu ba!', ko: '좋아요, 가요!', ok: true },
         { hz: '我有点忙。', py: 'wǒ yǒudiǎn máng.', ko: '좀 바빠요.', ok: false }] },
@@ -43383,6 +43397,2677 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   }
   /* V14.init(1.5s) 뒤에 충돌/존 훅을 덮어쓴다 */
   setTimeout(boot, 1800);
+})();
+
+</script>
+
+<script>
+/* ===== v16 modules (공항·비행기·상하이·베이징·마라탕·인스타) ===== */
+/* =====================================================================
+   v16 CORE — ✈️ 공항 · 비행기 · 상하이/베이징 · 마라탕 + 📸 인스타 릴스
+   ---------------------------------------------------------------------
+   · world 좌표(확장 월드)에 새 구역을 세운다
+     - 인천국제공항   x 252~328, z  58~112  (터미널 실내)
+     - 비행기 객실    x 286~294, z 126~166  (탑승 후 기내)
+     - 상하이 와이탄  x 240~330, z -170~-38
+     - 베이징 야시장  x 360~450, z -170~-70
+     - 마라탕·훠궈    x -130~-112, z 92~108 (걸어 들어가는 매장)
+   · 로비에는 📸 인스타 릴스 전광판 부스를 세운다
+   · 다른 모듈(p2~p5)이 쓰는 공용 도구/모달/저장을 여기서 만든다
+   ===================================================================== */
+(function () {
+  const V16 = (window.V16 = window.V16 || {});
+  if (V16.coreReady) return;
+  V16.coreReady = true;
+  V16.errors = V16.errors || [];
+  const err = (V16.err = function (m) {
+    try { if (V16.errors.length < 300) V16.errors.push(String(m)); console.warn('[v16]', m); } catch (e) {}
+  });
+
+  const V15 = (window.V15 = window.V15 || {});
+  const V14 = (window.V14 = window.V14 || {});
+  const V13 = (window.V13 = window.V13 || {});
+  const V12 = (window.V12 = window.V12 || {});
+  V16.V15 = V15; V16.V14 = V14; V16.V13 = V13; V16.V12 = V12;
+
+  /* ---------------- 저장 (localStorage · 기존 저장은 건드리지 않는다) ---------------- */
+  const KEY = 'rtb_v16_v1';
+  const S = (V16.store = {
+    data: { insta: 0, flights: 0, mala: 0, shanghai: 0, beijing: 0, airport: 0, dest: '', meal: '' },
+    load() {
+      try {
+        const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+        if (o && typeof o === 'object') Object.assign(this.data, o);
+      } catch (e) {}
+      return this;
+    },
+    save() { try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch (e) {} },
+    bump(k, n) { this.data[k] = (this.data[k] || 0) + (n === undefined ? 1 : n); this.save(); },
+  });
+  S.load();
+
+  /* ---------------- 공용 헬퍼 ---------------- */
+  function say(a, b, ms) { try { if (V12.say) V12.say(a, b, ms); } catch (e) {} }
+  function tts(t) { try { if (typeof speak === 'function') speak(String(t)); } catch (e) {} }
+  function gold(n) { try { if (typeof Gold !== 'undefined' && Gold && Gold.add) Gold.add(n); } catch (e) {} }
+  function spend(n) { try { if (typeof Gold !== 'undefined' && Gold && Gold.spend) return !!Gold.spend(n); } catch (e) {} return false; }
+  function xp(n) { try { if (typeof Level !== 'undefined' && Level && Level.add) Level.add(n, 'v16'); } catch (e) {} }
+  function goldNow() { try { return (typeof Gold !== 'undefined' && Gold) ? Gold.gold : 0; } catch (e) { return 0; } }
+  function tele(x, z, yaw) {
+    try { if (V13.teleport) V13.teleport(x, z, 0, typeof yaw === 'number' ? yaw : undefined); } catch (e) { err('tele:' + e.message); }
+    try { if (V12.ensureOutside) V12.ensureOutside(); } catch (e) {}
+  }
+  function hit(mesh, tag, fn) {
+    try {
+      if (V12.hit) V12.hit(mesh, tag);
+      if (fn) V12.tapHandlers[tag] = function () { try { fn(); } catch (e) { err('tap:' + tag + ':' + e.message); } };
+    } catch (e) { err('hit:' + tag); }
+  }
+  function ghost(w, h, d, x, y, z, ry) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+    m.position.set(x, y, z);
+    if (ry) m.rotation.y = ry;
+    scene.add(m);
+    return m;
+  }
+  function group(name) {
+    const g = new THREE.Group();
+    g.name = name || 'v16';
+    scene.add(g);
+    return g;
+  }
+  /* 글자판 — 앞·뒤 어느 쪽에서 봐도 글자가 바로 읽히게 두 면을 따로 만든다
+     (V15.sign 의 뒷면은 좌우 반전되어 거울 글자가 되던 문제를 피한다) */
+  const _signGeo = {};
+  function sign(w, h, lines, opt) {
+    const o = opt || {};
+    const g = new THREE.Group();
+    try {
+      const tex = V15.tex;
+      if (!tex) return g;
+      const drawFace = function (mirror) {
+        return tex(Math.round(w * 110), Math.round(h * 110), function (c, W, H) {
+          if (mirror) { c.translate(W, 0); c.scale(-1, 1); }
+          if (o.grad) {
+            const gr = c.createLinearGradient(0, 0, W, H);
+            o.grad.forEach(function (pt) { gr.addColorStop(pt[0], pt[1]); });
+            c.fillStyle = gr;
+          } else c.fillStyle = o.bg || '#16202a';
+          c.fillRect(0, 0, W, H);
+          if (o.stripes) {
+            o.stripes.forEach(function (s) { c.fillStyle = s[0]; c.fillRect(0, H * s[1], W, H * (s[2] - s[1])); });
+          }
+          if (o.border !== false) {
+            c.strokeStyle = o.borderColor || 'rgba(255,240,200,.8)';
+            c.lineWidth = Math.max(3, W * 0.008);
+            c.strokeRect(W * 0.014, H * 0.035, W * 0.972, H * 0.93);
+          }
+          const arr = Array.isArray(lines) ? lines : [{ t: String(lines), s: 0.44 }];
+          c.textAlign = 'center';
+          c.textBaseline = 'middle';
+          arr.forEach(function (ln, i) {
+            const size = Math.round(H * (ln.s || 0.4));
+            c.fillStyle = ln.c || o.color || '#ffe9bd';
+            c.font = (ln.w || 800) + ' ' + size + 'px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+            const y = ln.y !== undefined ? H * ln.y : H * ((i + 0.62) / (arr.length + 0.25));
+            if (ln.glow) { c.shadowColor = ln.glow; c.shadowBlur = size * 0.5; }
+            c.fillText(ln.t, W / 2, y);
+            c.shadowBlur = 0;
+          });
+        });
+      };
+      const key = w.toFixed(2) + 'x' + h.toFixed(2);
+      if (!_signGeo[key]) _signGeo[key] = new THREE.PlaneGeometry(w, h);
+      const geo = _signGeo[key];
+      const t = drawFace(false);
+      const mtl = new THREE.MeshBasicMaterial({ map: t, transparent: !!o.transparent });
+      const front = new THREE.Mesh(geo, mtl);
+      const back = new THREE.Mesh(geo, mtl);
+      back.rotation.y = Math.PI;
+      back.position.z = -0.006;
+      g.add(front, back);
+    } catch (e) { err('sign:' + e.message); }
+    return g;
+  }
+
+  V16.say = say; V16.tts = tts; V16.gold = gold; V16.spend = spend; V16.xp = xp;
+  V16.goldNow = goldNow; V16.tele = tele; V16.hit = hit; V16.ghost = ghost;
+  V16.group = group; V16.sign = sign;
+
+  /* ---------------- 모달 (v12 형식 · z-index 130 그대로 사용) ---------------- */
+  function ensureCss() {
+    if (document.getElementById('v16css')) return;
+    const st = document.createElement('style');
+    st.id = 'v16css';
+    st.textContent = `
+      .v16-sheet{max-width:540px}
+      .v16-body{display:flex;flex-direction:column;gap:8px}
+      .v16-hero{position:relative;width:100%;border-radius:16px;overflow:hidden;background:#12101a;
+        display:flex;align-items:center;justify-content:center}
+      .v16-hero iframe{width:100%;height:100%;border:0;display:block;background:#0b0a10}
+      .v16-reel{width:100%;aspect-ratio:9/16;max-height:58vh}
+      .v16-reel-holder{position:relative;width:100%;height:100%;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;gap:6px;color:#ffe9c8;
+        background:radial-gradient(circle at 30% 20%,#3b1f52,#14101c 70%)}
+      .v16-reel-holder b{font-size:26px;font-family:var(--serif,serif)}
+      .v16-phrase{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:13px;
+        background:rgba(94,80,62,.07);border:1px solid rgba(94,80,62,.14)}
+      .v16-phrase .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+      .v16-phrase b{font-size:15px;color:#2d2620;line-height:1.35}
+      .v16-phrase small{font-size:11px;color:#8a6a3a;font-weight:700}
+      .v16-phrase em{font-size:11.5px;color:#6b6252;font-style:normal}
+      .v16-phrase button{flex:0 0 auto;width:36px;height:36px;border-radius:12px;border:0;
+        background:#eef6f0;color:#2f6b4f;font-size:15px}
+      .v16-row{display:flex;gap:6px;flex-wrap:wrap}
+      .v16-row .v12-btn{flex:1;min-width:120px}
+      .v16-note{font-size:10.5px;color:#8a7a63;line-height:1.55}
+      .v16-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+      .v16-card{border-radius:14px;border:1px solid rgba(94,80,62,.16);background:rgba(255,253,247,.9);
+        padding:9px 10px;display:flex;flex-direction:column;gap:2px;text-align:left}
+      .v16-card b{font-size:13.5px;color:#2d2620}
+      .v16-card small{font-size:10.5px;color:#8a7a63}
+      .v16-card .px{font-size:12px;color:#a97a15;font-weight:900}
+      .v16-card.on{border-color:#e0852f;background:#fff6e6;box-shadow:0 0 0 2px rgba(224,133,47,.18) inset}
+      .v16-chip-row{display:flex;gap:5px;flex-wrap:wrap}
+      .v16-chip{padding:6px 10px;border-radius:99px;border:1px solid rgba(94,80,62,.18);
+        background:rgba(255,253,247,.9);font-size:11.5px;font-weight:800;color:#5a4d3c}
+      .v16-chip.on{background:#2f5b86;border-color:#2f5b86;color:#fff}
+      .v16-sec{font-size:10.5px;letter-spacing:.06em;color:#9a8d79;font-weight:900;margin-top:2px}
+      .v16-total{display:flex;align-items:center;justify-content:space-between;gap:8px;
+        padding:9px 11px;border-radius:13px;background:#fdf3e0;border:1px solid #f0d9ac;font-size:12.5px}
+      .v16-total b{font-size:15px;color:#a9560e}
+      #v16FlyVeil{position:fixed;inset:0;z-index:140;display:none;flex-direction:column;
+        align-items:center;justify-content:center;gap:10px;color:#fff8ec;
+        background:linear-gradient(180deg,#0b1830,#173a63 45%,#5f9bd0 76%,#cfe6f7)}
+      #v16FlyVeil.show{display:flex}
+      #v16FlyVeil .fv-t{font-size:15px;font-weight:900;letter-spacing:.04em;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+      #v16FlyVeil .fv-s{font-size:11.5px;opacity:.9}
+      #v16FlyVeil .fv-plane{font-size:44px;animation:v16fly 1.6s ease-in-out infinite}
+      #v16FlyVeil .fv-clouds{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.5}
+      #v16FlyVeil .fv-clouds i{position:absolute;display:block;width:180px;height:52px;border-radius:99px;
+        background:rgba(255,255,255,.75);filter:blur(6px);animation:v16cloud 7s linear infinite}
+      @keyframes v16fly{50%{transform:translate(16px,-8px) rotate(-8deg)}}
+      @keyframes v16cloud{from{transform:translateX(-260px)}to{transform:translateX(110vw)}}
+      #v16ChipInsta{background:linear-gradient(145deg,#f7b733,#e0457b 60%,#8a3ab9);color:#fff}
+      .v16-live{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:99px;
+        background:#e0457b;color:#fff;font-size:9px;font-weight:900;letter-spacing:.08em}
+      .v16-stars{color:#f2b134;font-size:11px}
+    `;
+    document.head.appendChild(st);
+  }
+
+  function modal(id, title, sub) {
+    ensureCss();
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'modal';
+      el.id = id;
+      el.innerHTML = '<div class="sheet v16-sheet"><button class="v12-x" data-close aria-label="닫기">✕</button>'
+        + '<h2></h2><p class="v12-sub"></p><div class="v16-body"></div></div>';
+      document.body.appendChild(el);
+      el.addEventListener('click', (ev) => { if (ev.target === el) close(el); });
+      const x = el.querySelector('[data-close]');
+      if (x) x.onclick = () => close(el);
+    }
+    const h2 = el.querySelector('h2');
+    if (h2) h2.innerHTML = title;
+    const sb = el.querySelector('.v12-sub');
+    if (sb) sb.innerHTML = sub || '';
+    return el;
+  }
+  function bodyOf(el) { return el.querySelector('.v16-body'); }
+  function open(el) {
+    if (!el) return;
+    el.classList.add('show');
+    try { if (V12.syncModalState) V12.syncModalState(); } catch (e) {}
+  }
+  function close(el) {
+    if (!el) return;
+    el.classList.remove('show');
+    try { if (V12.syncModalState) V12.syncModalState(); } catch (e) {}
+  }
+  V16.modal = modal; V16.open = open; V16.close = close; V16.bodyOf = bodyOf;
+
+  /* ---------------- 존 이름 ---------------- */
+  const ZONES = (V16.zones = []);
+  V16.addZone = function (rect, name) { ZONES.push({ r: rect, n: name }); };
+  function installZone() {
+    try {
+      if (!window.V15 || typeof V15.zoneOverride === 'function' && V15.zoneOverride.__v16) return;
+      const prev = typeof V15.zoneOverride === 'function' ? V15.zoneOverride : null;
+      const fn = function (x, z) {
+        for (let i = 0; i < ZONES.length; i++) {
+          const r = ZONES[i].r;
+          if (x > r.x0 && x < r.x1 && z > r.z0 && z < r.z1) return ZONES[i].n;
+        }
+        return prev ? prev(x, z) : '';
+      };
+      fn.__v16 = true;
+      V15.zoneOverride = fn;
+    } catch (e) { err('zone:' + e.message); }
+  }
+  V16.installZone = installZone;
+
+  /* ---------------- 📍 빠른 이동 등록 ---------------- */
+  const WARPS = (V16.warps = []);
+  V16.addWarp = function (spot, build) { WARPS.push({ spot: spot, build: build, done: false }); };
+  function registerWarps() {
+    let list = null;
+    try { list = document.getElementById('warpList'); } catch (e) {}
+    if (!list) return false;
+    let all = true;
+    WARPS.forEach((w) => {
+      if (w.done) return;
+      try {
+        V14.addWarp(w.spot, w.build);
+        w.done = true;
+      } catch (e) { err('warpreg:' + w.spot.id + ':' + e.message); all = false; }
+    });
+    return all;
+  }
+  V16.registerWarps = registerWarps;
+
+  /* ---------------- 🛫 비행 연출 ---------------- */
+  function veil(text, sub, ms, done) {
+    let el = document.getElementById('v16FlyVeil');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'v16FlyVeil';
+      el.innerHTML = '<div class="fv-clouds"><i style="top:18%;animation-delay:-1s"></i>'
+        + '<i style="top:44%;animation-delay:-3.2s;width:230px"></i>'
+        + '<i style="top:70%;animation-delay:-5.1s;width:150px"></i></div>'
+        + '<div class="fv-plane">✈️</div><div class="fv-t"></div><div class="fv-s"></div>';
+      document.body.appendChild(el);
+    }
+    el.querySelector('.fv-t').textContent = text || '';
+    el.querySelector('.fv-s').textContent = sub || '';
+    el.classList.add('show');
+    clearTimeout(V16._veilT);
+    V16._veilT = setTimeout(function () {
+      el.classList.remove('show');
+      if (typeof done === 'function') { try { done(); } catch (e) {} }
+    }, Math.max(900, ms || 1800));
+  }
+  V16.veil = veil;
+
+  /* =================================================================
+     📸 인스타그램 릴스 — 로비 부스 + 모달
+     ================================================================= */
+  const IG = {
+    handle: '@realchinese_official',
+    profile: 'https://www.instagram.com/realchinese_official/',
+    reel: 'https://www.instagram.com/reel/DeL5gI5xXKY/',
+    embed: 'https://www.instagram.com/reel/DeL5gI5xXKY/embed/',
+    title: '네가 뭔데 · 凭什么',
+    likes: '1.1만',
+    phrases: [
+      { hz: '凭什么？', py: 'píng shénme?', ko: '무슨 자격으로? / 니가 뭔데?' },
+      { hz: '你凭什么说我不行？', py: 'nǐ píng shénme shuō wǒ bù xíng?', ko: '네가 뭔데 내가 안 된다고 해?' },
+      { hz: '凭什么他可以去，我不能去？', py: 'píng shénme tā kěyǐ qù, wǒ bù néng qù?', ko: '왜 걔는 가도 되고 나는 안 돼?' },
+      { hz: '凭什么让我先道歉？', py: 'píng shénme ràng wǒ xiān dàqiàn?', ko: '왜 나한테 먼저 사과하라는 거야?' },
+    ],
+  };
+  IG.phrases[3].py = 'píng shénme ràng wǒ xiān dàoqiàn?';
+  V16.IG = IG;
+
+  function posterTex() {
+    const T = V15.tex ? V15.tex : null;
+    if (!T) return null;
+    return T(512, 640, function (c, W, H) {
+      const g = c.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, '#2a1140');
+      g.addColorStop(0.5, '#4b1a5c');
+      g.addColorStop(1, '#101018');
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+      /* 배경 광 */
+      const rg = c.createRadialGradient(W * 0.5, H * 0.42, 20, W * 0.5, H * 0.42, W * 0.7);
+      rg.addColorStop(0, 'rgba(247,183,51,.5)');
+      rg.addColorStop(0.5, 'rgba(224,69,123,.25)');
+      rg.addColorStop(1, 'rgba(16,16,24,0)');
+      c.fillStyle = rg; c.fillRect(0, 0, W, H);
+      /* 상단 LIVE */
+      c.fillStyle = '#e0457b';
+      c.beginPath(); c.roundRect ? c.roundRect(W * 0.06, H * 0.06, W * 0.2, H * 0.05, 20) : c.rect(W * 0.06, H * 0.06, W * 0.2, H * 0.05);
+      c.fill();
+      c.fillStyle = '#fff'; c.font = '900 ' + Math.round(H * 0.032) + 'px sans-serif'; c.textAlign = 'center';
+      c.fillText('REELS', W * 0.16, H * 0.095);
+      /* 凭什么 */
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.shadowColor = 'rgba(255,200,120,.9)'; c.shadowBlur = 34;
+      c.fillStyle = '#fff3d8'; c.font = '900 ' + Math.round(H * 0.2) + 'px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+      c.fillText('凭什么', W * 0.5, H * 0.4);
+      c.shadowBlur = 0;
+      c.fillStyle = '#ffd9a0'; c.font = '900 ' + Math.round(H * 0.048) + 'px sans-serif';
+      c.fillText('píng shénme', W * 0.5, H * 0.55);
+      c.fillStyle = '#e9e2ff'; c.font = '800 ' + Math.round(H * 0.042) + 'px "Noto Sans CJK KR",sans-serif';
+      c.fillText('네가 뭔데', W * 0.5, H * 0.63);
+      /* 재생 버튼 */
+      c.beginPath(); c.arc(W * 0.5, H * 0.75, W * 0.075, 0, Math.PI * 2);
+      c.fillStyle = 'rgba(255,255,255,.92)'; c.fill();
+      c.beginPath(); c.moveTo(W * 0.487, H * 0.723); c.lineTo(W * 0.487, H * 0.777); c.lineTo(W * 0.53, H * 0.75);
+      c.closePath(); c.fillStyle = '#2a1140'; c.fill();
+      /* 핸들 · 좋아요 */
+      c.fillStyle = '#fff'; c.font = '800 ' + Math.round(H * 0.036) + 'px sans-serif';
+      c.fillText('@realchinese_official', W * 0.5, H * 0.865);
+      c.fillStyle = '#ff9ec4'; c.font = '900 ' + Math.round(H * 0.036) + 'px sans-serif';
+      c.fillText('♥ 1.1만 · 좋아요', W * 0.5, H * 0.915);
+      c.fillStyle = 'rgba(255,255,255,.55)'; c.font = '700 ' + Math.round(H * 0.028) + 'px "Noto Sans CJK KR",sans-serif';
+      c.fillText('리얼통번역 중국어 · 真实翻译汉语', W * 0.5, H * 0.955);
+    });
+  }
+
+  let boothBuilt = false;
+  function buildBooth() {
+    if (boothBuilt) return;
+    boothBuilt = true;
+    try {
+      const { mat, emat, basic, box, cyl, plane } = V15;
+      const g = group('v16instabooth');
+      const X = 4.6, Z = 14.2, RY = Math.PI - 0.42;
+      const nx = Math.sin(RY), nz = Math.cos(RY);
+      /* 바닥 무대 */
+      const pad = plane(4.6, 4.0, mat(0x241a2e, { roughness: .9 }), X, 0.018, Z);
+      pad.rotation.x = -Math.PI / 2;
+      g.add(pad);
+      /* 본체 (부스) */
+      const body = box(3.2, 2.9, 0.5, mat(0x17121f, { roughness: .55, metalness: .25 }), X, 1.62, Z);
+      body.rotation.y = RY;
+      g.add(body);
+      /* 뒤판 — 뒤에서 봐도 부스답게 */
+      const backTex = V15.tex ? V15.tex(384, 512, function (c, W, H) {
+        c.fillStyle = '#1a1024'; c.fillRect(0, 0, W, H);
+        for (let i = 0; i < 26; i++) {
+          c.fillStyle = ['#e0457b', '#8a3ab9', '#f7b733', '#3fd8ff'][i % 4];
+          c.globalAlpha = 0.16;
+          c.beginPath();
+          c.arc((i * 97) % W, (i * 151) % H, 18 + (i % 5) * 9, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.globalAlpha = 1;
+        c.fillStyle = '#ffe9c8'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.font = '900 54px "Noto Sans CJK KR",sans-serif';
+        c.fillText('인스타 릴스', W / 2, H * 0.3);
+        c.font = '800 30px sans-serif';
+        c.fillStyle = '#ff9ec4';
+        c.fillText('@realchinese_official', W / 2, H * 0.44);
+        c.fillStyle = '#9ff0ff'; c.font = '900 40px "Noto Sans CJK KR",sans-serif';
+        c.fillText('凭什么', W / 2, H * 0.63);
+        c.fillStyle = '#fff6e6'; c.font = '800 26px "Noto Sans CJK KR",sans-serif';
+        c.fillText('앞에서 눌러 릴스 보기', W / 2, H * 0.8);
+      }) : null;
+      if (backTex) {
+        const bp = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 2.7), new THREE.MeshBasicMaterial({ map: backTex }));
+        bp.position.set(X - nx * 0.27, 1.9, Z - nz * 0.27);
+        bp.rotation.y = RY + Math.PI;
+        g.add(bp);
+      }
+      /* 화면 */
+      const t = posterTex();
+      const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 3.05),
+        new THREE.MeshBasicMaterial(t ? { map: t } : { color: 0x2a1140 }));
+      screen.position.set(X, 1.9, Z);
+      screen.rotation.y = RY;
+      screen.position.x += nx * 0.27; screen.position.z += nz * 0.27;
+      g.add(screen);
+      V16._igScreen = screen;
+      /* 화면 테두리 (네온) */
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(2.68, 3.22, 0.1), emat(0xe0457b, 0xe0457b, 0.9));
+      frame.position.set(X + nx * 0.24, 1.9, Z + nz * 0.24);
+      frame.rotation.y = RY;
+      g.add(frame);
+      /* 상단 네온 사인 */
+      const top = sign(2.9, 0.55, [{ t: '📸 INSTAGRAM REELS', c: '#fff4e0', s: .44, glow: '#ff7ab8' }],
+        { bg: '#1a1024', borderColor: '#ff7ab8' });
+      top.position.set(X + nx * 0.3, 3.72, Z + nz * 0.3);
+      top.rotation.y = RY;
+      g.add(top);
+      /* 좌우 스탠딩 배너 */
+      const b1 = sign(1.05, 2.3, [
+        { t: '凭什么', c: '#ffe9c8', s: .3, y: .2, glow: '#ffd66a' },
+        { t: '@realchinese', c: '#ff9ec4', s: .13, y: .46 },
+        { t: 'official', c: '#ff9ec4', s: .13, y: .56 },
+        { t: '릴스 보기 ▶', c: '#9ff0ff', s: .15, y: .74 },
+        { t: '눌러 주세요', c: '#cbb9ff', s: .12, y: .85 },
+      ], { grad: [[0, '#2a1140'], [1, '#0d0a14']], borderColor: '#e0457b' });
+      b1.position.set(X + Math.cos(RY) * 1.95, 1.3, Z - Math.sin(RY) * 1.95);
+      b1.rotation.y = RY;
+      g.add(b1);
+      /* 사람 키 정도의 안내 기둥 + 스포트 */
+      g.add(cyl(0.09, 0.11, 3.9, mat(0x2b2338, { metalness: .4 }), X - nx * 0.7 + Math.cos(RY) * -1.7, 1.95, Z - nz * 0.7 - Math.sin(RY) * -1.7, 8));
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 6), emat(0xffe9c0, 0xffd9a0, 1.8));
+      lamp.position.set(X - nx * 0.7 + Math.cos(RY) * -1.7, 3.95, Z - nz * 0.7 - Math.sin(RY) * -1.7);
+      g.add(lamp);
+      /* 반짝이 */
+      V16._igGlow = [];
+      for (let i = 0; i < 6; i++) {
+        const s = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 5), emat(0xffd9a0, 0xffc14d, 1.8));
+        s.position.set(X + (Math.random() - 0.5) * 2.4, 1.6 + Math.random() * 2.0, Z + (Math.random() - 0.5) * 1.6);
+        g.add(s);
+        V16._igGlow.push(s);
+      }
+      /* 탭 영역 */
+      const h = ghost(2.9, 3.4, 1.5, X + nx * 0.5, 1.8, Z + nz * 0.5, RY);
+      hit(h, 'v16:insta', function () { openInsta(); });
+      /* 바닥 안내 화살표 */
+      const arrow = sign(1.7, 0.44, [{ t: '📸 인스타 릴스 · 按这里', c: '#fff3d8', s: .46 }],
+        { bg: 'rgba(24,16,34,.9)', borderColor: '#ff7ab8' });
+      arrow.position.set(X + Math.cos(RY) * 1.6 + nx * 1.9, 0.55, Z - Math.sin(RY) * 1.6 + nz * 1.9);
+      arrow.rotation.y = RY;
+      g.add(arrow);
+      V16.booth = g;
+    } catch (e) { err('booth:' + e.message); }
+  }
+  V16.buildBooth = buildBooth;
+
+  let seenHint = false;
+  function openInsta() {
+    const el = modal('v16InstaModal', '📸 인스타그램 릴스 <span class="v16-live">REELS</span>',
+      IG.handle + ' · ' + IG.title + ' · ♥ ' + IG.likes);
+    const b = bodyOf(el);
+    if (!b.dataset.built) {
+      b.dataset.built = '1';
+      b.innerHTML = `
+        <div class="v16-hero v16-reel" id="v16ReelWrap">
+          <div class="v16-reel-holder" id="v16ReelFallback">
+            <b>凭什么</b>
+            <span style="font-size:12px;color:#ffd9a0">píng shénme · 네가 뭔데</span>
+            <span style="font-size:11px;opacity:.75">릴스를 불러오는 중…</span>
+          </div>
+        </div>
+        <div class="v16-row">
+          <button class="v12-btn primary" id="v16IgOpen" type="button">▶ 인스타에서 열기</button>
+          <button class="v12-btn" id="v16IgFollow" type="button">➕ @realchinese_official 팔로우</button>
+        </div>
+        <div class="v16-sec">🎧 릴스 핵심 표현 — 눌러서 듣기</div>
+        ${IG.phrases.map((p, i) => `<div class="v16-phrase">
+          <span class="tx"><b>${p.hz}</b><small>${p.py}</small><em>${p.ko}</em></span>
+          <button type="button" data-ig="${i}" aria-label="발음 듣기">🔊</button>
+        </div>`).join('')}
+        <div class="v16-note">인스타그램 안에서 열면 영상이 바로 재생돼요. 앱 미리보기(인앱 브라우저)에서 영상이 안 보이면
+          위 <b>Instagram에서 직접 열기</b>를 눌러 주세요. · 凭什么 = “무슨 자격으로, 니가 뭔데”</div>`;
+      const op = b.querySelector('#v16IgOpen');
+      if (op) op.onclick = () => { try { window.open(IG.reel, '_blank'); } catch (e) {} };
+      const fl = b.querySelector('#v16IgFollow');
+      if (fl) fl.onclick = () => { try { window.open(IG.profile, '_blank'); } catch (e) {} };
+      b.querySelectorAll('[data-ig]').forEach((btn) => {
+        btn.onclick = () => {
+          const p = IG.phrases[Number(btn.dataset.ig)];
+          if (p) { tts(p.hz); say('🔊 ' + p.hz, p.py, 2200); }
+        };
+      });
+    }
+    open(el);
+    /* iframe 은 열 때 한 번만 넣는다 (모바일 데이터·성능) */
+    const wrap = b.querySelector('#v16ReelWrap');
+    const fb = b.querySelector('#v16ReelFallback');
+    if (wrap && !wrap.dataset.frame) {
+      wrap.dataset.frame = '1';
+      const ifr = document.createElement('iframe');
+      ifr.src = IG.embed;
+      ifr.setAttribute('scrolling', 'no');
+      ifr.setAttribute('allowtransparency', 'true');
+      ifr.setAttribute('frameborder', '0');
+      ifr.setAttribute('allow', 'autoplay; encrypted-media; clipboard-write; picture-in-picture');
+      ifr.setAttribute('loading', 'lazy');
+      ifr.title = '인스타그램 릴스 · 凭什么';
+      let loaded = false;
+      ifr.addEventListener('load', () => { loaded = true; if (fb) fb.style.display = 'none'; });
+      wrap.appendChild(ifr);
+      setTimeout(() => {
+        if (!loaded && fb) {
+          const sm = fb.querySelector('span:last-child');
+          if (sm) sm.textContent = '아래 버튼으로 Instagram에서 바로 열 수 있어요';
+        }
+      }, 4200);
+    }
+    if (!S.data.insta) { S.bump('insta'); }
+    say('📸 인스타 릴스', IG.title, 1600);
+  }
+  V16.openInsta = openInsta;
+
+  /* ---------------- 퀵바 · 더보기 · 메뉴 허브에 📸 인스타 ---------------- */
+  function addButtons() {
+    try {
+      const qb = document.getElementById('quickbar');
+      if (qb && !document.getElementById('v16ChipInsta')) {
+        const b = document.createElement('button');
+        b.className = 'qbtn';
+        b.id = 'v16ChipInsta';
+        b.title = '인스타그램 릴스 · @realchinese_official';
+        b.setAttribute('aria-label', '인스타그램 릴스');
+        b.innerHTML = '<span aria-hidden="true">📸</span>';
+        b.onclick = () => openInsta();
+        qb.appendChild(b);
+      }
+      const more = document.getElementById('moreSheet');
+      if (more && !document.getElementById('v16MoreInsta')) {
+        const b = document.createElement('button');
+        b.id = 'v16MoreInsta';
+        b.type = 'button';
+        b.innerHTML = '<span aria-hidden="true">📸</span> 인스타 릴스 · 凭什么';
+        b.onclick = () => { try { document.getElementById('moreClose').click(); } catch (e) {} openInsta(); };
+        more.insertBefore(b, more.querySelector('#moreJob') || null);
+      }
+    } catch (e) { err('buttons:' + e.message); }
+  }
+  V16.addButtons = addButtons;
+  setInterval(addButtons, 2600);
+  setTimeout(addButtons, 1400);
+
+  /* ---------------- 매 프레임 장식 ---------------- */
+  let nearT = 0;
+  function hookTick() {
+    try {
+      if (!V14 || V14.extraTick && V14.extraTick.__v16) return;
+      const prev = V14.extraTick;
+      const fn = function (dt, t) {
+        if (prev) { try { prev(dt, t); } catch (e) {} }
+        try {
+          (V16._igGlow || []).forEach((s, i) => {
+            s.position.y = 1.4 + Math.abs(Math.sin(t * 0.0013 + i * 0.7)) * 1.9;
+            s.material.emissiveIntensity = 0.8 + Math.abs(Math.sin(t * 0.0026 + i)) * 1.3;
+          });
+          if (V16._igScreen) {
+            const k = 0.88 + Math.abs(Math.sin(t * 0.0009)) * 0.12;
+            V16._igScreen.scale.set(k, k, 1);
+          }
+        } catch (e) {}
+        /* 카메라 바로 앞을 가로막는 군중은 잠깐 숨긴다 (검은 머리통이 화면을 덮는 문제) */
+        try {
+          if (t - nearT > 240) {
+            nearT = t;
+            const cps = camera.position;
+            const list = (V14.crowd || []);
+            for (let i = 0; i < list.length; i++) {
+              const n = list[i];
+              if (!n || !n.root) continue;
+              const d = Math.hypot(n.root.position.x - cps.x, n.root.position.z - cps.z);
+              const hide = d < 1.15 && cps.y < 2.1;
+              if (n.root.visible === hide) n.root.visible = !hide;
+            }
+          }
+        } catch (e) {}
+      };
+      fn.__v16 = true;
+      V14.extraTick = fn;
+    } catch (e) { err('tick:' + e.message); }
+  }
+  setTimeout(hookTick, 3000);
+  setInterval(hookTick, 6000);
+
+  /* 로비 부스는 조금 뒤에 (월드 로딩 방해 금지) */
+  setTimeout(buildBooth, 5200);
+
+  /* ---------------- 탭 라우팅 — v16(그리고 v15) 탭 태그가 실제로 열리게 ---------------- */
+  function hookTap() {
+    try {
+      if (!window.V10 || typeof V10.tap !== 'function' || V10.tap.__v16) return;
+      const prev = V10.tap.bind(V10);
+      const fn = function (tag) {
+        try {
+          if (tag && V12.tapHandlers && V12.tapHandlers[tag]) { V12.tapHandlers[tag](); return; }
+        } catch (e) { err('tap:' + tag + ':' + e.message); }
+        return prev(tag);
+      };
+      fn.__v16 = true;
+      V10.tap = fn;
+    } catch (e) { err('taproute:' + e.message); }
+  }
+  V16.hookTap = hookTap;
+  setTimeout(hookTap, 2200);
+  setInterval(hookTap, 4000);
+
+  V16.info = function () {    return {
+      ready: !!V16.coreReady, booth: !!V16.booth, warps: WARPS.map((w) => ({ id: w.spot.id, done: w.done })),
+      store: S.data, errors: V16.errors.slice(0, 8),
+    };
+  };
+})();
+/* =====================================================================
+   v16 AIRPORT — ✈️ 인천국제공항 (仁川机场) + 비행기 탑승 + 기내 체험
+   ---------------------------------------------------------------------
+   · 터미널 x 252~328, z 58~112 (체크인 · 수하물 · 출국심사 · 면세점 · 게이트12)
+   · 탑승교(제트브리지) z 112~126 → 기내 x 286~294, z 126~166
+   · 게이트에서 「탑승」을 누르면 기내로, 기내에서 목적지를 고르면 상하이/베이징
+   ===================================================================== */
+(function () {
+  const V16 = window.V16;
+  if (!V16 || V16.airportReady) return;
+  V16.airportReady = true;
+  const err = V16.err;
+  const V15 = window.V15, V14 = window.V14;
+  if (!V15 || !V14) return;
+  const { mat, emat, basic, box, cyl, plane, tex, pick } = V15;
+  const sign = V16.sign;
+
+  const A = { x0: 252, x1: 328, z0: 58, z1: 112, h: 9 };
+  V16.AIR = A;
+  const C = { x0: 286, x1: 294, z0: 126, z1: 166, h: 3.5 };          // 기내
+  const JB = { x0: 285.2, x1: 294.8, z0: 112, z1: 126 };             // 탑승교
+  const ARRIVE = { x: 290, z: 71, yaw: 0 };
+  V16.AIR_ARRIVE = ARRIVE;
+  V16.CABIN = C;
+
+  /* ---------------- 텍스처 ---------------- */
+  function fids() {
+    return tex(720, 400, (c, W, H) => {
+      c.fillStyle = '#0b1220'; c.fillRect(0, 0, W, H);
+      c.fillStyle = '#1a2740'; c.fillRect(0, 0, W, H * 0.13);
+      c.fillStyle = '#8fd0ff'; c.font = '900 ' + Math.round(H * 0.075) + 'px "Noto Sans CJK KR",sans-serif';
+      c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.fillText('✈ 출발 · 出发  DEPARTURES', W * 0.03, H * 0.065);
+      const rows = [
+        ['MU 5012', '上海 SHANGHAI', '12', '13:40', 'BOARDING', '#7fe0a0'],
+        ['KE 893', '北京 BEIJING', '18', '14:10', 'ON TIME', '#8fc8ff'],
+        ['OZ 361', '上海 SHANGHAI', '9', '14:55', 'ON TIME', '#8fc8ff'],
+        ['CA 126', '北京 BEIJING', '21', '15:20', 'DELAYED', '#ffb36a'],
+        ['7C 1101', '서울 SEOUL', '3', '13:05', 'DEPARTED', '#cbb9ff'],
+      ];
+      rows.forEach((r, i) => {
+        const y = H * (0.21 + i * 0.155);
+        c.fillStyle = i % 2 ? 'rgba(255,255,255,.03)' : 'rgba(255,255,255,.06)';
+        c.fillRect(W * 0.02, y - H * 0.055, W * 0.96, H * 0.105);
+        c.font = '800 ' + Math.round(H * 0.055) + 'px "Noto Sans CJK KR",monospace';
+        c.fillStyle = '#ffe9bd'; c.fillText(r[0], W * 0.04, y);
+        c.fillStyle = '#f2f6ff'; c.fillText(r[1], W * 0.22, y);
+        c.fillStyle = '#9fb4d0'; c.font = '700 ' + Math.round(H * 0.045) + 'px monospace';
+        c.fillText('GATE ' + r[2], W * 0.60, y);
+        c.fillText(r[3], W * 0.75, y);
+        c.fillStyle = r[5]; c.font = '900 ' + Math.round(H * 0.042) + 'px monospace';
+        c.fillText(r[4], W * 0.86, y);
+      });
+    });
+  }
+  function floorTex() {
+    const t = tex(256, 256, (c, W, H) => {
+      c.fillStyle = '#e2dacb'; c.fillRect(0, 0, W, H);
+      const cols = ['#d8cfbe', '#e6dfd1', '#d2c9b8', '#eae3d4'];
+      for (let i = 0; i < 4; i++) {
+        for (let k = 0; k < 4; k++) {
+          c.fillStyle = cols[(i * 3 + k) % 4];
+          c.fillRect(k * W / 4, i * H / 4, W / 4, H / 4);
+        }
+      }
+      for (let i = 0; i < 700; i++) {
+        const g = 170 + Math.random() * 50;
+        c.fillStyle = 'rgba(' + g + ',' + (g - 8) + ',' + (g - 20) + ',.45)';
+        c.fillRect(Math.random() * W, Math.random() * H, 3, 3);
+      }
+      c.strokeStyle = 'rgba(140,132,118,.55)'; c.lineWidth = 2;
+      for (let k = 0; k <= 4; k++) {
+        c.beginPath(); c.moveTo(k * W / 4, 0); c.lineTo(k * W / 4, H); c.stroke();
+        c.beginPath(); c.moveTo(0, k * H / 4); c.lineTo(W, k * H / 4); c.stroke();
+      }
+    });
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(12, 9);
+    return t;
+  }
+  function cloudTex() {
+    return tex(1024, 128, (c, W, H) => {
+      const sky = c.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#9ed4f5'); sky.addColorStop(0.55, '#cfe9fb'); sky.addColorStop(1, '#f3f8fc');
+      c.fillStyle = sky; c.fillRect(0, 0, W, H);
+      /* 창문 20개 */
+      const n = 20, w = W / n;
+      for (let i = 0; i < n; i++) {
+        const cx = i * w + w / 2;
+        c.save();
+        c.beginPath();
+        const rx = w * 0.3, ry = H * 0.3;
+        if (c.ellipse) c.ellipse(cx, H * 0.5, rx, ry, 0, 0, Math.PI * 2);
+        else c.arc(cx, H * 0.5, rx, 0, Math.PI * 2);
+        c.clip();
+        const g2 = c.createLinearGradient(0, H * 0.2, 0, H * 0.8);
+        g2.addColorStop(0, '#bfe6ff'); g2.addColorStop(1, '#eef8ff');
+        c.fillStyle = g2; c.fillRect(cx - rx, H * 0.2, rx * 2, H * 0.6);
+        /* 구름 */
+        for (let k = 0; k < 3; k++) {
+          c.fillStyle = 'rgba(255,255,255,' + (0.5 + Math.random() * 0.4) + ')';
+          const bx = cx - rx + Math.random() * rx * 2, by = H * (0.4 + Math.random() * 0.3);
+          c.beginPath();
+          if (c.ellipse) c.ellipse(bx, by, rx * 0.55, rx * 0.24, 0, 0, Math.PI * 2);
+          else c.arc(bx, by, rx * 0.3, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.restore();
+        c.lineWidth = Math.max(3, w * 0.06);
+        c.strokeStyle = '#cfd8de';
+        c.beginPath();
+        if (c.ellipse) c.ellipse(cx, H * 0.5, rx, ry, 0, 0, Math.PI * 2);
+        else c.arc(cx, H * 0.5, rx, 0, Math.PI * 2);
+        c.stroke();
+      }
+      /* 창 아래 벽 */
+      c.fillStyle = 'rgba(232,236,240,.95)';
+      c.fillRect(0, H * 0.8, W, H * 0.2);
+    });
+  }
+
+  /* ---------------- 터미널 ---------------- */
+  function airportProps(g, cx, cz) {
+    /* 바닥 (테라조) */
+    const fl = new THREE.Mesh(new THREE.PlaneGeometry(A.x1 - A.x0 - 0.6, A.z1 - A.z0 - 0.6),
+      new THREE.MeshStandardMaterial({ map: floorTex(), roughness: .35, metalness: .08, emissive: 0x8a8f96, emissiveIntensity: .35 }));
+    fl.rotation.x = -Math.PI / 2;
+    fl.position.set(cx, 0.05, cz);
+    g.add(fl);
+
+    /* 서쪽 창문 벽 (활주로 뷰) */
+    const win = new THREE.Mesh(new THREE.PlaneGeometry(40, 6.2),
+      new THREE.MeshBasicMaterial({ map: cloudTex() }));
+    win.rotation.y = Math.PI / 2;
+    win.position.set(A.x0 + 0.24, 3.6, 84);
+    g.add(win);
+
+    /* 천장 조명 띠 */
+    for (let i = 0; i < 5; i++) {
+      const strip = plane(60, 1.1, basic(0xfff6e2), cx, A.h - 0.2, 62 + i * 11);
+      strip.rotation.x = Math.PI / 2;
+      g.add(strip);
+    }
+    /* 기둥 */
+    [64, 78, 92, 106].forEach((z) => {
+      [258, 296, 322].forEach((x) => {
+        g.add(cyl(0.5, 0.6, A.h, mat(0xdcd8ce, { roughness: .7 }), x, A.h / 2, z, 10));
+      });
+    });
+
+    /* 출발 안내 전광판 (FIDS) */
+    const board = new THREE.Mesh(new THREE.PlaneGeometry(7.4, 3.9), new THREE.MeshBasicMaterial({ map: fids() }));
+    board.position.set(290, 6.25, 76);
+    board.rotation.y = Math.PI;
+    g.add(board);
+    g.add(box(7.8, 0.16, 0.4, mat(0x2a3340, { metalness: .4 }), 290, 8.3, 76));
+    g.add(cyl(0.05, 0.05, 1.9, mat(0x6a7078, { metalness: .6 }), 287, 7.3, 76, 6));
+    g.add(cyl(0.05, 0.05, 1.9, mat(0x6a7078, { metalness: .6 }), 293, 7.3, 76, 6));
+
+    /* 체크인 카운터 A~D */
+    const CK = [
+      { x: 262, letter: 'A' }, { x: 270, letter: 'B' }, { x: 278, letter: 'C' }, { x: 286, letter: 'D' },
+    ];
+    CK.forEach((k, i) => {
+      const z = 66.5;
+      g.add(box(6.2, 1.15, 1.0, mat(0xdfd9cc, { roughness: .6 }), k.x, 0.58, z));
+      g.add(box(6.2, 0.1, 1.1, mat(0x9aa3ad, { metalness: .5 }), k.x, 1.2, z));
+      /* 뒤 유리 패널 */
+      g.add(box(6.2, 2.2, 0.12, mat(0xa9d3e8, { transparent: true, opacity: .5, roughness: .1 }), k.x, 2.2, z + 1.2));
+      /* 항공사 사인 */
+      const sgn = sign(3.0, 0.8, [
+        { t: k.letter + ' 데스크 · 值机柜台', c: '#fff6e6', s: .4 },
+      ], { bg: '#1d64a8', borderColor: '#8fd0ff' });
+      sgn.position.set(k.x, 3.6, z + 1.28);
+      sgn.rotation.y = Math.PI;
+      g.add(sgn);
+      /* 모니터 */
+      g.add(box(0.75, 0.5, 0.1, mat(0x22262c), k.x - 1.4, 1.45, z - 0.1));
+      g.add(plane(0.66, 0.42, basic(0x9fe0ff), k.x - 1.4, 1.45, z - 0.16));
+      /* 수하물 벨트 */
+      const belt = box(5.4, 0.5, 1.4, mat(0x4a5058, { roughness: .8 }), k.x, 0.26, z + 2.4);
+      g.add(belt);
+      g.add(box(5.4, 0.08, 0.2, basic(0x2f6b4f), k.x, 0.54, z + 2.4));
+      /* 카운터 직원 */
+      try {
+        V14.makeCrowd({
+          x: k.x + (i % 2 ? 1.1 : -1.1), z: z + 1.0, yaw: Math.PI, name: '체크인직원' + i,
+          shirt: [0x1d64a8, 0x25507a, 0x35648f][i % 3], pants: 0x2a2f38, skin: 0xf3d5b6, hair: 0x241d19, tie: true,
+        });
+      } catch (e) {}
+    });
+    /* 체크인 탭 영역 */
+    const ckHit = V16.ghost(25, 2.6, 4.6, 274, 1.2, 67.5);
+    V16.hit(ckHit, 'v16:air:checkin', openCheckin);
+
+    /* 수하물 위탁 (bag drop) 카운터 */
+    g.add(box(5.0, 1.1, 1.6, mat(0xd8d2c4), 300, 0.55, 68));
+    const bd = sign(3.6, 0.8, [{ t: '🧳 수하물 위탁 · 行李托运', c: '#fff6e6', s: .38 }], { bg: '#2f6b4f', borderColor: '#9ff0a8' });
+    bd.position.set(300, 2.6, 68.9); bd.rotation.y = Math.PI; g.add(bd);
+    const bdHit = V16.ghost(5.4, 2.2, 2.2, 300, 1.1, 68.6);
+    V16.hit(bdHit, 'v16:air:bag', openBagDrop);
+
+    /* 출국 심사대 (security · immigration) */
+    for (let i = 0; i < 5; i++) {
+      const x = 262 + i * 8.5;
+      const z = 86;
+      /* 부스 */
+      g.add(box(3.2, 2.6, 1.4, mat(0xe4dfd2), x, 1.3, z + 1.4));
+      g.add(box(3.4, 0.12, 1.6, mat(0x2f5b86), x, 2.66, z + 1.4));
+      /* 금속 탐지기 아치 */
+      const arch = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.1, 6, 14, Math.PI), mat(0xa9b2bb, { metalness: .7 }));
+      arch.position.set(x, 1.9, z - 0.4);
+      arch.rotation.z = Math.PI;
+      g.add(arch);
+      g.add(box(0.2, 2.0, 0.2, mat(0xa9b2bb, { metalness: .7 }), x - 0.95, 1.0, z - 0.4));
+      g.add(box(0.2, 2.0, 0.2, mat(0xa9b2bb, { metalness: .7 }), x + 0.95, 1.0, z - 0.4));
+      /* 줄 안내 */
+      g.add(box(0.06, 1.0, 3.2, mat(0x8a939c, { metalness: .5 }), x - 3.4, 0.5, z + 3.2));
+      /* 심사 직원 */
+      try {
+        V14.makeCrowd({
+          x: x + 0.8, z: z + 1.5, yaw: Math.PI, name: '심사관' + i,
+          shirt: 0x2c3a4a, pants: 0x22262c, skin: 0xeec09a, hair: 0x1b1512,
+        });
+      } catch (e) {}
+    }
+    const secSign = sign(9, 1.1, [{ t: '🛂 출국 심사 · 出境审查', c: '#eaf6ff', s: .42 }],
+      { bg: '#1b3a5c', borderColor: '#8fd0ff' });
+    secSign.position.set(280, 4.6, 84.4); secSign.rotation.y = Math.PI; g.add(secSign);
+
+    /* 면세점 (동쪽) */
+    const DF = { x0: 300, x1: 324, z0: 92, z1: 108 };
+    g.add(box(DF.x1 - DF.x0, 0.4, DF.z1 - DF.z0, mat(0xf2efe6), (DF.x0 + DF.x1) / 2, 0.2, (DF.z0 + DF.z1) / 2));
+    /* 진열장 3면 */
+    [[DF.x0 + 1.2, 1], [DF.x1 - 1.2, -1]].forEach(([x, dir]) => {
+      g.add(box(0.9, 2.2, DF.z1 - DF.z0 - 3, mat(0xf7f4ec), x, 1.1, (DF.z0 + DF.z1) / 2));
+      for (let k = 0; k < 4; k++) {
+        g.add(box(0.94, 0.06, DF.z1 - DF.z0 - 3.4, mat(0xc9b08a), x, 0.6 + k * 0.5, (DF.z0 + DF.z1) / 2));
+        for (let b = 0; b < 7; b++) {
+          const col = pick([0xffffff, 0xf7c9d9, 0xcfe4ff, 0xffe9b0, 0xd8c7f0]);
+          g.add(box(0.28, 0.34, 0.28, mat(col, { roughness: .35 }), x + dir * 0.1, 0.8 + k * 0.5, DF.z0 + 2.4 + b * 1.7));
+        }
+      }
+    });
+    const dfSign = sign(7.4, 1.3, [
+      { t: '🛍️ 면세점 · 免税店', c: '#fff6e6', s: .42 },
+      { t: 'DUTY FREE · 免税 · 韩国免税品', c: '#ffd9a0', s: .24 },
+    ], { grad: [[0, '#5a1030'], [1, '#2a0a1c']], borderColor: '#ff9ec4' });
+    dfSign.position.set(312, 3.6, 92.2); dfSign.rotation.y = Math.PI; g.add(dfSign);
+    try {
+      V14.makeCrowd({ x: 312, z: 96, yaw: 0, name: '면세점직원', shirt: 0x8a2f52, pants: 0x2a2f38, skin: 0xf7dcc2, hair: 0x3a2b23 });
+    } catch (e) {}
+    const dfHit = V16.ghost(10, 2.6, 4, 312, 1.3, 95.5);
+    V16.hit(dfHit, 'v16:air:duty', openDutyFree);
+
+    /* 탑승 게이트 12 (북쪽 끝) */
+    g.add(box(10.4, 1.1, 1.6, mat(0xd8d2c4), 290, 0.55, 108.6));
+    g.add(box(10.6, 0.12, 1.8, mat(0x2f5b86), 290, 1.16, 108.6));
+    const gs = sign(7.2, 1.2, [
+      { t: '12번 게이트 · 登机口 12', c: '#fff6e6', s: .4 },
+      { t: 'MU 5012 上海 SHANGHAI · 13:40', c: '#8fd0ff', s: .24 },
+    ], { bg: '#12253c', borderColor: '#8fd0ff' });
+    gs.position.set(290, 3.9, 110.6); gs.rotation.y = Math.PI; g.add(gs);
+    const gh = V16.ghost(10, 3.2, 3.0, 290, 1.6, 108.4);
+    V16.hit(gh, 'v16:air:gate', openBoarding);
+    /* 대기 좌석 */
+    for (let i = 0; i < 4; i++) {
+      g.add(box(2.4, 0.1, 0.5, mat(0x3f6a8a), 282 + (i % 2) * 3.2, 0.55, 104 + Math.floor(i / 2) * 1.6));
+      g.add(box(2.4, 0.5, 0.1, mat(0x3f6a8a), 282 + (i % 2) * 3.2, 0.8, 104.3 + Math.floor(i / 2) * 1.6));
+    }
+    /* 대기 승객 */
+    ['게이트승객1', '게이트승객2', '게이트승객3'].forEach((n, i) => {
+      try {
+        V14.makeCrowd({
+          x: 281 + i * 3.4, z: 102.4, yaw: Math.PI, name: n,
+          shirt: pick([0x2b3350, 0xc86a5a, 0x6a7a8a]), pants: 0x3a4050, skin: 0xf2cba8, hair: 0x241d19, bag: true,
+        });
+      } catch (e) {}
+    });
+
+    /* 안내 데스크 (중앙) */
+    g.add(cyl(1.5, 1.7, 1.1, mat(0xe6e1d4), 272, 0.55, 78, 14));
+    const info = sign(3.4, 0.9, [{ t: 'ℹ️ 안내 · 服务台  INFORMATION', c: '#fff6e6', s: .34 }], { bg: '#1d64a8', borderColor: '#8fd0ff' });
+    info.position.set(272, 2.6, 78); g.add(info);
+    const ih = V16.ghost(3.6, 2.4, 3.6, 272, 1.2, 78);
+    V16.hit(ih, 'v16:air:info', openAirInfo);
+
+    /* 카트 · 벤치 · 안내 표지 */
+    for (let i = 0; i < 5; i++) {
+      const x = 258 + i * 14;
+      g.add(box(0.7, 0.9, 1.1, mat(0x9aa3ad, { metalness: .5 }), x, 0.55, 96));
+      g.add(box(0.78, 0.08, 0.1, mat(0x2a2f38), x, 1.0, 96.5));
+    }
+    ['→ 登机口 12 · 게이트', '← 免税店 · 면세점', '↑ 出境审查 · 출국심사'].forEach((t, i) => {
+      const s = sign(3.2, 0.6, [{ t: t, c: '#fff6e6', s: .4 }], { bg: 'rgba(20,32,48,.9)', borderColor: '#8fd0ff' });
+      s.position.set(266 + i * 20, 3.4, 90);
+      g.add(s);
+    });
+    /* 식당 · 카페 코너 (서쪽) */
+    g.add(box(6, 1.1, 2.2, mat(0x8a5a3a), 259, 0.55, 100));
+    const cf = sign(4.4, 0.9, [{ t: '☕ 카페 · 咖啡  COFFEE', c: '#fff6e6', s: .4 }], { bg: '#4a2c1c', borderColor: '#ffd9a0' });
+    cf.position.set(259, 2.4, 100); g.add(cf);
+    for (let i = 0; i < 3; i++) {
+      g.add(cyl(0.5, 0.5, 0.08, mat(0xd8d2c4), 259 + (i - 1) * 1.8, 0.85, 103));
+      g.add(cyl(0.08, 0.1, 0.85, mat(0x6a7078), 259 + (i - 1) * 1.8, 0.42, 103, 6));
+    }
+    dressAirport(g, cx, cz);
+  }
+
+  /* 공항 분위기 마감 — 벽 띠 · 천장 · 상점 · 화분 · 줄서기 · 게이트 데스크 */
+  function dressAirport(g, cx, cz) {
+    try {
+      /* 천장 */
+      const ceil = plane(A.x1 - A.x0 - 0.4, A.z1 - A.z0 - 0.4, new THREE.MeshStandardMaterial({ color: 0xdfe6ec, roughness: .95, emissive: 0x9aa8b4, emissiveIntensity: .55 }), cx, A.h - 0.6, cz);
+      ceil.rotation.x = Math.PI / 2;
+      g.add(ceil);
+      for (let z = 64; z < 110; z += 7) {
+        g.add(box(A.x1 - A.x0 - 2, 0.22, 0.3, new THREE.MeshStandardMaterial({ color: 0xb9c4cd, metalness: .4, emissive: 0x7a8794, emissiveIntensity: .5 }), cx, A.h - 1.1, z));
+      }
+      /* 벽 띠 (남색) */
+      [[A.z0 + 0.3, 1], [A.z1 - 0.3, 1]].forEach(([z]) => {
+        g.add(box(A.x1 - A.x0 - 1, 0.55, 0.12, mat(0x1d4a72, { roughness: .6 }), cx, 1.15, z));
+        g.add(box(A.x1 - A.x0 - 1, 0.2, 0.12, mat(0xd8b26a, { metalness: .4 }), cx, 1.5, z));
+      });
+      /* 서쪽 벽 상점 3곳 */
+      const shops = [
+        { z: 66, ic: '💊', n: '약국', hz: '药店', c: 0x2f7a5a },
+        { z: 80, ic: '☕', n: '카페', hz: '咖啡', c: 0x8a5a3a },
+        { z: 96, ic: '🎁', n: '기념품', hz: '纪念品', c: 0x8a2f52 },
+      ];
+      shops.forEach((s) => {
+        g.add(box(2.4, 3.4, 7.0, mat(0xe6dfd0, { roughness: .85 }), A.x0 + 1.6, 1.7, s.z));
+        g.add(box(0.14, 2.2, 6.4, basic(0xfff6e2, { transparent: true, opacity: .55 }), A.x0 + 2.85, 1.7, s.z));
+        const sg = sign(3.6, 0.9, [{ t: s.ic + ' ' + s.n + ' · ' + s.hz, c: '#fff6e6', s: .38 }],
+          { bg: '#' + new THREE.Color(s.c).getHexString(), borderColor: '#ffe9c0' });
+        sg.position.set(A.x0 + 3.0, 3.6, s.z);
+        sg.rotation.y = Math.PI / 2;
+        g.add(sg);
+        g.add(box(0.3, 1.0, 6.2, mat(s.c, { roughness: .7 }), A.x0 + 3.0, 0.5, s.z));
+      });
+      V14.addSolid(A.x0, A.x0 + 2.9, 62, 100, 'airShops');
+
+      /* 화분 · 벤치 */
+      for (let z = 62; z < 108; z += 9) {
+        [266, 314].forEach((x) => {
+          g.add(cyl(0.45, 0.4, 0.55, mat(0xb8a894), x, 0.28, z, 10));
+          const b = new THREE.Mesh(new THREE.SphereGeometry(0.72, 9, 7), mat(0x5f8a4a));
+          b.position.set(x, 1.15, z);
+          b.scale.set(1, 1.15, 1);
+          g.add(b);
+        });
+      }
+      [[276, 62.5], [304, 62.5]].forEach(([x, z]) => {
+        g.add(box(3.2, 0.12, 0.6, mat(0x7a6a55), x, 0.5, z));
+        g.add(box(3.2, 0.5, 0.12, mat(0x7a6a55), x, 0.75, z - 0.3));
+      });
+
+      /* 체크인 줄서기 » */
+      for (let i = 0; i < 4; i++) {
+        const x = 258 + i * 6.4;
+        for (let k = 0; k < 3; k++) {
+          g.add(cyl(0.06, 0.07, 0.95, mat(0x9aa3ad, { metalness: .6 }), x, 0.48, 71.4 + k * 1.4, 6));
+          g.add(cyl(0.14, 0.16, 0.06, mat(0x9aa3ad, { metalness: .6 }), x, 0.98, 71.4 + k * 1.4, 8));
+        }
+        g.add(box(0.05, 0.05, 3.0, mat(0x2f4a6a), x, 0.72, 72.8));
+      }
+
+      /* 게이트 데스크 · 탑승 스캐너 */
+      g.add(box(2.6, 1.0, 1.0, mat(0xdfd9cc), 284, 0.5, 106.6));
+      g.add(box(0.7, 0.5, 0.1, mat(0x22262c), 284, 1.4, 106.4));
+      g.add(plane(0.6, 0.4, basic(0x9fe0ff), 284, 1.4, 106.34));
+      g.add(box(0.5, 1.2, 0.4, mat(0x2f5b86), 296, 0.6, 106.6));
+      g.add(cyl(0.1, 0.1, 0.08, emat(0x4dffa8, 0x4dffa8, 1.4), 296, 1.26, 106.6, 8));
+      /* 게이트 줄서기 */
+      for (let k = 0; k < 4; k++) {
+        g.add(cyl(0.06, 0.07, 0.95, mat(0x9aa3ad, { metalness: .6 }), 288, 0.48, 100 + k * 1.6, 6));
+        g.add(cyl(0.06, 0.07, 0.95, mat(0x9aa3ad, { metalness: .6 }), 292, 0.48, 100 + k * 1.6, 6));
+      }
+
+      /* 천장 걸이 안내판 */
+      [['→ 出境审查 · 출국심사', 70], ['→ 免税店 · 면세점', 84], ['→ 12号登机口 · 게이트 12', 98]].forEach(([t, z]) => {
+        const s = sign(6.4, 0.9, [{ t: t, c: '#eaf6ff', s: .38 }],
+          { bg: '#12314f', borderColor: '#8fd0ff' });
+        s.position.set(290, 6.4, z);
+        s.rotation.y = Math.PI;
+        g.add(s);
+        g.add(cyl(0.03, 0.03, 1.4, mat(0x6a7078), 290, 7.5, z, 5));
+      });
+
+      /* 시계 · 벽 사인 */
+      const clock = cyl(0.5, 0.5, 0.08, basic(0xf7f4ec), 322, 5.2, 60.6, 14);
+      clock.rotation.x = Math.PI / 2;
+      g.add(clock);
+      g.add(box(0.06, 0.36, 0.04, mat(0x22262c), 322, 5.3, 60.5));
+      g.add(box(0.26, 0.05, 0.04, mat(0x22262c), 322.1, 5.2, 60.5));
+      const wallSign = sign(11, 1.6, [
+        { t: '✈ 出发 · 出境 · DEPARTURES', c: '#eaf6ff', s: .4 },
+        { t: '仁川国际机场 INCHEON INTERNATIONAL AIRPORT', c: '#8fd0ff', s: .22 },
+      ], { bg: '#12314f', borderColor: '#8fd0ff' });
+      wallSign.position.set(290, 3.4, A.z0 + 0.42);
+      g.add(wallSign);
+
+      /* 중앙 카펫 + 시각장애인 유도선 (공항 느낌) */
+      const carpet = plane(16, 34, mat(0x2f4a66, { roughness: 1 }), 290, 0.045, 82);
+      carpet.rotation.x = -Math.PI / 2;
+      g.add(carpet);
+      for (let z = 60; z < 109; z += 0.7) {
+        const d = plane(0.9, 0.34, mat(0xe8c33a), 290, 0.06, z);
+        d.rotation.x = -Math.PI / 2;
+        g.add(d);
+      }
+      for (let x = 266; x < 316; x += 0.7) {
+        const d = plane(0.34, 0.9, mat(0xe8c33a), x, 0.06, 72);
+        d.rotation.x = -Math.PI / 2;
+        g.add(d);
+      }
+
+      /* 대기 좌석 (게이트 앞 3열) */
+      for (let r = 0; r < 3; r++) {
+        const z = 96 + r * 2.6;
+        [274, 306].forEach((bx) => {
+          for (let k = 0; k < 5; k++) {
+            const x = bx + k * 0.78;
+            g.add(box(0.68, 0.12, 0.62, mat(0x3f6a8a), x, 0.5, z));
+            g.add(box(0.68, 0.62, 0.12, mat(0x3f6a8a), x, 0.82, z - 0.3));
+          }
+          g.add(box(0.16, 0.5, 0.16, mat(0x9aa3ad, { metalness: .5 }), bx - 0.3, 0.25, z));
+        });
+      }
+
+      /* 자판기 · 충전 바 */
+      [[260, 104], [320, 104]].forEach(([x, z]) => {
+        g.add(box(1.1, 1.9, 0.7, mat(0xd8324a), x, 0.95, z));
+        g.add(box(0.8, 1.0, 0.06, basic(0xffe9a8), x, 1.25, z - 0.38));
+      });
+      g.add(box(6, 1.05, 0.7, mat(0x4a5560, { metalness: .3 }), 312, 0.52, 63));
+      const chg = sign(3.0, 0.5, [{ t: '🔌 충전 · 充电 CHARGING', c: '#9ff0a8', s: .42 }], { bg: '#1b2a3a', borderColor: '#9ff0a8' });
+      chg.position.set(312, 1.6, 63);
+      g.add(chg);
+
+      /* 벽 포스터 (동쪽 벽) */
+      const poster = tex(256, 384, (c, W, H) => {
+        const gr = c.createLinearGradient(0, 0, W, H);
+        gr.addColorStop(0, '#1d64a8'); gr.addColorStop(1, '#0e2a44');
+        c.fillStyle = gr; c.fillRect(0, 0, W, H);
+        c.fillStyle = '#ffe9bd'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.font = '900 64px "Noto Sans CJK KR",sans-serif';
+        c.fillText('上海', W / 2, H * 0.3);
+        c.font = '800 26px "Noto Sans CJK KR",sans-serif';
+        c.fillText('SHANGHAI · 상하이', W / 2, H * 0.46);
+        c.fillStyle = '#8fd0ff'; c.font = '700 20px "Noto Sans CJK KR",sans-serif';
+        c.fillText('MU 5012 · 13:40 · GATE 12', W / 2, H * 0.6);
+        c.fillStyle = '#ff9ec4'; c.font = '900 30px "Noto Sans CJK KR",sans-serif';
+        c.fillText('왕복 22,000원~', W / 2, H * 0.78);
+      });
+      [70, 84].forEach((z) => {
+        const p = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 4.4), new THREE.MeshBasicMaterial({ map: poster }));
+        p.position.set(A.x1 - 0.42, 4.2, z);
+        p.rotation.y = -Math.PI / 2;
+        g.add(p);
+      });
+    } catch (e) { err('dress:' + e.message); }
+  }
+
+  /* ---------------- 탑승교 + 비행기 ---------------- */
+  function buildJetAndPlane() {
+    const g = V16.group('v16plane');
+    /* 탑승교 통로 */
+    const jw = JB.x1 - JB.x0, jl = JB.z1 - JB.z0;
+    g.add(box(jw, 0.16, jl, mat(0xb9c3cc, { metalness: .3 }), (JB.x0 + JB.x1) / 2, 0.06, (JB.z0 + JB.z1) / 2));
+    g.add(box(0.18, 3.0, jl, mat(0xd6dde3, { roughness: .5 }), JB.x0, 1.5, (JB.z0 + JB.z1) / 2));
+    g.add(box(0.18, 3.0, jl, mat(0xd6dde3, { roughness: .5 }), JB.x1, 1.5, (JB.z0 + JB.z1) / 2));
+    g.add(box(jw, 0.2, jl, mat(0xd6dde3, { roughness: .5 }), (JB.x0 + JB.x1) / 2, 3.0, (JB.z0 + JB.z1) / 2));
+    /* 창 */
+    for (let z = JB.z0 + 2; z < JB.z1 - 1; z += 3) {
+      g.add(box(0.06, 1.3, 1.8, basic(0xbfe6ff), JB.x0 + 0.12, 1.9, z));
+      g.add(box(0.06, 1.3, 1.8, basic(0xbfe6ff), JB.x1 - 0.12, 1.9, z));
+    }
+    V14.addInterior(JB.x0 + 0.3, JB.x1 - 0.3, JB.z0 - 0.2, JB.z1 + 0.2, 'jb');
+    V14.addSolid(JB.x0 - 0.2, JB.x0 + 0.2, JB.z0, JB.z1, 'jbwall');
+    V14.addSolid(JB.x1 - 0.2, JB.x1 + 0.2, JB.z0, JB.z1, 'jbwall');
+
+    /* 기체 외형 */
+    const fus = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.2, 44, 18, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xf2f5f8, roughness: .35, metalness: .25, side: THREE.DoubleSide }));
+    fus.rotation.x = Math.PI / 2;
+    fus.position.set(290, 2.6, 144);
+    g.add(fus);
+    /* 기수 · 꼬리 */
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(3.2, 16, 12), mat(0xeef2f6, { roughness: .3, metalness: .25 }));
+    nose.scale.set(1, 1, 1.4);
+    nose.position.set(290, 2.6, 166);
+    g.add(nose);
+    const tail = new THREE.Mesh(new THREE.SphereGeometry(3.2, 14, 10), mat(0xeef2f6, { roughness: .3 }));
+    tail.scale.set(1, 1, 0.9);
+    tail.position.set(290, 2.6, 122);
+    g.add(tail);
+    /* 수직 꼬리날개 */
+    const fin = box(0.5, 6.4, 5.2, mat(0x2b6ab0), 290, 7.2, 128);
+    fin.rotation.x = 0.26;
+    g.add(fin);
+    g.add(box(0.56, 1.0, 4.2, mat(0xe0457b), 290, 9.4, 127.2));
+    /* 날개 */
+    [1, -1].forEach((s) => {
+      const wing = box(14, 0.4, 5.6, mat(0xe6ebef, { roughness: .45 }), 290 + s * 10, 1.5, 142);
+      wing.rotation.z = s * 0.06;
+      g.add(wing);
+      /* 엔진 */
+      const eng = cyl(1.15, 1.15, 3.4, mat(0xc9d2d9, { metalness: .5 }), 290 + s * 10, 1.0, 143, 12);
+      eng.rotation.x = Math.PI / 2;
+      g.add(eng);
+      g.add(cyl(0.95, 0.75, 0.5, mat(0x2a2f38, { metalness: .6 }), 290 + s * 10, 1.0, 144.8, 12).rotateX(Math.PI / 2));
+    });
+    /* 동체 창 (외부) */
+    for (let z = 128; z < 165; z += 1.4) {
+      [-1, 1].forEach((s) => {
+        g.add(box(0.06, 0.34, 0.6, basic(0x35506a), 290 + s * 3.16, 3.2, z));
+      });
+    }
+    g.add(box(44, 0.5, 0.2, mat(0x2b6ab0), 290, 1.1, 122.1));
+  }
+
+  let built = false;
+  function build() {
+    if (built) return;
+    built = true;
+    try {
+      /* 터미널 실내 */
+      V14.interior({
+        id: 'v16airport', name: '✈️ 인천국제공항', sub: '仁川国际机场 · INCHEON T1',
+        x0: A.x0, x1: A.x1, z0: A.z0, z1: A.z1, h: A.h,
+        door: { side: 's', at: 290, w: 8 },
+        floorTex: 'concrete', wallColor: 0xe9edf1, ceil: 0xf7fafc,
+        frame: 0x5a6672, doorColor: 0x8fa8bd,
+        enter: { msg: '✈️ 인천국제공항 출국장', sub: '체크인 · 수하물 · 출국심사 · 면세점 · 12번 게이트' },
+        props: airportProps,
+      });
+      /* 건물 벽 충돌 (문·게이트 자리 제외) */
+      V14.addSolid(A.x0 - 0.3, A.x0 + 0.3, A.z0, A.z1, 'airW');
+      V14.addSolid(A.x1 - 0.3, A.x1 + 0.3, A.z0, A.z1, 'airE');
+      V14.addSolid(A.x0, 286, A.z0 - 0.3, A.z0 + 0.3, 'airS');
+      V14.addSolid(294, A.x1, A.z0 - 0.3, A.z0 + 0.3, 'airS');
+      V14.addSolid(A.x0, JB.x0 - 0.2, A.z1 - 0.3, A.z1 + 0.3, 'airN');
+      V14.addSolid(JB.x1 + 0.2, A.x1, A.z1 - 0.3, A.z1 + 0.3, 'airN');
+      /* 입구 앞 광장 */
+      const apron = V16.group('v16airApron');
+      const ap = plane(30, 16, mat(0xb8bcc0, { roughness: .95 }), 290, 0.02, 50);
+      ap.rotation.x = -Math.PI / 2;
+      apron.add(ap);
+      /* 유도선 */
+      for (let i = 0; i < 4; i++) {
+        const l = plane(0.4, 12, mat(0xf2e9b0), 282 + i * 5.2, 0.03, 50);
+        l.rotation.x = -Math.PI / 2;
+        apron.add(l);
+      }
+      const gate = sign(11, 2.4, [
+        { t: '인천국제공항 · 仁川国际机场', c: '#eaf6ff', s: .34 },
+        { t: 'INCHEON INTERNATIONAL AIRPORT · T1', c: '#8fd0ff', s: .2 },
+        { t: '출국장 DEPARTURES ↑', c: '#ffd9a0', s: .2 },
+      ], { grad: [[0, '#16283c'], [1, '#24405c']], borderColor: '#8fd0ff' });
+      gate.position.set(290, 5.4, 41.5);
+      apron.add(gate);
+      [283, 297].forEach((x) => apron.add(cyl(0.24, 0.3, 5.0, mat(0x4a5560, { metalness: .5 }), x, 2.5, 41.5, 8)));
+
+      buildJetAndPlane();
+      buildCabin();
+      /* 여행객 — 걸어 다니는 사람들 (공항 분위기) */
+      const pax = [
+        { x: 268, z: 68, p: [[268, 64], [268, 100], [276, 104]] },
+        { x: 300, z: 70, p: [[300, 66], [300, 98], [292, 102]] },
+        { x: 282, z: 78, p: [[282, 66], [282, 96]] },
+        { x: 310, z: 92, p: [[310, 100], [310, 68]] },
+        { x: 272, z: 92, p: [[262, 92], [300, 92]] },
+        { x: 296, z: 84, p: [[296, 62], [296, 100]] },
+        { x: 286, z: 100, p: [[278, 100], [302, 100]] },
+        { x: 304, z: 62, p: [[304, 62], [304, 96]] },
+      ];
+      pax.forEach((q, i) => {
+        try {
+          V14.makeCrowd({
+            x: q.x, z: q.z, name: '공항여행객' + i, path: q.p, speed: 0.9 + (i % 3) * 0.15,
+            shirt: pick([0x2b3350, 0xc86a5a, 0x6a7a8a, 0xe8e0cc, 0x4a6a9a]),
+            pants: 0x3a4050, skin: 0xf2cba8, hair: 0x241d19, bag: i % 2 === 0,
+          });
+        } catch (e) {}
+      });
+      V16.airportBuilt = true;
+    } catch (e) { err('airbuild:' + e.message); }
+  }
+  V16.buildAirport = build;
+
+  /* ---------------- 기내 ---------------- */
+  const CABIN_ROWS = [];
+  function cabinProps(g, cx, cz) {
+    /* 통로 카펫 */
+    const aisle = plane(2.2, C.z1 - C.z0 - 1.6, mat(0x2f3f5c, { roughness: .95 }), 290, 0.06, (C.z0 + C.z1) / 2);
+    aisle.rotation.x = -Math.PI / 2;
+    g.add(aisle);
+    /* 창 (양옆 긴 띠) */
+    const wt = cloudTex();
+    [C.x0 + 0.34, C.x1 - 0.34].forEach((x, i) => {
+      const w = new THREE.Mesh(new THREE.PlaneGeometry(C.z1 - C.z0 - 2.0, 1.35),
+        new THREE.MeshBasicMaterial({ map: wt }));
+      w.position.set(x, 2.12, (C.z0 + C.z1) / 2);
+      w.rotation.y = i ? -Math.PI / 2 : Math.PI / 2;
+      g.add(w);
+      /* 창 아래 벽 띠 */
+      g.add(box(0.06, 0.9, C.z1 - C.z0 - 2.0, mat(0xdfe5ea, { roughness: .8 }), x, 1.25, (C.z0 + C.z1) / 2));
+      g.add(box(0.07, 0.1, C.z1 - C.z0 - 2.0, mat(0x8fa2b0, { metalness: .3 }), x, 0.82, (C.z0 + C.z1) / 2));
+    });
+    /* 짐칸 */
+    [C.x0 + 1.05, C.x1 - 1.05].forEach((x) => {
+      g.add(box(1.25, 0.62, C.z1 - C.z0 - 2.6, mat(0xeef1f4, { roughness: .6 }), x, 3.0, (C.z0 + C.z1) / 2));
+      g.add(box(1.3, 0.08, C.z1 - C.z0 - 2.6, mat(0xb9c4cd, { metalness: .3 }), x, 2.66, (C.z0 + C.z1) / 2));
+    });
+    /* 좌석 */
+    const seatM = mat(0x30506e, { roughness: .8 });
+    const seatM2 = mat(0x3a5c7a, { roughness: .8 });
+    for (let r = 0; r < 12; r++) {
+      const z = 132 + r * 2.4;
+      [-1, 1].forEach((side) => {
+        const bx = side < 0 ? 287.4 : 292.6;
+        for (let k = 0; k < 2; k++) {
+          const x = bx + side * k * 0.72;
+          g.add(box(0.66, 0.16, 0.66, (r + k) % 2 ? seatM : seatM2, x, 0.52, z));
+          const back = box(0.66, 0.78, 0.16, (r + k) % 2 ? seatM : seatM2, x, 0.92, z - 0.3);
+          g.add(back);
+          g.add(box(0.3, 0.1, 0.42, mat(0xdfe4ea), x, 0.62, z + 0.06));
+        }
+        /* 좌석 위 머리 받침 표시 */
+        g.add(box(1.5, 0.06, 0.5, mat(0xd8dee4), bx, 1.34, z - 0.3));
+      });
+      CABIN_ROWS.push(z);
+    }
+    /* 앞 벽 화면 (목적지) */
+    const sc = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 2.4),
+      new THREE.MeshBasicMaterial({ map: tex(512, 280, (c, W, H) => {
+        const gr = c.createLinearGradient(0, 0, W, H);
+        gr.addColorStop(0, '#0d2340'); gr.addColorStop(1, '#173a63');
+        c.fillStyle = gr; c.fillRect(0, 0, W, H);
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillStyle = '#8fd0ff'; c.font = '800 26px "Noto Sans CJK KR",sans-serif';
+        c.fillText('MU 5012  INCHEON INC →', W / 2, H * 0.24);
+        c.fillStyle = '#fff6e6'; c.font = '900 34px "Noto Sans CJK KR",sans-serif';
+        c.fillText('上海 / 北京', W / 2, H * 0.47);
+        c.fillStyle = '#ffd9a0'; c.font = '800 22px "Noto Sans CJK KR",sans-serif';
+        c.fillText('목적지를 선택하세요', W / 2, H * 0.66);
+        c.fillStyle = '#9ff0a8'; c.font = '800 20px "Noto Sans CJK KR",sans-serif';
+        c.fillText('탭 · 按下选择', W / 2, H * 0.84);
+      }) }));
+    sc.position.set(290, 2.1, C.z1 - 0.24);
+    sc.rotation.y = Math.PI;
+    g.add(sc);
+    const scHit = V16.ghost(4.4, 2.4, 0.5, 290, 2.1, C.z1 - 0.6);
+    V16.hit(scHit, 'v16:cabin:dest', openDest);
+
+    /* 승무원 자리 · 갤리 */
+    g.add(box(2.4, 0.9, 1.0, mat(0xdfe4ea), 290, 0.45, 160));
+    const crewSign = sign(2.2, 0.5, [{ t: '👩‍✈️ 승무원 · 乘务员', c: '#fff6e6', s: .4 }],
+      { bg: '#1d4a72', borderColor: '#8fd0ff' });
+    crewSign.position.set(290, 2.5, 160);
+    crewSign.rotation.y = Math.PI;
+    g.add(crewSign);
+  }
+
+  function buildCabin() {
+    try {
+      V14.interior({
+        id: 'v16cabin', name: '✈️ 기내 · 机舱', sub: 'MU 5012 · 기내 서비스',
+        x0: C.x0, x1: C.x1, z0: C.z0, z1: C.z1, h: C.h,
+        door: { side: 's', at: 290, w: 2.2 },
+        floorTex: 'concrete', wallColor: 0xeceff2, ceil: 0xf4f7fa,
+        frame: 0xaab4bd, doorColor: 0xb9c3cc,
+        enter: { msg: '✈️ 기내에 오신 것을 환영합니다', sub: '欢迎登机 · 승무원을 눌러 기내식을 주문해 보세요' },
+        props: cabinProps,
+      });
+      V14.addSolid(C.x0 - 0.3, C.x0 + 0.3, C.z0, C.z1, 'cabW');
+      V14.addSolid(C.x1 - 0.3, C.x1 + 0.3, C.z0, C.z1, 'cabE');
+      V14.addSolid(C.x0, C.x1, C.z1 - 0.3, C.z1 + 0.3, 'cabN');
+      V14.addSolid(C.x0, 289, C.z0 - 0.3, C.z0 + 0.3, 'cabS');
+      V14.addSolid(291, C.x1, C.z0 - 0.3, C.z0 + 0.3, 'cabS');
+      /* 승무원 NPC */
+      try {
+        const n = V14.makeCrowd({
+          x: 288.2, z: 158.4, yaw: 0, name: '승무원리나',
+          shirt: 0x1d4a72, pants: 0x16283c, skin: 0xf7dcc2, hair: 0x2b211c,
+        });
+        V16._crew = n;
+      } catch (e) {}
+      const ch = V16.ghost(1.6, 2.0, 1.6, 289.2, 1.0, 158.4);
+      V16.hit(ch, 'v16:cabin:crew', openCrew);
+      /* 승객 NPC */
+      ['기내승객1', '기내승객2'].forEach((nm, i) => {
+        try {
+          V14.makeCrowd({
+            x: 287.4 + (i ? 4.4 : 0), z: 138 + i * 6, yaw: 0, name: nm,
+            shirt: pick([0x2b3350, 0xc86a5a]), pants: 0x3a4050, skin: 0xf2cba8, hair: 0x241d19,
+          });
+        } catch (e) {}
+      });
+    } catch (e) { err('cabin:' + e.message); }
+  }
+
+  /* ---------------- 탑승 · 기내 모달 ---------------- */
+  function openCheckin() {
+    const el = V16.modal('v16Checkin', '🧾 체크인 · 值机',
+      'A~D 데스크 · 여권과 예약번호를 보여 주세요');
+    const b = V16.bodyOf(el);
+    b.innerHTML = `
+      <div class="v16-phrase"><span class="tx"><b>您好，请出示您的护照。</b>
+        <small>nín hǎo, qǐng chūshì nín de hùzhào.</small><em>안녕하세요, 여권을 보여 주세요.</em></span>
+        <button type="button" data-say="您好，请出示您的护照。">🔊</button></div>
+      <div class="v16-phrase"><span class="tx"><b>您有要托运的行李吗？</b>
+        <small>nín yǒu yào tuōyùn de xíngli ma?</small><em>부칠 짐이 있으신가요?</em></span>
+        <button type="button" data-say="您有要托运的行李吗？">🔊</button></div>
+      <div class="v16-phrase"><span class="tx"><b>我想要靠窗的座位。</b>
+        <small>wǒ xiǎng yào kào chuāng de zuòwèi.</small><em>창가 좌석으로 주세요.</em></span>
+        <button type="button" data-say="我想要靠窗的座位。">🔊</button></div>
+      <div class="v16-row">
+        <button class="v12-btn primary" id="v16CkGo" type="button">🎫 탑승권 받기 (+5G)</button>
+        <button class="v12-btn" id="v16CkBag" type="button">🧳 수하물 위탁</button>
+      </div>
+      <div class="v16-note">체크인을 마치면 12번 게이트로 가서 <b>탑승</b>을 누르면 돼요.</div>`;
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    const go = b.querySelector('#v16CkGo');
+    if (go) go.onclick = () => {
+      V16.gold(5); V16.xp(10);
+      V16.say('🎫 탑승권 발급 · 登机牌', 'MU 5012 · 좌석 23A · 12번 게이트', 2800);
+      V16.tts('这是您的登机牌，请拿好。');
+      V16.close(el);
+      V16.store.bump('airport');
+    };
+    const bag = b.querySelector('#v16CkBag');
+    if (bag) bag.onclick = () => { V16.close(el); openBagDrop(); };
+    V16.open(el);
+  }
+
+  function openBagDrop() {
+    const el = V16.modal('v16Bag', '🧳 수하물 위탁 · 行李托运', '23kg까지 무료 · 行李不超过 23 公斤');
+    const b = V16.bodyOf(el);
+    b.innerHTML = `
+      <div class="v16-grid">
+        <button class="v16-card" data-bag="1"><b>🧳 캐리어 1개</b><small>부치기 · 托运</small><span class="px">무료</span></button>
+        <button class="v16-card" data-bag="2"><b>🎒 기내 가방</b><small>직접 들고 타기</small><span class="px">무료</span></button>
+      </div>
+      <div class="v16-phrase"><span class="tx"><b>请把行李放在这里。</b>
+        <small>qǐng bǎ xíngli fàng zài zhèlǐ.</small><em>짐을 여기에 올려 주세요.</em></span>
+        <button type="button" data-say="请把行李放在这里。">🔊</button></div>
+      <div class="v16-note">위탁하면 기내에는 작은 가방만 들고 탑니다.</div>`;
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    b.querySelectorAll('[data-bag]').forEach((btn) => {
+      btn.onclick = () => {
+        V16.gold(3);
+        V16.close(el);
+        V16.say('🧳 수하물 위탁 완료', ' baggage tag 12-3456 · 게이트에서 찾으세요', 2600);
+        V16.tts('您的行李已经托运好了。');
+      };
+    });
+    V16.open(el);
+  }
+
+  function openAirInfo() {
+    const el = V16.modal('v16AirInfo', 'ℹ️ 안내 데스크 · 服务台', '공항에서 쓰는 중국어 한마디');
+    const b = V16.bodyOf(el);
+    const lines = [
+      ['请问12号登机口在哪里？', "qǐngwèn shí'èr hào dēngjīkǒu zài nǎlǐ?", '12번 게이트가 어디예요?'],
+      ['我的航班几点开始登机？', 'wǒ de hángbān jǐ diǎn kāishǐ dēngjī?', '제 항공편은 몇 시에 탑승하나요?'],
+      ['我要去免税店。', 'wǒ yào qù miǎnshuìdiàn.', '면세점에 가고 싶어요.'],
+      ['洗手间在哪里？', 'xǐshǒujiān zài nǎlǐ?', '화장실이 어디예요?'],
+    ];
+    b.innerHTML = '<div class="v16-sec">🔊 눌러서 듣기</div>' + lines.map((l, i) => `<div class="v16-phrase">
+      <span class="tx"><b>${l[0]}</b><small>${l[1]}</small><em>${l[2]}</em></span>
+      <button type="button" data-say="${i}">🔊</button></div>`).join('')
+      + '<div class="v16-note">게이트 12는 이 건물 북쪽 끝, 면세점은 동쪽에 있어요.</div>';
+    b.querySelectorAll('[data-say]').forEach((btn) => {
+      btn.onclick = () => V16.tts(lines[Number(btn.dataset.say)][0]);
+    });
+    V16.open(el);
+  }
+
+  function openDutyFree() {
+    const el = V16.modal('v16Duty', '🛍️ 면세점 · 免税店', '골드로 면세 쇼핑 · 免税购物');
+    const b = V16.bodyOf(el);
+    const items = [
+      { id: 'ginseng', ic: '🌿', n: '홍삼 정 1박스', hz: '红参精', p: 30 },
+      { id: 'cos', ic: '💄', n: '한국 화장품 세트', hz: '韩国化妆品套装', p: 45 },
+      { id: 'soju', ic: '🍶', n: '전통주 1병', hz: '传统酒', p: 25 },
+      { id: 'choco', ic: '🍫', n: '초콜릿 세트', hz: '巧克力礼盒', p: 15 },
+    ];
+    b.innerHTML = '<div class="v16-grid">' + items.map((it) => `<button class="v16-card" data-item="${it.id}">
+        <b>${it.ic} ${it.n}</b><small>${it.hz}</small><span class="px">${it.p}G</span></button>`).join('') + '</div>'
+      + '<div class="v16-phrase"><span class="tx"><b>这个多少钱？我要这个。</b>'
+      + '<small>zhège duōshao qián? wǒ yào zhège.</small><em>이거 얼마예요? 이걸로 주세요.</em></span>'
+      + '<button type="button" data-say="这个多少钱？我要这个。">🔊</button></div>'
+      + '<div class="v16-note">보유 골드: <b id="v16DutyGold">' + V16.goldNow() + 'G</b></div>';
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    b.querySelectorAll('[data-item]').forEach((btn) => {
+      btn.onclick = () => {
+        const it = items.find((x) => x.id === btn.dataset.item);
+        if (!it) return;
+        if (!V16.spend(it.p)) { V16.say('골드가 부족해요', it.p + 'G 필요 · 지금 ' + V16.goldNow() + 'G', 2400); return; }
+        const gl = b.querySelector('#v16DutyGold');
+        if (gl) gl.textContent = V16.goldNow() + 'G';
+        V16.say(it.ic + ' ' + it.n + ' 구매!', it.hz + ' · 감사합니다 · 谢谢惠顾', 2600);
+        V16.tts('谢谢惠顾，欢迎下次光临。');
+        V16.xp(8);
+      };
+    });
+    V16.open(el);
+  }
+
+  function openBoarding() {
+    const el = V16.modal('v16Board', '✈️ 탑승 · 登机', '12번 게이트 · MU 5012 上海 SHANGHAI');
+    const b = V16.bodyOf(el);
+    b.innerHTML = `
+      <div class="v16-phrase"><span class="tx"><b>请出示您的登机牌。</b>
+        <small>qǐng chūshì nín de dēngjīpái.</small><em>탑승권을 보여 주세요.</em></span>
+        <button type="button" data-say="请出示您的登机牌。">🔊</button></div>
+      <div class="v16-phrase"><span class="tx"><b>欢迎登机，请往这边走。</b>
+        <small>huānyíng dēngjī, qǐng wǎng zhèbiān zǒu.</small><em>탑승을 환영합니다, 이쪽으로 오세요.</em></span>
+        <button type="button" data-say="欢迎登机，请往这边走。">🔊</button></div>
+      <div class="v16-row">
+        <button class="v12-btn primary" id="v16GoBoard" type="button">✈️ 비행기 탑승하기</button>
+        <button class="v12-btn" id="v16GoWalk" type="button">🚶 탑승교로 걸어가기</button>
+      </div>
+      <div class="v16-note">탑승하면 기내 좌석·창밖 구름·승무원 기내식 주문까지 체험할 수 있어요.</div>`;
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    const go = b.querySelector('#v16GoBoard');
+    if (go) go.onclick = () => {
+      V16.close(el);
+      V16.veil('✈️ 탑승 중 · 登机', 'MU 5012 · 좌석 23A · 기내로 이동합니다', 1500, function () {
+        V16.tele(290, 130.5, 0);
+        V16.say('✈️ 기내 탑승 완료', '승무원을 눌러 기내식을 주문해 보세요', 2800);
+        V16.tts('欢迎登机！');
+        V16.store.bump('airport');
+        V16.xp(20);
+      });
+    };
+    const walk = b.querySelector('#v16GoWalk');
+    if (walk) walk.onclick = () => {
+      V16.close(el);
+      V16.tele(290, 116, 0);
+      V16.say('🚶 탑승교 · 登机桥', '앞으로 걸어 들어가면 기내예요', 2400);
+    };
+    V16.open(el);
+  }
+
+  /* ---------------- 기내식 · 목적지 ---------------- */
+  const MEALS = [
+    { id: 'chicken', ic: '🍗', n: '치킨 라이스', hz: '鸡肉饭', py: 'jīròu fàn' },
+    { id: 'beef', ic: '🥩', n: '비프 라이스', hz: '牛肉饭', py: 'niúròu fàn' },
+    { id: 'veg', ic: '🥗', n: '채식 정식', hz: '素食餐', py: 'sùshí cān' },
+  ];
+  const DRINKS = [
+    { id: 'water', ic: '💧', n: '물', hz: '水', py: 'shuǐ' },
+    { id: 'tea', ic: '🍵', n: '차', hz: '茶', py: 'chá' },
+    { id: 'coffee', ic: '☕', n: '커피', hz: '咖啡', py: 'kāfēi' },
+    { id: 'juice', ic: '🧃', n: '주스', hz: '果汁', py: 'guǒzhī' },
+  ];
+  function openCrew() {
+    const el = V16.modal('v16Crew', '👩‍✈️ 승무원 · 乘务员', '기내식 · 음료 · 담요 · 목적지');
+    const b = V16.bodyOf(el);
+    b.innerHTML = `
+      <div class="v16-sec">🍱 기내식 주문 — 鸡肉饭还是牛肉饭？</div>
+      <div class="v16-grid">${MEALS.map((m) => `<button class="v16-card" data-meal="${m.id}">
+        <b>${m.ic} ${m.n}</b><small>${m.hz} · ${m.py}</small><span class="px">무료</span></button>`).join('')}</div>
+      <div class="v16-phrase"><span class="tx"><b>鸡肉饭还是牛肉饭？</b>
+        <small>jīròu fàn háishi niúròu fàn?</small><em>치킨으로 드릴까요, 비프로 드릴까요?</em></span>
+        <button type="button" data-say="鸡肉饭还是牛肉饭？">🔊</button></div>
+      <div class="v16-sec">🥤 음료 · 담요</div>
+      <div class="v16-chip-row">${DRINKS.map((d) => `<button class="v16-chip" data-drink="${d.id}">${d.ic} ${d.hz}</button>`).join('')}
+        <button class="v16-chip" data-ask="blanket">🧣 请给我一条毛毯</button>
+        <button class="v16-chip" data-ask="water">💧 请给我一杯水</button></div>
+      <div class="v16-sec">🌏 목적지</div>
+      <div class="v16-row">
+        <button class="v12-btn primary" id="v16DestSh" type="button">🏙️ 상하이 와이탄</button>
+        <button class="v12-btn" id="v16DestBj" type="button">🏮 베이징 야시장</button>
+      </div>
+      <div class="v16-note">기내에서 목적지를 고르면 그대로 착륙해요. 언제든 다시 돌아올 수 있어요.</div>`;
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    b.querySelectorAll('[data-meal]').forEach((btn) => {
+      btn.onclick = () => {
+        const m = MEALS.find((x) => x.id === btn.dataset.meal);
+        if (!m) return;
+        V16.store.data.meal = m.id; V16.store.save();
+        V16.say(m.ic + ' 기내식 도착', m.hz + ' · ' + m.py, 2800);
+        V16.tts('这是您的' + m.hz + '，请慢用。');
+        V16.gold(4); V16.xp(8);
+      };
+    });
+    b.querySelectorAll('[data-drink]').forEach((btn) => {
+      btn.onclick = () => {
+        const d = DRINKS.find((x) => x.id === btn.dataset.drink);
+        if (!d) return;
+        V16.say(d.ic + ' ' + d.n + ' 드립니다', d.hz + ' · ' + d.py, 2200);
+        V16.tts('这是您的' + d.hz + '。');
+      };
+    });
+    b.querySelectorAll('[data-ask]').forEach((btn) => {
+      btn.onclick = () => {
+        const k = btn.dataset.ask;
+        if (k === 'blanket') { V16.tts('请给我一条毛毯。'); V16.say('🧣 请给我一条毛毯', '담요 한 장 주세요 · 곧 가져다 드려요', 2400); }
+        else { V16.tts('请给我一杯水。'); V16.say('💧 请给我一杯水', '물 한 잔 주세요 · 马上来', 2400); }
+      };
+    });
+    const sh = b.querySelector('#v16DestSh');
+    if (sh) sh.onclick = () => { V16.close(el); flyTo('shanghai'); };
+    const bj = b.querySelector('#v16DestBj');
+    if (bj) bj.onclick = () => { V16.close(el); flyTo('beijing'); };
+    V16.open(el);
+  }
+
+  function openDest() {
+    const el = V16.modal('v16Dest', '🌏 목적지 선택 · 目的地', 'MU 5012 · 인천 → 上海 / 北京');
+    const b = V16.bodyOf(el);
+    b.innerHTML = `
+      <div class="v16-grid">
+        <button class="v16-card" id="v16FlySh"><b>🏙️ 상하이 와이탄</b><small>上海外滩 · 东方明珠 타워 야경</small><span class="px">MU 5012</span></button>
+        <button class="v16-card" id="v16FlyBj"><b>🏮 베이징 야시장</b><small>北京夜市 · 烤串 · 糖葫芦</small><span class="px">KE 893</span></button>
+      </div>
+      <div class="v16-phrase"><span class="tx"><b>飞机就要起飞了，请系好安全带。</b>
+        <small>fēijī jiù yào qǐfēi le, qǐng jì hǎo ānquándài.</small><em>곧 이륙합니다, 안전벨트를 매 주세요.</em></span>
+        <button type="button" data-say="飞机就要起飞了，请系好安全带。">🔊</button></div>
+      <div class="v16-row"><button class="v12-btn" id="v16FlyBack" type="button">🏠 서울(인천공항)로 돌아가기</button></div>`;
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    const sh = b.querySelector('#v16FlySh'); if (sh) sh.onclick = () => { V16.close(el); flyTo('shanghai'); };
+    const bj = b.querySelector('#v16FlyBj'); if (bj) bj.onclick = () => { V16.close(el); flyTo('beijing'); };
+    const bk = b.querySelector('#v16FlyBack');
+    if (bk) bk.onclick = () => { V16.close(el); V16.tele(ARRIVE.x, ARRIVE.z, ARRIVE.yaw); V16.say('✈️ 인천국제공항 도착', '入国 · 입국장으로 이동합니다', 2400); };
+    V16.open(el);
+  }
+
+  const DEST = {
+    shanghai: { x: 285, z: -140, yaw: 0, name: '상하이 와이탄', hz: '上海外滩', flight: 'MU 5012' },
+    beijing: { x: 405, z: -145, yaw: Math.PI / 2, name: '베이징 야시장', hz: '北京夜市', flight: 'KE 893' },
+  };
+  V16.DEST = DEST;
+  function flyTo(id) {
+    const d = DEST[id];
+    if (!d) return;
+    V16.store.data.dest = id; V16.store.bump('flights'); V16.store.save();
+    V16.veil('✈️ ' + d.flight + ' · 인천 → ' + d.name,
+      '비행 중 · 飞行中 · 창밖 구름을 바라보세요', 2400, function () {
+        V16.tele(d.x, d.z, d.yaw);
+        try { if (V16.buildZone) V16.buildZone(id); } catch (e) {}
+        setTimeout(function () {
+          V16.say('🛬 ' + d.name + ' 도착!', d.hz + ' · 欢迎来到' + d.hz, 3000);
+          V16.tts('各位乘客，我们已到达' + d.hz + '，感谢您的乘坐。');
+          V16.xp(25);
+          V16.store.bump(id);
+        }, 400);
+      });
+  }
+  V16.flyTo = flyTo;
+
+  /* ---------------- 건축 등록 ---------------- */
+  V16.addWarp({
+    id: 'airport', icon: '✈️', name: '인천공항', sub: '仁川机场 · 출국장',
+    x: ARRIVE.x, z: ARRIVE.z, yaw: ARRIVE.yaw,
+  }, build);
+  V16.addZone({ x0: A.x0, x1: A.x1, z0: A.z0, z1: A.z1 }, '인천공항 출국장 · 仁川机场');
+  V16.addZone({ x0: JB.x0, x1: JB.x1, z0: JB.z0, z1: JB.z1 }, '탑승교 · 登机桥');
+  V16.addZone({ x0: C.x0, x1: C.x1, z0: C.z0, z1: C.z1 }, '기내 · 机舱 MU 5012');
+  V16.addZone({ x0: 270, x1: 310, z0: 40, z1: A.z0 }, '인천공항 광장 · 机场广场');
+
+  V16.openBoarding = openBoarding;
+  V16.openCrew = openCrew;
+  V16.openDest = openDest;
+  V16.openCheckin = openCheckin;
+})();
+/* =====================================================================
+   v16 OVERSEAS — 🏙️ 상하이 와이탄(外滩) · 🏮 베이징 야시장(夜市)
+   ---------------------------------------------------------------------
+   · 비행기에서 목적지를 고르면 이곳으로 착륙한다
+   · 각 구역에 ✈️ 귀국(回韩国) 안내소가 있어 인천공항으로 돌아온다
+   ===================================================================== */
+(function () {
+  const V16 = window.V16;
+  if (!V16 || V16.overseasReady) return;
+  V16.overseasReady = true;
+  const err = V16.err;
+  const V15 = window.V15, V14 = window.V14;
+  if (!V15 || !V14) return;
+  const { mat, emat, basic, box, cyl, plane, tex, pick } = V15;
+  const sign = V16.sign;
+
+  /* 공용 틱 */
+  const ticks = (V16.ticks = V16.ticks || []);
+  function addTick(fn) {
+    ticks.push(fn);
+    if (V16._tickHook16) return;
+    V16._tickHook16 = true;
+    const prev = V14.extraTick;
+    const hook = function (dt, t) {
+      if (prev) { try { prev(dt, t); } catch (e) {} }
+      for (let i = 0; i < ticks.length; i++) { try { ticks[i](dt, t); } catch (e) {} }
+    };
+    hook.__v16 = true;
+    V14.extraTick = hook;
+  }
+  V16.addTick = addTick;
+
+  /* ================================================================
+     1) 🏙️ 상하이 와이탄
+     ================================================================ */
+  const SH = { x0: 240, x1: 330, z0: -170, z1: -38 };
+  const SH_ARRIVE = { x: 285, z: -140, yaw: 0 };
+  V16.SH = SH; V16.SH_ARRIVE = SH_ARRIVE;
+  let shBuilt = false;
+
+  function waterTex() {
+    const t = tex(256, 256, (c, W, H) => {
+      const g = c.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, '#2f6f8f'); g.addColorStop(0.5, '#3d87a8'); g.addColorStop(1, '#2a5f7c');
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+      for (let i = 0; i < 120; i++) {
+        c.strokeStyle = 'rgba(255,255,255,' + (0.04 + Math.random() * 0.12) + ')';
+        c.lineWidth = 1 + Math.random() * 2;
+        const y = Math.random() * H;
+        c.beginPath(); c.moveTo(0, y);
+        c.bezierCurveTo(W * 0.3, y + 6, W * 0.6, y - 6, W, y);
+        c.stroke();
+      }
+    });
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(6, 6);
+    return t;
+  }
+
+  function pearlTower(g, x, z) {
+    /* 동방명주 · 东方明珠 */
+    const legM = mat(0xd9dde3, { metalness: .5, roughness: .35 });
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2;
+      const lx = x + Math.cos(a) * 1.5, lz = z + Math.sin(a) * 1.5;
+      const leg = cyl(0.42, 0.5, 14, legM, lx, 7, lz, 8);
+      leg.rotation.z = Math.cos(a) * 0.06;
+      leg.rotation.x = -Math.sin(a) * 0.06;
+      g.add(leg);
+    }
+    const shaft = cyl(1.1, 1.3, 26, mat(0xe8ebef, { metalness: .45 }), x, 20, z, 12);
+    g.add(shaft);
+    /* 큰 구 */
+    const s1 = new THREE.Mesh(new THREE.SphereGeometry(4.0, 16, 12),
+      new THREE.MeshStandardMaterial({ color: 0xe0457b, emissive: 0x8a1c46, emissiveIntensity: 0.55, roughness: .35, metalness: .3 }));
+    s1.position.set(x, 15, z);
+    g.add(s1);
+    const s2 = new THREE.Mesh(new THREE.SphereGeometry(2.8, 14, 10),
+      new THREE.MeshStandardMaterial({ color: 0xf2c14e, emissive: 0x8a6116, emissiveIntensity: 0.5, roughness: .35, metalness: .3 }));
+    s2.position.set(x, 27, z);
+    g.add(s2);
+    /* 작은 구 */
+    const s3 = new THREE.Mesh(new THREE.SphereGeometry(1.2, 12, 8), mat(0xffd9a0, { metalness: .5 }));
+    s3.position.set(x, 33, z);
+    g.add(s3);
+    /* 안테나 */
+    g.add(cyl(0.14, 0.1, 12, mat(0xc9ced4, { metalness: .6 }), x, 40, z, 6));
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 6), emat(0xff5b7a, 0xff5b7a, 2.2));
+    tip.position.set(x, 46.5, z);
+    g.add(tip);
+    /* 발광 링 */
+    [12, 18, 24, 30].forEach((y) => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(y > 20 ? 1.5 : 2.4, 0.08, 5, 20), emat(0x9ff0ff, 0x9ff0ff, 1.4));
+      ring.rotation.x = Math.PI / 2;
+      ring.position.set(x, y, z);
+      g.add(ring);
+    });
+  }
+
+  function buildShanghai() {
+    if (shBuilt) return;
+    shBuilt = true;
+    try {
+      const g = V16.group('v16shanghai');
+      /* 잔디 바닥 정리 (회색 포장) */
+      const prom = plane(88, 52, mat(0xb8b3a6, { roughness: .9 }), 285, 0.02, -144);
+      prom.rotation.x = -Math.PI / 2;
+      g.add(prom);
+      /* 산책로 타일 줄 */
+      for (let z = -168; z < -118; z += 4) {
+        const l = plane(88, 0.16, mat(0x9c978c), 285, 0.035, z);
+        l.rotation.x = -Math.PI / 2;
+        g.add(l);
+      }
+      for (let x = 244; x < 328; x += 4) {
+        const l = plane(0.16, 52, mat(0x9c978c), x, 0.035, -144);
+        l.rotation.x = -Math.PI / 2;
+        g.add(l);
+      }
+      /* 황푸강 물 */
+      const wt = waterTex();
+      const water = new THREE.Mesh(new THREE.PlaneGeometry(92, 62),
+        new THREE.MeshStandardMaterial({ map: wt, roughness: .25, metalness: .35, emissive: 0x1a3f52, emissiveIntensity: .35 }));
+      water.rotation.x = -Math.PI / 2;
+      water.position.set(285, 0.06, -87);
+      g.add(water);
+      V16._shWater = wt;
+      /* 물은 못 들어간다 */
+      V14.addSolid(238, 332, -119, -55, 'huangpu');
+
+      /* 강변 난간 */
+      for (let x = 240; x <= 330; x += 2.4) {
+        g.add(cyl(0.06, 0.07, 1.1, mat(0x8a8578, { metalness: .4 }), x, 0.55, -118.2, 6));
+      }
+      g.add(box(92, 0.12, 0.14, mat(0x8a8578, { metalness: .4 }), 285, 1.12, -118.2));
+      g.add(box(92, 0.1, 0.12, mat(0x8a8578, { metalness: .4 }), 285, 0.62, -118.2));
+      V14.addSolid(238, 332, -119.2, -117.2, 'rail');
+
+      /* 와이탄 건축물 (뒤편) */
+      const bundCols = [0xd8cbb4, 0xe2d6c0, 0xcfc0a8, 0xdad0bd, 0xc8b9a2];
+      for (let i = 0; i < 9; i++) {
+        const x = 246 + i * 10;
+        const h = 9 + (i % 3) * 3.4;
+        const b = box(9.2, h, 7, mat(bundCols[i % bundCols.length], { roughness: .85 }), x, h / 2, -173);
+        g.add(b);
+        /* 기둥 · 창 */
+        for (let k = 0; k < 4; k++) {
+          g.add(cyl(0.22, 0.24, 3.2, mat(0xece2cd), x - 3.4 + k * 2.2, 1.6, -169.4, 8));
+        }
+        for (let f = 0; f < Math.floor(h / 3); f++) {
+          for (let k = 0; k < 3; k++) {
+            g.add(box(1.5, 1.3, 0.1, basic(0xffe9b0), x - 2.4 + k * 2.4, 4.4 + f * 3, -169.4));
+          }
+        }
+        /* 지붕 */
+        g.add(box(9.8, 0.5, 7.6, mat(0x8a7f6a), x, h + 0.25, -173));
+        if (i % 2 === 0) {
+          const dome = new THREE.Mesh(new THREE.SphereGeometry(2.0, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat(0x6a7a6a, { metalness: .3 }));
+          dome.position.set(x, h + 0.4, -173);
+          g.add(dome);
+        }
+      }
+      V14.addSolid(240, 330, -177, -168, 'bundbldg');
+
+      /* 강 건너 푸동 스카이라인 */
+      pearlTower(g, 278, -47);
+      const towers = [
+        { x: 252, w: 7, h: 44, c: 0x9fb6c8, n: '上海中心' },
+        { x: 262, w: 5.4, h: 38, c: 0xb8c8d6, n: '环球金融' },
+        { x: 292, w: 6, h: 34, c: 0xa8bfd0, n: '金茂大厦' },
+        { x: 303, w: 8, h: 30, c: 0x9fb0c0, n: '浦东南塔' },
+        { x: 317, w: 7, h: 26, c: 0xb0c2d2, n: '浦东中心' },
+        { x: 244, w: 6, h: 22, c: 0xa8bccc, n: '国际金融' },
+      ];
+      towers.forEach((t, i) => {
+        const b = box(t.w, t.h, t.w * 0.8, new THREE.MeshStandardMaterial({
+          color: t.c, roughness: .3, metalness: .4, emissive: 0x223344, emissiveIntensity: .3,
+        }), t.x, t.h / 2, -45);
+        g.add(b);
+        /* 창 격자 */
+        for (let f = 1; f < Math.floor(t.h / 3); f++) {
+          g.add(box(t.w * 0.94, 0.14, t.w * 0.84, basic(i % 2 ? 0xdff0ff : 0xcfe4f2), t.x, f * 3, -45));
+        }
+        if (t.n === '上海中心') {
+          const top = cyl(0.2, t.w * 0.4, 8, new THREE.MeshStandardMaterial({ color: t.c, metalness: .4, roughness: .3 }), t.x, t.h + 4, -45, 10);
+          g.add(top);
+        }
+      });
+      g.add(box(92, 1.2, 3, mat(0x8f9aa2), 285, 0.6, -54));
+
+      /* 가로등 · 벤치 · 나무 */
+      for (let x = 246; x < 328; x += 8) {
+        g.add(cyl(0.09, 0.12, 4.4, mat(0x3f4448, { metalness: .5 }), x, 2.2, -121.2, 6));
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), emat(0xffe9c0, 0xffd9a0, 1.4));
+        head.position.set(x, 4.5, -121.2);
+        g.add(head);
+      }
+      for (let x = 250; x < 326; x += 11) {
+        g.add(box(2.2, 0.1, 0.5, mat(0x8a6440), x, 0.45, -126));
+        g.add(box(2.2, 0.42, 0.08, mat(0x8a6440), x, 0.66, -126.3));
+      }
+      for (let x = 244; x < 330; x += 7) {
+        g.add(cyl(0.12, 0.16, 2.4, mat(0x6b5340), x, 1.2, -166, 6));
+        const cn = new THREE.Mesh(new THREE.SphereGeometry(1.2, 9, 7), mat(0x5f8a4a));
+        cn.position.set(x, 3.1, -166);
+        g.add(cn);
+      }
+
+      /* 관광 유람선 */
+      const boat = new THREE.Group();
+      boat.add(box(9, 1.4, 3.4, mat(0xf2f5f8, { roughness: .5 }), 0, 0.7, 0));
+      boat.add(box(6.4, 1.2, 2.6, mat(0xdfe8ef, { roughness: .5 }), -0.6, 1.9, 0));
+      boat.add(box(6.6, 0.1, 2.8, mat(0x2b6ab0), -0.6, 2.5, 0));
+      const bLight = new THREE.Mesh(new THREE.SphereGeometry(0.18, 7, 6), emat(0xffe9a8, 0xffd66a, 1.8));
+      bLight.position.set(2.4, 1.6, 0);
+      boat.add(bLight);
+      boat.position.set(280, 0.1, -92);
+      g.add(boat);
+      V16._shBoat = boat;
+
+      /* 와이탄 표지 · 안내 */
+      const gate = sign(13, 3.0, [
+        { t: '🏙️ 상하이 와이탄 · 上海外滩', c: '#eaf6ff', s: .33 },
+        { t: 'THE BUND · 黄浦江畔 · 东方明珠', c: '#9ff0ff', s: .19 },
+        { t: '황푸강 산책로 · 沿江步道', c: '#ffd9a0', s: .17 },
+      ], { grad: [[0, '#0e2233'], [1, '#1d4058']], borderColor: '#9ff0ff' });
+      gate.position.set(285, 5.0, -168);
+      g.add(gate);
+
+      /* 귀국 안내소 (인천공항으로) */
+      const booth = V16.group('v16shReturn');
+      booth.add(box(3.2, 2.6, 2.2, mat(0xf2f5f8, { roughness: .55 }), 306, 1.3, -136));
+      booth.add(box(3.4, 0.2, 2.4, mat(0x2b6ab0), 306, 2.7, -136));
+      booth.add(plane(2.6, 1.0, basic(0xffe9b0), 306, 2.1, -134.88));
+      const rs = sign(3.6, 1.2, [
+        { t: '✈️ 귀국 · 回韩国', c: '#fff6e6', s: .4 },
+        { t: '인천공항으로 · 返回仁川机场', c: '#8fd0ff', s: .22 },
+      ], { bg: '#12253c', borderColor: '#8fd0ff' });
+      rs.position.set(306, 3.6, -136);
+      rs.rotation.y = Math.PI;
+      booth.add(rs);
+      g.add(booth);
+      const rh = V16.ghost(4, 3, 3, 306, 1.5, -135.4);
+      V16.hit(rh, 'v16:sh:return', function () { openReturn('shanghai'); });
+
+      /* NPC */
+      const people = [
+        ['와이탄관광객1', 272, -130, 0xd8a05a], ['와이탄관광객2', 296, -126, 0x7a9ac8],
+        ['와이탄사진사', 264, -138, 0x4a5a6a], ['와이탄아이스크림', 268, -124, 0xe8d8c0],
+      ];
+      people.forEach((p) => {
+        try { V14.makeCrowd({ x: p[1], z: p[2], yaw: Math.PI, name: p[0], shirt: p[3], pants: 0x3a4050, skin: 0xf3d5b6, hair: 0x241d19 }); } catch (e) {}
+      });
+      /* 아이스크림 카트 */
+      g.add(box(1.6, 1.0, 1.0, mat(0xe8e0cc), 268, 0.6, -124));
+      const cartSign = sign(1.5, 0.5, [{ t: '🍦 冰淇淋 · 아이스크림', c: '#fff6e6', s: .42 }], { bg: '#e0457b', borderColor: '#ffd9a0' });
+      cartSign.position.set(268, 1.6, -124);
+      g.add(cartSign);
+
+      addTick(function (dt, t) {
+        if (V16._shWater) { V16._shWater.offset.x = (t * 0.000012) % 1; V16._shWater.offset.y = (t * 0.000008) % 1; }
+        if (V16._shBoat) {
+          V16._shBoat.position.x = 280 + Math.sin(t * 0.00012) * 22;
+          V16._shBoat.position.z = -92 + Math.cos(t * 0.00009) * 6;
+          V16._shBoat.rotation.y = Math.sin(t * 0.00012) * 0.2;
+          V16._shBoat.position.y = 0.1 + Math.sin(t * 0.0016) * 0.06;
+        }
+      });
+    } catch (e) { err('shanghai:' + e.message); }
+  }
+
+  /* ================================================================
+     2) 🏮 베이징 야시장
+     ================================================================ */
+  const BJ = { x0: 360, x1: 450, z0: -170, z1: -70 };
+  const BJ_ARRIVE = { x: 405, z: -145, yaw: Math.PI / 2 };
+  V16.BJ = BJ; V16.BJ_ARRIVE = BJ_ARRIVE;
+  let bjBuilt = false;
+  const STALLS = [
+    { id: 'skewer', ic: '🍢', n: '양꼬치', hz: '羊肉串', py: 'yángròu chuàn', price: 15, x: 376, z: -152 },
+    { id: 'tanghulu', ic: '🍡', n: '탕후루', hz: '冰糖葫芦', py: 'bīngtáng húlu', price: 20, x: 390, z: -152 },
+    { id: 'milk', ic: '🧋', n: '버블 밀크티', hz: '珍珠奶茶', py: 'zhēnzhū nǎichá', price: 18, x: 404, z: -152 },
+    { id: 'jianbing', ic: '🥞', n: '젠빙궈쯔', hz: '煎饼果子', py: 'jiānbing guǒzi', price: 22, x: 418, z: -152 },
+    { id: 'chestnut', ic: '🌰', n: '군밤', hz: '炒栗子', py: 'chǎo lìzi', price: 12, x: 432, z: -152 },
+    { id: 'tofu', ic: '🍲', n: '취두부', hz: '臭豆腐', py: 'chòu dòufu', price: 20, x: 404, z: -137 },
+    { id: 'youtiao', ic: '🥖', n: '유탸오', hz: '油条豆浆', py: 'yóutiáo dòujiāng', price: 14, x: 420, z: -137 },
+  ];
+  function beijingX(v) { return v; }
+
+  function lantern(g, x, y, z) {
+    const l = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8),
+      new THREE.MeshStandardMaterial({ color: 0xd8283a, emissive: 0xa01020, emissiveIntensity: 1.1, roughness: .6 }));
+    l.scale.set(1, 0.86, 1);
+    l.position.set(x, y, z);
+    g.add(l);
+    g.add(cyl(0.12, 0.12, 0.06, mat(0xf2c14e), x, y + 0.32, z, 6));
+    g.add(cyl(0.02, 0.02, 0.5, mat(0x4a3a2a), x, y + 0.6, z, 4));
+    const tail = box(0.05, 0.26, 0.05, mat(0xf2c14e), x, y - 0.3, z);
+    g.add(tail);
+    return l;
+  }
+
+  function buildBeijing() {
+    if (bjBuilt) return;
+    bjBuilt = true;
+    try {
+      const g = V16.group('v16beijing');
+      /* 거리 바닥 (石板) */
+      const stoneT = tex(128, 128, (c, W, H) => {
+        c.fillStyle = '#7a6f62'; c.fillRect(0, 0, W, H);
+        const cols = ['#82776a', '#736858', '#7d7164', '#6d6254'];
+        for (let i = 0; i < 4; i++) for (let k = 0; k < 4; k++) {
+          c.fillStyle = cols[(i * 2 + k) % 4];
+          c.fillRect(k * W / 4 + 1, i * H / 4 + 1, W / 4 - 2, H / 4 - 2);
+        }
+        c.strokeStyle = 'rgba(50,44,36,.5)'; c.lineWidth = 2;
+        for (let k = 0; k <= 4; k++) {
+          c.beginPath(); c.moveTo(k * W / 4, 0); c.lineTo(k * W / 4, H); c.stroke();
+          c.beginPath(); c.moveTo(0, k * H / 4); c.lineTo(W, k * H / 4); c.stroke();
+        }
+      });
+      stoneT.wrapS = stoneT.wrapT = THREE.RepeatWrapping;
+      stoneT.repeat.set(22, 8);
+      const st = plane(92, 34, new THREE.MeshStandardMaterial({ map: stoneT, roughness: .95 }), 405, 0.02, -145);
+      st.rotation.x = -Math.PI / 2;
+      g.add(st);
+      /* 길 가장자리 흙 */
+      /* 흙바닥 가장자리 */
+      [[-172, -162], [-128, -118]].forEach(([z0, z1]) => {
+        const e = plane(92, z1 - z0, mat(0x5f5648, { roughness: 1 }), 405, 0.015, (z0 + z1) / 2);
+        e.rotation.x = -Math.PI / 2;
+        g.add(e);
+      });
+
+      /* 훠퉁 담장 (양옆) */
+      const wallM = mat(0x8a8078, { roughness: .92 });
+      [[-171, -160], [-130, -119]].forEach(([z0, z1]) => {
+        const w = box(92, 4.2, 0.5, wallM, 405, 2.1, z0);
+        g.add(w);
+        g.add(box(92.6, 0.55, 1.2, mat(0x4a4640), 405, 4.4, z0));
+      });
+      V14.addSolid(358, 452, -172, -160.4, 'bjwall');
+      V14.addSolid(358, 452, -129.6, -118, 'bjwall');
+
+      /* 노점 */
+      STALLS.forEach((s, i) => {
+        const isNorth = s.z < -145;
+        const gs = V15.group ? null : null;
+        const booth = new THREE.Group();
+        /* 천막 */
+        const col = [0xd8283a, 0xe8a33a, 0x2f6b4f, 0x8a2f52, 0x3a5c8a, 0xc8642a][i % 6];
+        booth.add(box(4.4, 0.22, 3.0, mat(col, { roughness: .8 }), 0, 3.0, 0));
+        [[-2.0, -1.3], [2.0, -1.3], [-2.0, 1.3], [2.0, 1.3]].forEach(([dx, dz]) => {
+          booth.add(cyl(0.06, 0.06, 3.0, mat(0x6a5a4a), dx, 1.5, dz, 5));
+        });
+        /* 카운터 */
+        booth.add(box(4.0, 1.05, 1.6, mat(0xb08a5a, { roughness: .8 }), 0, 0.52, 0.6));
+        booth.add(box(4.1, 0.1, 1.7, mat(0x8a6a44), 0, 1.08, 0.6));
+        /* 조리 도구 · 냄비 */
+        booth.add(cyl(0.42, 0.38, 0.3, mat(0x3a3a3e, { metalness: .6 }), -1.0, 1.28, 0.5, 10));
+        booth.add(cyl(0.3, 0.26, 0.26, mat(0x5a5a60, { metalness: .6 }), 0.6, 1.26, 0.6, 10));
+        /* 메뉴판 */
+        const menu = sign(3.4, 1.0, [
+          { t: s.ic + ' ' + s.hz, c: '#fff6e6', s: .38 },
+          { t: s.n + ' · ' + s.price + 'G', c: '#ffd9a0', s: .26 },
+        ], { bg: '#2a1a12', borderColor: '#f2c14e' });
+        menu.position.set(0, 2.5, -0.2);
+        booth.add(menu);
+        /* 전구줄 */
+        for (let k = 0; k < 5; k++) {
+          const b = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 5), emat(0xffe9a8, 0xffd66a, 1.8));
+          b.position.set(-1.8 + k * 0.9, 2.86, -1.3);
+          booth.add(b);
+        }
+        booth.position.set(s.x, 0, s.z);
+        booth.rotation.y = isNorth ? 0 : Math.PI;
+        g.add(booth);
+        /* 상인 NPC */
+        try {
+          V14.makeCrowd({
+            x: s.x + (isNorth ? -1.2 : 1.2), z: s.z + (isNorth ? 1.9 : -1.9), yaw: isNorth ? Math.PI : 0,
+            name: '야시장상인' + i, shirt: [0xe8d8c0, 0xd8a05a, 0x4a5a6a][i % 3],
+            pants: 0x3a3028, skin: 0xe6b48c, hair: 0x1b1512,
+          });
+        } catch (e) {}
+        /* 탭 */
+        const h = V16.ghost(4.6, 3.2, 3.4, s.x, 1.6, s.z);
+        V16.hit(h, 'v16:bj:stall:' + s.id, function () { openStall(s); });
+        V14.addSolid(s.x - 2.2, s.x + 2.2, s.z - 1.4, s.z + 1.4, 'stall');
+      });
+
+      /* 거리 가운데 카트 2대 (도착하자마자 보이게) */
+      [[396, -141, 0x2f7a5a, '🍢 烤串'], [414, -149, 0xd8342a, '🧋 奶茶']].forEach((c, i) => {
+        const cart = new THREE.Group();
+        cart.add(box(2.2, 0.95, 1.2, mat(0x8a6a44, { roughness: .8 }), 0, 0.48, 0));
+        cart.add(box(2.4, 0.12, 1.4, mat(c[2]), 0, 1.0, 0));
+        cart.add(cyl(0.34, 0.3, 0.34, mat(0x3a3a3e, { metalness: .6 }), -0.4, 1.2, 0, 8));
+        const cs = sign(1.9, 0.7, [{ t: c[3], c: '#fff6e6', s: .44 }], { bg: '#2a1a12', borderColor: '#f2c14e' });
+        cs.position.set(0, 1.75, 0.4);
+        cart.add(cs);
+        cart.position.set(c[0], 0, c[1]);
+        g.add(cart);
+        try {
+          V14.makeCrowd({ x: c[0], z: c[1] - 1.1, yaw: 0, name: '카트상인' + i, shirt: 0xe8d8c0, pants: 0x3a3028, skin: 0xe6b48c, hair: 0x1b1512 });
+        } catch (e) {}
+        const h = V16.ghost(2.6, 2.0, 1.8, c[0], 1.0, c[1]);
+        V16.hit(h, 'v16:bj:stall:cart' + i, function () { openStall(i ? { ic: '🧋', n: '버블 밀크티', hz: '珍珠奶茶', py: 'zhēnzhū nǎichá', price: 18 } : { ic: '🍢', n: '양꼬치', hz: '羊肉串', py: 'yángròu chuàn', price: 15 }); });
+        V14.addSolid(c[0] - 1.2, c[0] + 1.2, c[1] - 0.7, c[1] + 0.7, 'cart');
+      });
+
+      /* 홍등 줄 (가로질러) */
+      for (let x = 366; x <= 446; x += 5) {
+        lantern(g, x, 4.9, -146);
+        lantern(g, x + 2.4, 4.5, -144);
+      }
+      for (let x = 370; x <= 442; x += 12) {
+        /* 가로 줄 */
+        g.add(box(0.05, 0.05, 26, mat(0x3a3028), x, 5.4, -145));
+        for (let k = -2; k <= 2; k++) lantern(g, x, 5.0, -145 + k * 5);
+      }
+      /* 대문 (동쪽 끝) */
+      const arch = V16.group('v16bjarch');
+      [[-3.6], [3.6]].forEach(([dx]) => {
+        arch.add(cyl(0.34, 0.4, 7.2, mat(0xa8282e), 448, 3.6, -146 + dx, 10));
+      });
+      arch.add(box(1.2, 0.5, 9.4, mat(0x8a1c22), 448, 7.3, -146));
+      arch.add(box(1.4, 0.7, 9.8, mat(0x4a3a2a), 448, 7.9, -146));
+      const archSign = sign(6.2, 1.8, [
+        { t: '🏮 베이징 야시장', c: '#fff3d8', s: .36 },
+        { t: '北京夜市 · BEIJING NIGHT MARKET', c: '#ffd9a0', s: .18 },
+      ], { grad: [[0, '#5a1010'], [1, '#2a0808']], borderColor: '#f2c14e' });
+      archSign.position.set(447.2, 8.6, -146);
+      archSign.rotation.y = -Math.PI / 2;
+      arch.add(archSign);
+      g.add(arch);
+      lantern(g, 448, 6.2, -141); lantern(g, 448, 6.2, -151);
+
+      /* 귀국 안내소 (서쪽 끝) */
+      const booth = V16.group('v16bjReturn');
+      booth.add(box(3.2, 2.6, 2.2, mat(0xf2f5f8, { roughness: .55 }), 366, 1.3, -136));
+      booth.add(box(3.4, 0.2, 2.4, mat(0x2b6ab0), 366, 2.7, -136));
+      const rs = sign(3.6, 1.2, [
+        { t: '✈️ 귀국 · 回韩国', c: '#fff6e6', s: .4 },
+        { t: '인천공항으로 · 返回仁川机场', c: '#8fd0ff', s: .22 },
+      ], { bg: '#12253c', borderColor: '#8fd0ff' });
+      rs.position.set(366, 3.6, -136);
+      rs.rotation.y = Math.PI;
+      booth.add(rs);
+      g.add(booth);
+      const rh = V16.ghost(4, 3, 3, 366, 1.5, -135.4);
+      V16.hit(rh, 'v16:bj:return', function () { openReturn('beijing'); });
+
+      /* 군중 (도착 지점 사방 7m 는 비워 둔다) */
+      let placed = 0;
+      for (let i = 0; i < 16 && placed < 9; i++) {
+        const x = 372 + i * 4.6;
+        const z = -150 + ((i % 2) ? 5.2 : 0);
+        if (Math.abs(x - BJ_ARRIVE.x) < 7 && Math.abs(z - BJ_ARRIVE.z) < 5) continue;
+        placed++;
+        try {
+          V14.makeCrowd({
+            x: x, z: z, yaw: (i % 2 ? 0 : Math.PI),
+            name: '야시장손님' + i, shirt: pick([0x2b3350, 0xc86a5a, 0x6a7a8a, 0xe8e0cc]),
+            pants: 0x2a2f38, skin: 0xf2cba8, hair: 0x241d19,
+          });
+        } catch (e) {}
+      }
+      /* 입구 표지 (서쪽) */
+      const gateSign = sign(8, 2.2, [
+        { t: '🏮 北京夜市 · 베이징 야시장', c: '#fff3d8', s: .32 },
+        { t: '烤串 · 冰糖葫芦 · 奶茶 · 煎饼', c: '#ffd9a0', s: .2 },
+      ], { grad: [[0, '#4a0c0c'], [1, '#1c0606']], borderColor: '#f2c14e' });
+      gateSign.position.set(362, 5.4, -146);
+      gateSign.rotation.y = Math.PI / 2;
+      g.add(gateSign);
+    } catch (e) { err('beijing:' + e.message); }
+  }
+
+  /* ---------------- 노점 주문 ---------------- */
+  function openStall(s) {
+    const el = V16.modal('v16Stall', s.ic + ' ' + s.n + ' · ' + s.hz, s.py + ' · ' + s.price + 'G');
+    const b = V16.bodyOf(el);
+    b.innerHTML = `
+      <div class="v16-phrase"><span class="tx"><b>老板，这个怎么卖？</b>
+        <small>lǎobǎn, zhège zěnme mài?</small><em>사장님, 이거 얼마예요?</em></span>
+        <button type="button" data-say="老板，这个怎么卖？">🔊</button></div>
+      <div class="v16-phrase"><span class="tx"><b>我要一份${s.hz}。</b>
+        <small>wǒ yào yí fèn ${s.py}.</small><em>${s.n} 하나 주세요.</em></span>
+        <button type="button" data-say="我要一份${s.hz}。">🔊</button></div>
+      <div class="v16-row">
+        <button class="v12-btn primary" id="v16Buy" type="button">🪙 ${s.price}G로 사기</button>
+        <button class="v12-btn" id="v16Say" type="button">🔊 주문 연습</button>
+      </div>
+      <div class="v16-note">보유 골드 <b>${V16.goldNow()}G</b> · 사면 +경험치. 好吃！(맛있어요!)</div>`;
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    const buy = b.querySelector('#v16Buy');
+    if (buy) buy.onclick = () => {
+      if (!V16.spend(s.price)) { V16.say('골드가 부족해요', s.price + 'G 필요 · 지금 ' + V16.goldNow() + 'G', 2400); return; }
+      V16.say(s.ic + ' ' + s.n + ' 맛있게 드세요!', s.hz + ' · 好吃！', 2600);
+      V16.tts('谢谢，好吃！');
+      V16.xp(10);
+      V16.store.bump('beijing');
+      V16.close(el);
+    };
+    const sp = b.querySelector('#v16Say');
+    if (sp) sp.onclick = () => V16.tts('老板，我要一份' + s.hz + '。');
+    V16.open(el);
+  }
+  V16.openStall = openStall;
+
+  /* ---------------- 귀국 ---------------- */
+  function openReturn(from) {
+    const el = V16.modal('v16Return', '✈️ 귀국 · 回韩国', '인천국제공항으로 돌아갑니다');
+    const b = V16.bodyOf(el);
+    b.innerHTML = `
+      <div class="v16-phrase"><span class="tx"><b>我要回韩国了。</b>
+        <small>wǒ yào huí Hánguó le.</small><em>한국으로 돌아갈게요.</em></span>
+        <button type="button" data-say="我要回韩国了。">🔊</button></div>
+      <div class="v16-phrase"><span class="tx"><b>请问去机场怎么走？</b>
+        <small>qǐngwèn qù jīchǎng zěnme zǒu?</small><em>공항에 어떻게 가나요?</em></span>
+        <button type="button" data-say="请问去机场怎么走？">🔊</button></div>
+      <div class="v16-row">
+        <button class="v12-btn primary" id="v16GoHome" type="button">✈️ 비행기 타고 인천공항으로</button>
+        <button class="v12-btn" id="v16GoAcademy" type="button">🏛️ 학원 로비로 바로</button>
+      </div>
+      <div class="v16-note">기내를 다시 보고 싶으면 <b>인천공항</b>에 도착한 뒤 12번 게이트에서 탑승하면 돼요.</div>`;
+    b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
+    const home = b.querySelector('#v16GoHome');
+    if (home) home.onclick = () => {
+      V16.close(el);
+      const name = from === 'beijing' ? '베이징' : '상하이';
+      V16.veil('✈️ ' + name + ' → 인천국제공항', '귀국 비행 · 回国航班', 2400, function () {
+        V16.tele(V16.AIR_ARRIVE.x, V16.AIR_ARRIVE.z, V16.AIR_ARRIVE.yaw);
+        V16.say('🛬 인천국제공항 도착', '입국장 · 欢迎回到韩国', 2800);
+        V16.tts('欢迎回到韩国。');
+        V16.xp(20);
+      });
+    };
+    const ac = b.querySelector('#v16GoAcademy');
+    if (ac) ac.onclick = () => {
+      V16.close(el);
+      V16.tele(0, 4.6, Math.PI);
+      V16.say('🏛️ 리얼통번역 학원 로비', '여행 잘 다녀왔어요!', 2400);
+    };
+    V16.open(el);
+  }
+  V16.openReturn = openReturn;
+
+  /* ---------------- 등록 ---------------- */
+  V16.addWarp({ id: 'shanghai', icon: '🏙️', name: '상하이 와이탄', sub: '上海外滩 · 东方明珠', x: SH_ARRIVE.x, z: SH_ARRIVE.z, yaw: SH_ARRIVE.yaw }, buildShanghai);
+  V16.addWarp({ id: 'beijing', icon: '🏮', name: '베이징 야시장', sub: '北京夜市 · 烤串·糖葫芦', x: BJ_ARRIVE.x, z: BJ_ARRIVE.z, yaw: BJ_ARRIVE.yaw }, buildBeijing);
+  V16.addZone({ x0: SH.x0, x1: SH.x1, z0: -119, z1: SH.z1 }, '상하이 와이탄 · 上海外滩');
+  V16.addZone({ x0: SH.x0, x1: SH.x1, z0: SH.z0, z1: -119 }, '와이탄 산책로 · 外滩步道');
+  V16.addZone({ x0: BJ.x0, x1: BJ.x1, z0: BJ.z0, z1: BJ.z1 }, '베이징 야시장 · 北京夜市');
+
+  V16.buildShanghai = buildShanghai;
+  V16.buildBeijing = buildBeijing;
+  V16.buildZone = function (id) {
+    if (id === 'shanghai') buildShanghai();
+    else if (id === 'beijing') buildBeijing();
+  };
+})();
+/* =====================================================================
+   v16 MALA — 🥘 마라탕 · 훠궈 커스텀 주문 매장 (麻辣烫 · 火锅)
+   ---------------------------------------------------------------------
+   · 학원가(x -130~-112, z 92~108)에 실제로 걸어 들어가는 3D 매장
+   · 재료 고르기 → 마라탕/마라샹궈 → 맵기(不辣/微辣/中辣/特辣) → 고수 빼기
+   · 점원 NPC에게 중국어로 주문하고 골드로 결제
+   ===================================================================== */
+(function () {
+  const V16 = window.V16;
+  if (!V16 || V16.malaReady) return;
+  V16.malaReady = true;
+  const err = V16.err;
+  const V15 = window.V15, V14 = window.V14;
+  if (!V15 || !V14) return;
+  const { mat, emat, basic, box, cyl, plane, tex, pick } = V15;
+  const sign = V16.sign;
+
+  const M = { x0: -130, x1: -112, z0: 92, z1: 108, h: 3.9 };
+  const DOOR_X = -121;
+  const FRONT = { x: DOOR_X, z: 87.4, yaw: 0 };
+  V16.MALA = M; V16.MALA_FRONT = FRONT;
+
+  const ING = [
+    { id: 'bok', ic: '🥬', n: '청경채', hz: '小白菜', py: 'xiǎobáicài', p: 1 },
+    { id: 'tofu', ic: '🧊', n: '두부피', hz: '豆腐皮', py: 'dòufupí', p: 1 },
+    { id: 'noodle', ic: '🍜', n: '분모자', hz: '宽粉', py: 'kuānfěn', p: 2 },
+    { id: 'beef', ic: '🥩', n: '소고기', hz: '牛肉', py: 'niúròu', p: 3 },
+    { id: 'fish', ic: '🍥', n: '어묵', hz: '鱼丸', py: 'yúwán', p: 2 },
+    { id: 'mush', ic: '🍄', n: '버섯', hz: '蘑菇', py: 'mógū', p: 1 },
+    { id: 'shrimp', ic: '🦐', n: '새우', hz: '虾', py: 'xiā', p: 3 },
+    { id: 'corn', ic: '🌽', n: '옥수수', hz: '玉米', py: 'yùmǐ', p: 1 },
+    { id: 'tofupuff', ic: '🟡', n: '유부', hz: '油豆腐', py: 'yóudòufu', p: 1 },
+    { id: 'ramen', ic: '🍥', n: '라면 사리', hz: '方便面', py: 'fāngbiànmiàn', p: 2 },
+  ];
+  const TYPES = [
+    { id: 'tang', n: '마라탕', hz: '麻辣烫', py: 'málàtàng', note: '국물 · 汤 / +1G', add: 1, soup: true },
+    { id: 'xiang', n: '마라샹궈', hz: '麻辣香锅', py: 'málà xiāngguō', note: '볶음 · 干锅 / +2G', add: 2, soup: false },
+  ];
+  const SPICE = [
+    { id: 'none', n: '안 맵게', hz: '不辣', py: 'bú là', emoji: '🫥' },
+    { id: 'mild', n: '약간', hz: '微辣', py: 'wēi là', emoji: '🌶️' },
+    { id: 'mid', n: '보통', hz: '中辣', py: 'zhōng là', emoji: '🌶️🌶️' },
+    { id: 'hot', n: '아주 맵게', hz: '特辣', py: 'tè là', emoji: '🌶️🌶️🌶️' },
+  ];
+  V16.MALA_ING = ING; V16.MALA_SPICE = SPICE; V16.MALA_TYPES = TYPES;
+
+  const ORD = { ing: {}, type: 'tang', spice: 'mid', noCilantro: true, rice: false };
+  V16.malaOrder = ORD;
+  function resetOrder() { ORD.ing = {}; ORD.type = 'tang'; ORD.spice = 'mid'; ORD.noCilantro = true; ORD.rice = false; }
+
+  function total() {
+    let t = 0;
+    ING.forEach((i) => { if (ORD.ing[i.id]) t += i.p; });
+    const ty = TYPES.find((x) => x.id === ORD.type);
+    if (ty) t += ty.add;
+    if (ORD.rice) t += 2;
+    return t;
+  }
+  function firstOrder() { return !(V16.store.data.mala > 0); }
+  function picked() { return ING.filter((i) => ORD.ing[i.id]); }
+
+  /* ---------------- 매장 외형·실내 ---------------- */
+  let built = false;
+  function build() {
+    if (built) return;
+    built = true;
+    try {
+      V15.shop({
+        id: 'v16mala', name: '🥘 마라탕 · 훠궈', cn: '麻辣烫 · 火锅', en: 'MALA TANG',
+        x0: M.x0, x1: M.x1, z0: M.z0, z1: M.z1, h: M.h,
+        side: 's', at: DOOR_X, doorW: 3.0,
+        colors: {
+          wall: 0xe7d3bd, trim: 0x3a2820, sign: 0x2a0f10, accent: 0xd8342a,
+          glass: 0xcfe0d8, inner: 0xf6ece0, ceil: 0xfaf3e8, pad: 0x9a8f80, door: 0x7a3a26,
+        },
+        floor: 'tile',
+        enter: { msg: '🥘 마라탕 · 훠궈 매장 입장', sub: '재료를 골라 주문해 보세요 · 麻辣烫' },
+        props: malaProps,
+      });
+      /* 간판 앞 파라솔 · 대기 의자 */
+      const g = V16.group('v16malaFront');
+      const pad = plane(12, 8, mat(0x8f857a, { roughness: .95 }), DOOR_X, 0.02, 86);
+      pad.rotation.x = -Math.PI / 2;
+      g.add(pad);
+      /* 입구 홍등 */
+      [-3.2, 3.2].forEach((dx) => {
+        const l = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8),
+          new THREE.MeshStandardMaterial({ color: 0xd8283a, emissive: 0xa01020, emissiveIntensity: 1.2, roughness: .6 }));
+        l.scale.set(1, 0.88, 1);
+        l.position.set(DOOR_X + dx, 3.5, M.z0 - 0.6);
+        g.add(l);
+      });
+      /* 메뉴 입간판 */
+      const banner = sign(2.0, 2.8, [
+        { t: '麻辣烫', c: '#fff3d8', s: .28, y: .16, glow: '#ff7a5c' },
+        { t: '호떡 · 마라탕', c: '#ffd9a0', s: .14, y: .42 },
+        { t: '1인 12G~', c: '#9ff0a8', s: .16, y: .58 },
+        { t: '재료 골라', c: '#fff6e6', s: .14, y: .72 },
+        { t: '주문 OK', c: '#fff6e6', s: .14, y: .82 },
+      ], { grad: [[0, '#5a0f0f'], [1, '#240606']], borderColor: '#f2c14e' });
+      banner.position.set(DOOR_X - 4.2, 1.45, M.z0 - 1.1);
+      banner.rotation.y = Math.PI;
+      g.add(banner);
+      /* 학원가 → 마라탕 안내 */
+      const way = sign(5.6, 1.3, [
+        { t: '🥘 마라탕 · 麻辣烫', c: '#fff6e6', s: .36 },
+        { t: '학원가 골목 ↑ · 여기서 10m', c: '#ffd9a0', s: .24 },
+      ], { bg: '#2a0f10', borderColor: '#d8342a' });
+      way.position.set(DOOR_X, 3.2, 80);
+      g.add(way);
+      V14.addSolid(DOOR_X - 5.2, DOOR_X - 3.4, M.z0 - 1.4, M.z0 - 0.8, 'malaBanner');
+      /* 길 (학원가에서 이어지는 포장길) */
+      const path = plane(5.2, 12, mat(0x9c9488, { roughness: .95 }), DOOR_X, 0.012, 86);
+      path.rotation.x = -Math.PI / 2;
+      g.add(path);
+    } catch (e) { err('mala:' + e.message); }
+  }
+  V16.buildMala = build;
+
+  function malaProps(g, cx, cz) {
+    /* 바닥 (붉은 타일) */
+    const ft = tex(128, 128, (c, W, H) => {
+      c.fillStyle = '#f3ece2'; c.fillRect(0, 0, W, H);
+      c.strokeStyle = '#d8c6b2'; c.lineWidth = 3;
+      c.strokeRect(2, 2, W - 4, H - 4);
+      c.strokeStyle = 'rgba(200,170,140,.5)'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(0, H / 2); c.lineTo(W, H / 2); c.stroke();
+    });
+    ft.wrapS = ft.wrapT = THREE.RepeatWrapping;
+    ft.repeat.set(9, 8);
+    const fl = plane(M.x1 - M.x0 - 1.0, M.z1 - M.z0 - 1.0,
+      new THREE.MeshStandardMaterial({ map: ft, roughness: .55, emissive: 0x6a5a4a, emissiveIntensity: .3 }),
+      cx, 0.055, cz);
+    fl.rotation.x = -Math.PI / 2;
+    g.add(fl);
+    /* 레드 카펫 (입구) */
+    const rug = plane(3.2, 4.4, mat(0x8a1c22, { roughness: .9 }), DOOR_X, 0.07, M.z0 + 2.8);
+    rug.rotation.x = -Math.PI / 2;
+    g.add(rug);
+
+    /* 재료 진열 냉장고 (북쪽 벽) */
+    const wallZ = M.z1 - 0.85;
+    g.add(box(13.5, 2.4, 1.1, mat(0xf2f6f8, { roughness: .3, metalness: .1 }), cx, 1.2, wallZ));
+    g.add(box(13.7, 0.14, 1.2, mat(0x9aa3ad, { metalness: .5 }), cx, 2.44, wallZ));
+    for (let s = 0; s < 3; s++) {
+      const y = 0.55 + s * 0.62;
+      g.add(box(13.3, 0.06, 1.0, mat(0xd8e4ea, { transparent: true, opacity: .55, roughness: .1 }), cx, y, wallZ));
+      for (let i = 0; i < 10; i++) {
+        const it = ING[i];
+        const x = cx - 6.0 + i * 1.34;
+        /* 재료 통 */
+        g.add(cyl(0.36, 0.32, 0.3, mat(0xd8dde2, { roughness: .4 }), x, y + 0.18, wallZ + 0.05, 10));
+        const col = [0x7fc86a, 0xf2e6d0, 0xf7f0dc, 0xc0503a, 0xf2d8b0, 0xb08a6a, 0xf0908a, 0xf2c14e, 0xe8c07a, 0xf7e6b0][i];
+        g.add(cyl(0.3, 0.28, 0.14, mat(col, { roughness: .8 }), x, y + 0.34, wallZ + 0.05, 10));
+        /* 이름표 */
+        const lb = sign(1.1, 0.28, [{ t: it.ic + ' ' + it.hz, c: '#fff6e6', s: .52 }],
+          { bg: '#2a1a12', borderColor: '#f2c14e', border: false });
+        lb.position.set(x, y + 0.02, wallZ + 0.6);
+        lb.rotation.y = Math.PI;
+        g.add(lb);
+      }
+    }
+    /* 유리 앞면 */
+    g.add(box(13.5, 2.2, 0.06, mat(0xbfe0ea, { transparent: true, opacity: .22, roughness: .1 }), cx, 1.25, wallZ + 0.55));
+    /* 진열대 탭 */
+    const shelfHit = V16.ghost(14, 2.6, 2.0, cx, 1.3, wallZ - 0.4);
+    V16.hit(shelfHit, 'v16:mala:shelf', function () { openMala('pick'); });
+    const shelfSign = sign(6.4, 0.9, [
+      { t: '🥬 재료 고르기 · 选食材', c: '#fff6e6', s: .4 },
+      { t: '눌러서 담기 · 点这里的食材', c: '#ffd9a0', s: .2 },
+    ], { bg: '#5a0f0f', borderColor: '#f2c14e' });
+    shelfSign.position.set(cx, 2.9, wallZ - 0.55);
+    shelfSign.rotation.y = Math.PI;
+    g.add(shelfSign);
+
+    /* 조리 카운터 · 큰 냄비 */
+    const cookZ = cz + 1.2;
+    g.add(box(8.6, 1.0, 1.8, mat(0xd8d2c4, { roughness: .6 }), cx + 1.4, 0.5, cookZ));
+    g.add(box(8.8, 0.1, 1.9, mat(0x9aa3ad, { metalness: .5 }), cx + 1.4, 1.03, cookZ));
+    [-2.2, 0, 2.2].forEach((dx, i) => {
+      g.add(cyl(0.75, 0.68, 0.5, mat(0x3a3a3e, { metalness: .7 }), cx + 1.4 + dx, 1.2, cookZ, 14));
+      g.add(cyl(0.62, 0.6, 0.1, i === 1 ? mat(0xc0503a) : mat(0xb8a060), cx + 1.4 + dx, 1.44, cookZ, 14));
+      /* 김 */
+      const steam = new THREE.Mesh(new THREE.SphereGeometry(0.22, 7, 6),
+        basic(0xffffff, { transparent: true, opacity: .22 }));
+      steam.position.set(cx + 1.4 + dx, 1.8, cookZ);
+      g.add(steam);
+      (V16._steam = V16._steam || []).push(steam);
+    });
+    /* 주문 탭 */
+    const cookHit = V16.ghost(9, 2.4, 2.6, cx + 1.4, 1.2, cookZ);
+    V16.hit(cookHit, 'v16:mala:cook', function () { openMala('order'); });
+
+    /* 소스 바 (동쪽 벽) */
+    const sx = M.x1 - 1.4;
+    g.add(box(1.2, 1.1, 5.0, mat(0xefe4d2), sx, 0.55, cz + 1.0));
+    for (let i = 0; i < 6; i++) {
+      g.add(cyl(0.16, 0.14, 0.26, mat([0xc0503a, 0x8a3a2a, 0xf2d8b0, 0xd8342a, 0x6a7a4a, 0xf7e6b0][i]), sx, 1.2, cz - 1.2 + i * 0.8, 8));
+    }
+    const sauceSign = sign(2.0, 0.8, [{ t: '🧄 소스바 · 调料台', c: '#fff6e6', s: .34 }], { bg: '#2a1a12', borderColor: '#f2c14e' });
+    sauceSign.position.set(sx - 0.7, 2.2, cz + 1.0);
+    sauceSign.rotation.y = -Math.PI / 2;
+    g.add(sauceSign);
+
+    /* 테이블 · 의자 */
+    [[-5.6, -3.2], [-5.6, 1.6], [-1.4, -3.6], [2.6, -3.6]].forEach(([dx, dz]) => {
+      const x = cx + dx, z = cz + dz;
+      g.add(cyl(0.7, 0.7, 0.08, mat(0xc8b49a), x, 0.76, z, 14));
+      g.add(cyl(0.1, 0.12, 0.76, mat(0x6a7078), x, 0.38, z, 8));
+      [-0.95, 0.95].forEach((o) => {
+        g.add(cyl(0.26, 0.26, 0.06, mat(0xb05a3a), x + o, 0.46, z, 10));
+        g.add(cyl(0.05, 0.06, 0.46, mat(0x6a7078), x + o, 0.23, z, 6));
+      });
+    });
+    /* 메뉴판 (서쪽 벽) */
+    const menu = sign(4.6, 2.6, [
+      { t: '🥘 麻辣烫 · 火锅', c: '#fff6e6', s: .26, y: .14 },
+      { t: '재료 1개 2~5G', c: '#ffd9a0', s: .17, y: .34 },
+      { t: '마라탕 +2G · 마라샹궈 +3G', c: '#ffd9a0', s: .15, y: .48 },
+      { t: '맵기 不辣 微辣 中辣 特辣', c: '#9ff0a8', s: .15, y: .62 },
+      { t: '고수 빼기 · 不要香菜', c: '#9ff0a8', s: .15, y: .76 },
+      { t: '营业中 · OPEN', c: '#ff9ec4', s: .16, y: .9 },
+    ], { grad: [[0, '#2a0f10'], [1, '#120405']], borderColor: '#d8342a' });
+    menu.position.set(M.x0 + 0.7, 2.1, cz + 1.4);
+    menu.rotation.y = Math.PI / 2;
+    g.add(menu);
+    /* 점원 */
+    try {
+      V14.makeCrowd({
+        x: cx + 0.2, z: cookZ - 1.6, yaw: Math.PI, name: '마라탕점원',
+        shirt: 0xd8342a, pants: 0x2a1a12, skin: 0xe6b48c, hair: 0x1b1512,
+      });
+    } catch (e) {}
+    const clerkHit = V16.ghost(1.8, 2.2, 1.8, cx + 0.2, 1.1, cookZ - 1.8);
+    V16.hit(clerkHit, 'v16:mala:clerk', function () { openMala('order', true); });
+    /* 천장 조명 */
+    [cx - 4, cx, cx + 4].forEach((x) => {
+      const p = plane(2.6, 0.5, basic(0xfff3dc), x, M.h - 0.45, cz);
+      p.rotation.x = Math.PI / 2;
+      g.add(p);
+    });
+  }
+
+  /* ---------------- 주문 UI ---------------- */
+  function sentence() {
+    const t = TYPES.find((x) => x.id === ORD.type);
+    const sp = SPICE.find((x) => x.id === ORD.spice);
+    const list = picked().map((i) => i.hz).join('、');
+    let s = '我要一份' + (t ? t.hz : '麻辣烫') + '，';
+    if (list) s += '加' + list + '，';
+    s += (sp ? sp.hz : '中辣');
+    if (ORD.noCilantro) s += '，不要香菜';
+    if (ORD.rice) s += '，再加一碗米饭';
+    s += '。';
+    return s;
+  }
+  V16.malaSentence = sentence;
+
+  function openMala(step, fromClerk) {
+    build();
+    const el = V16.modal('v16MalaModal', '🥘 마라탕 · 훠궈 주문', '재료를 고르고 중국어로 주문해 보세요 · 麻辣烫定制');
+    const b = V16.bodyOf(el);
+    const render = () => {
+      const list = picked();
+      b.innerHTML = `
+        <div class="v16-sec">1️⃣ 재료 담기 · 选食材 (${list.length}개)</div>
+        <div class="v16-chip-row" style="max-height:none">
+          ${ING.map((i) => `<button class="v16-chip ${ORD.ing[i.id] ? 'on' : ''}" data-ing="${i.id}">${i.ic} ${i.n} <b style="opacity:.7">${i.p}G</b></button>`).join('')}
+        </div>
+        <div class="v16-sec">2️⃣ 종류 · 种类</div>
+        <div class="v16-grid">${TYPES.map((t) => `<button class="v16-card ${ORD.type === t.id ? 'on' : ''}" data-type="${t.id}">
+          <b>${t.n} ${t.hz}</b><small>${t.py} · ${t.note}</small></button>`).join('')}</div>
+        <div class="v16-sec">3️⃣ 맵기 · 辣度</div>
+        <div class="v16-chip-row">${SPICE.map((s) => `<button class="v16-chip ${ORD.spice === s.id ? 'on' : ''}" data-spice="${s.id}">${s.emoji} ${s.hz} ${s.n}</button>`).join('')}</div>
+        <div class="v16-sec">4️⃣ 옵션 · 其他</div>
+        <div class="v16-chip-row">
+          <button class="v16-chip ${ORD.noCilantro ? 'on' : ''}" data-opt="cilantro">🙅 고수 빼기 · 不要香菜</button>
+          <button class="v16-chip ${ORD.rice ? 'on' : ''}" data-opt="rice">🍚 밥 추가 +2G</button>
+        </div>
+        <div class="v16-total"><span>합계 · 一共 <b>${firstOrder() ? '첫 주문 무료 🎟️' : total() + 'G'}</b><br><small style="color:#8a7a63">보유 ${V16.goldNow()}G${firstOrder() ? ' · 웰컴 쿠폰 적용' : ''}</small></span>
+          <button class="v12-btn primary" id="v16MalaPay" type="button" style="min-width:120px">🧑‍🍳 주문하기</button></div>
+        <div class="v16-phrase"><span class="tx"><b>${sentence()}</b>
+          <small>${ORD.type === 'xiang' ? 'málà xiāngguō' : 'málàtàng'} · 1인분</small>
+          <em>이렇게 말하면 돼요</em></span>
+          <button type="button" id="v16MalaSay">🔊</button></div>
+        <div class="v16-note">${fromClerk ? '점원에게 말을 걸었어요. 주문하면 큰 소리로 중국어로 외쳐 줘요.' : '재료를 눌러 담고, 주문하기를 누르면 점원에게 전달됩니다.'}</div>`;
+
+      b.querySelectorAll('[data-ing]').forEach((btn) => {
+        btn.onclick = () => {
+          const id = btn.dataset.ing;
+          if (ORD.ing[id]) delete ORD.ing[id]; else ORD.ing[id] = true;
+          render();
+        };
+      });
+      b.querySelectorAll('[data-type]').forEach((btn) => {
+        btn.onclick = () => { ORD.type = btn.dataset.type; render(); };
+      });
+      b.querySelectorAll('[data-spice]').forEach((btn) => {
+        btn.onclick = () => { ORD.spice = btn.dataset.spice; render(); };
+      });
+      b.querySelectorAll('[data-opt]').forEach((btn) => {
+        btn.onclick = () => {
+          if (btn.dataset.opt === 'cilantro') ORD.noCilantro = !ORD.noCilantro;
+          else ORD.rice = !ORD.rice;
+          render();
+        };
+      });
+      const sayBtn = b.querySelector('#v16MalaSay');
+      if (sayBtn) sayBtn.onclick = () => V16.tts(sentence());
+      const pay = b.querySelector('#v16MalaPay');
+      if (pay) pay.onclick = () => orderNow(el);
+    };
+    render();
+    V16.open(el);
+  }
+  V16.openMala = openMala;
+
+  function orderNow(el) {
+    const list = picked();
+    if (!list.length) {
+      V16.say('재료를 먼저 골라 주세요', '食材을 하나 이상 골라 주세요 · 选食材', 2200);
+      return;
+    }
+    const sum = total();
+    const first = firstOrder();
+    if (!first && !V16.spend(sum)) {
+      V16.say('골드가 부족해요', sum + 'G 필요 · 지금 ' + V16.goldNow() + 'G · 알바로 모을 수 있어요', 2800);
+      return;
+    }
+    const t = TYPES.find((x) => x.id === ORD.type);
+    const sp = SPICE.find((x) => x.id === ORD.spice);
+    V16.close(el);
+    V16.tts(sentence());
+    setTimeout(() => {
+      V16.say('🥘 ' + (t ? t.n : '마라탕') + ' 주문 완료!',
+        (sp ? sp.hz : '中辣') + (ORD.noCilantro ? ' · 不要香菜' : '') + (first ? ' · 웰컴 쿠폰 0G' : ' · ' + sum + 'G') + ' · 请慢用', 3200);
+      V16.xp(22);
+      V16.store.bump('mala');
+      V16.store.data.meal = 'mala';
+      V16.store.save();
+      try { if (window.FX) FX.petals(8, 0xff7a5c); } catch (e) {}
+    }, 900);
+    /* 완성된 그릇 연출 */
+    try {
+      const g = V16.group('v16malaBowl');
+      const bx = DOOR_X, bz = M.z0 + 4.2;
+      const bowl = cyl(0.9, 0.7, 0.42, mat(0xf2f6f8, { roughness: .3 }), bx, 0.9, bz, 16);
+      g.add(bowl);
+      g.add(cyl(0.78, 0.76, 0.06, mat(t && t.soup ? 0xc0503a : 0xd86a3a), bx, 1.12, bz, 16));
+      for (let i = 0; i < Math.min(8, list.length * 2); i++) {
+        const a = (i / 8) * Math.PI * 2;
+        g.add(new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 5), mat(pick([0x7fc86a, 0xe8d8b0, 0xc0503a, 0xf2c14e]))).translateX(bx + Math.cos(a) * 0.42).translateZ(bz + Math.sin(a) * 0.42));
+      }
+      g.position.y = 0.0;
+      setTimeout(() => { try { scene.remove(g); } catch (e) {} }, 9000);
+    } catch (e) {}
+  }
+  V16.orderMala = orderNow;
+
+  /* ---------------- 김 올라오는 연출 ---------------- */
+  (function hookMalaTick() {
+    const tick = function (dt, t) {
+      (V16._steam || []).forEach((s, i) => {
+        s.position.y = 1.8 + Math.abs(Math.sin(t * 0.0011 + i)) * 0.9;
+        s.material.opacity = 0.1 + Math.abs(Math.sin(t * 0.0009 + i)) * 0.22;
+        s.scale.setScalar(1 + Math.abs(Math.sin(t * 0.0013 + i)) * 0.5);
+      });
+    };
+    if (V16.addTick) V16.addTick(tick);
+    else {
+      const prev = V14.extraTick;
+      V14.extraTick = function (dt, t) { if (prev) { try { prev(dt, t); } catch (e) {} } tick(dt, t); };
+    }
+  })();
+
+  /* ---------------- 등록 ---------------- */
+  V16.addWarp({ id: 'mala', icon: '🥘', name: '마라탕 · 훠궈', sub: '麻辣烫 · 火锅 · 학원가', x: FRONT.x, z: FRONT.z, yaw: FRONT.yaw }, build);
+  V16.addZone({ x0: M.x0, x1: M.x1, z0: M.z0, z1: M.z1 }, '마라탕 · 훠궈 매장 · 麻辣烫');
+  V16.addZone({ x0: M.x0 - 4, x1: M.x1 + 4, z0: 78, z1: M.z0 }, '마라탕 골목 · 麻辣烫街');
+
+  V16.resetMala = resetOrder;
+})();
+/* =====================================================================
+   v16 BOOT — 등록 · 존 이름 · 메뉴 버튼 · 진단
+   ===================================================================== */
+(function () {
+  const V16 = window.V16;
+  if (!V16 || V16.bootReady) return;
+  V16.bootReady = true;
+  const err = V16.err;
+  const V12 = window.V12, V13 = window.V13, V15 = window.V15;
+
+  /* 옛 타이머(v12/v13)가 잡은 존 이름이 우리 구역을 덮어쓰던 문제 → 정리 */
+  function clearOldTimers() {
+    try {
+      if (window.V12 && V12._zoneTimer) { clearInterval(V12._zoneTimer); V12._zoneTimer = null; }
+      if (window.V13 && V13._zoneTimer) { clearInterval(V13._zoneTimer); V13._zoneTimer = null; }
+    } catch (e) {}
+  }
+  clearOldTimers();
+  let ct = 0;
+  const ctTimer = setInterval(function () { clearOldTimers(); if (++ct > 30) clearInterval(ctTimer); }, 700);
+
+  function boot() {
+    try { clearOldTimers(); } catch (e) {}
+    try { if (V16.installZone) V16.installZone(); } catch (e) { err('bootzone:' + e.message); }
+    try { if (V16.registerWarps) V16.registerWarps(); } catch (e) { err('bootwarp:' + e.message); }
+    try { if (V16.addButtons) V16.addButtons(); } catch (e) {}
+    try { addMore(); } catch (e) { err('more:' + e.message); }
+    V16.ready = true;
+  }
+
+  /* 더보기 메뉴에 여행 항목 추가 */
+  function addMore() {
+    const more = document.getElementById('moreSheet');
+    if (!more) return;
+    if (document.getElementById('v16MoreAir')) return;
+    const mk = (id, label, fn) => {
+      const b = document.createElement('button');
+      b.id = id; b.type = 'button'; b.innerHTML = label;
+      b.onclick = () => {
+        try { document.getElementById('moreClose').click(); } catch (e) {}
+        try { fn(); } catch (e) { err('more:' + id + ':' + e.message); }
+      };
+      more.insertBefore(b, more.querySelector('#moreJob') || null);
+      return b;
+    };
+    mk('v16MoreAir', '<span aria-hidden="true">✈️</span> 인천공항 · 비행기 타기', function () {
+      if (V13 && V13.warp) V13.warp('airport'); else if (window.V14) V14.warpTo('airport');
+      V16.say('✈️ 인천국제공항', '12번 게이트에서 탑승하면 기내로!', 2600);
+    });
+    mk('v16MoreSh', '<span aria-hidden="true">🏙️</span> 상하이 와이탄', function () {
+      if (V16.buildShanghai) V16.buildShanghai();
+      if (window.V14) V14.warpTo('shanghai');
+    });
+    mk('v16MoreBj', '<span aria-hidden="true">🏮</span> 베이징 야시장', function () {
+      if (V16.buildBeijing) V16.buildBeijing();
+      if (window.V14) V14.warpTo('beijing');
+    });
+    mk('v16MoreMala', '<span aria-hidden="true">🥘</span> 마라탕 주문하기', function () {
+      if (window.V14) V14.warpTo('mala');
+      setTimeout(function () { try { V16.openMala('pick'); } catch (e) {} }, 900);
+    });
+  }
+
+  /* 빠른 이동 목록이 늦게 만들어지는 경우 대비 */
+  let tries = 0;
+  const timer = setInterval(function () {
+    tries++;
+    try {
+      if (V16.registerWarps && V16.registerWarps()) { clearInterval(timer); }
+    } catch (e) {}
+    if (tries > 60) clearInterval(timer);
+  }, 700);
+
+  /* 공항 광장에서 게이트로 안내 (탑승 버튼) */
+  setTimeout(function () {
+    try {
+      addMore();
+    } catch (e) {}
+  }, 2500);
+
+  setTimeout(boot, 2600);
+  setTimeout(boot, 5200);
+
+  /* 구역 표시를 v16 구역에서 확실히 유지 (기존 타이머가 놓치는 경우 대비) */
+  setInterval(function () {
+    try {
+      const el = document.getElementById('zoneTag');
+      if (!el) return;
+      const p = Player.pos;
+      for (let i = 0; i < (V16.zones || []).length; i++) {
+        const r = V16.zones[i].r;
+        if (p.x > r.x0 && p.x < r.x1 && p.z > r.z0 && p.z < r.z1) {
+          if (el.textContent !== V16.zones[i].n) el.textContent = V16.zones[i].n;
+          return;
+        }
+      }
+    } catch (e) {}
+  }, 600);
+
+  /* 저장된 위치가 v16 구역이면 그 구역을 먼저 지어 준다 (새로고침 복원 대비) */
+  function ensureForPosition() {
+    try {
+      if (!window.Player || !Player.pos) return;
+      const x = Player.pos.x, z = Player.pos.z;
+      if (x > 250 && x < 340 && z > 36 && z < 172) { if (V16.buildAirport) V16.buildAirport(); return; }
+      if (x > 236 && x < 334 && z > -176 && z < -34) { if (V16.buildShanghai) V16.buildShanghai(); return; }
+      if (x > 356 && x < 454 && z > -176 && z < -66) { if (V16.buildBeijing) V16.buildBeijing(); return; }
+      if (x > -136 && x < -106 && z > 82 && z < 112) { if (V16.buildMala) V16.buildMala(); return; }
+    } catch (e) { err('ensure:' + e.message); }
+  }
+  V16.ensureForPosition = ensureForPosition;
+  setTimeout(ensureForPosition, 2600);
+  setTimeout(ensureForPosition, 5200);
+  let ep = 0;
+  const epTimer = setInterval(function () { ensureForPosition(); if (++ep > 12) clearInterval(epTimer); }, 2500);
+
+  V16.debug = function () {
+    const out = {
+      ready: !!V16.ready, warps: (V16.warps || []).map(function (w) { return w.spot.id + (w.done ? '✓' : '·'); }),
+      built: { air: !!V16.airportBuilt, sh: !!(V16.SH && true), store: V16.store ? V16.store.data : null },
+      errors: (V16.errors || []).slice(0, 10),
+    };
+    try {
+      out.pos = [Math.round(Player.pos.x), Math.round(Player.pos.z)];
+      out.warpList = (document.querySelectorAll('#warpList .wp-opt') || []).length;
+      out.zone = document.getElementById('zoneTag') ? document.getElementById('zoneTag').textContent : '';
+    } catch (e) {}
+    return out;
+  };
 })();
 
 </script>
