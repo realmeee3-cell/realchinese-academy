@@ -26982,7 +26982,7 @@ window.V12 = (function () {
     const btn = $('v13RunBtn');
     if (btn) {
       btn.classList.toggle('on', Run.on);
-      btn.innerHTML = Run.on ? '<span>🏃</span><small>RUN</small>' : '<span>🏃</span>';
+      btn.innerHTML = Run.on ? '<span>⏹</span><small>STOP</small>' : '<span>🏃</span>';
       btn.title = Run.on ? '러닝 모드 끄기' : '러닝 모드 켜기 (1.7배)';
     }
     if (!silent) {
@@ -27046,7 +27046,7 @@ window.V12 = (function () {
     }, 400);
   }
 
-  /* V15.4 — 애플워치 운동 화면 스타일 러닝 HUD */
+  /* V15.6 — 시야를 가리지 않는 초슬림 러닝 HUD (반투명 글래스 · 터치 통과) */
   function buildRunHud() {
     if ($('v13RunHud')) return;
     const el = document.createElement('div');
@@ -27057,34 +27057,65 @@ window.V12 = (function () {
       w.id = 'v15Watch';
       w.innerHTML = `
         <div class="vw-top"><span class="vw-dot"></span><b>RUNNING</b><small id="vwKmh">0.0 km/h</small></div>
-        <div class="vw-grid">
-          <div class="vw-c hr"><small>심박수</small><b id="vwHr">--</b><i>bpm</i></div>
-          <div class="vw-c"><small>케이던스</small><b id="vwCad">0</b><i>spm</i></div>
-          <div class="vw-c"><small>페이스</small><b id="vwPace">--'--"</b><i>/km</i></div>
-          <div class="vw-c"><small>거리</small><b id="vwDist">0.00</b><i>km</i></div>
-          <div class="vw-c"><small>칼로리</small><b id="vwKcal">0</b><i>kcal</i></div>
-          <div class="vw-c"><small>시간</small><b id="vwTime">00:00</b><i>h:m</i></div>
+        <div class="vw-main">
+          <div class="vw-c"><small>시간</small><span class="vw-v"><b id="vwTime">00:00</b></span></div>
+          <div class="vw-c"><small>거리</small><span class="vw-v"><b id="vwDist">0.00</b><i>km</i></span></div>
+          <div class="vw-c"><small>페이스</small><span class="vw-v"><b id="vwPace">--'--"</b><i>/km</i></span></div>
+        </div>
+        <div class="vw-sub">
+          <span class="hr">심박 <b id="vwHr">--</b><i>bpm</i></span>
+          <span>케이던스 <b id="vwCad">0</b><i>spm</i></span>
+          <span>칼로리 <b id="vwKcal">0</b><i>kcal</i></span>
         </div>`;
       document.body.appendChild(w);
       const st = document.createElement('style');
       st.textContent = `
         #v13RunHud{display:none !important}
-        #v15Watch{position:fixed;left:50%;transform:translate(-50%,-8px);top:calc(218px + env(safe-area-inset-top));
-          z-index:58;width:min(356px,calc(100vw - 24px));display:none;flex-direction:column;gap:7px;
-          padding:9px 11px 11px;border-radius:18px;background:linear-gradient(160deg,rgba(12,16,22,.94),rgba(22,28,36,.92));
-          border:1px solid rgba(140,255,190,.22);box-shadow:0 16px 34px -18px rgba(0,0,0,.8);color:#eafff2}
+        /* 얇은 글래스 스트립 — 중앙 시야·캐릭터·도로를 가리지 않고 터치는 그대로 통과 */
+        #v15Watch{position:fixed;right:8px;top:calc(234px + env(safe-area-inset-top));
+          z-index:58;width:min(320px,calc(100vw - 96px));display:none;flex-direction:column;gap:1px;
+          padding:3px 10px 4px;border-radius:14px;
+          background:rgba(9,15,12,.18);
+          backdrop-filter:blur(6px) saturate(1.2);-webkit-backdrop-filter:blur(6px) saturate(1.2);
+          border:1px solid rgba(255,255,255,.15);
+          box-shadow:0 6px 16px -14px rgba(0,0,0,.45);
+          color:#f4fff8;text-shadow:0 1px 3px rgba(0,0,0,.75),0 0 8px rgba(0,0,0,.35);
+          pointer-events:none;user-select:none}
         #v15Watch.show{display:flex}
-        #v15Watch .vw-top{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.14em;color:#8ef7b6;font-weight:900}
-        #v15Watch .vw-top small{margin-left:auto;color:#cfe9d8;letter-spacing:0;font-weight:700;font-size:10.5px}
-        #v15Watch .vw-dot{width:7px;height:7px;border-radius:50%;background:#39e07b;box-shadow:0 0 8px #39e07b;animation:vwPulse 1.6s infinite}
+        #v15Watch .vw-top{display:flex;align-items:center;gap:4px;font-size:7px;letter-spacing:.16em;color:#a6f6c4;font-weight:900;line-height:1.05}
+        #v15Watch .vw-top small{margin-left:auto;color:#e8f8ee;letter-spacing:0;font-weight:700;font-size:7.5px}
+        #v15Watch .vw-dot{width:4.5px;height:4.5px;border-radius:50%;background:#39e07b;box-shadow:0 0 7px #39e07b;animation:vwPulse 1.6s infinite}
         @keyframes vwPulse{0%,100%{opacity:.35}50%{opacity:1}}
-        #v15Watch .vw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-        #v15Watch .vw-c{background:rgba(255,255,255,.06);border-radius:12px;padding:6px 7px;display:flex;flex-direction:column;line-height:1.1}
-        #v15Watch .vw-c small{font-size:8.5px;color:#9fc7b0;font-weight:800;letter-spacing:.04em}
-        #v15Watch .vw-c b{font-size:17px;font-weight:900;color:#f2fff8;font-variant-numeric:tabular-nums}
-        #v15Watch .vw-c i{font-size:8px;color:#7fae93;font-style:normal;font-weight:700}
-        #v15Watch .vw-c.hr b{color:#ff8b8b}
-        body.modal-open #v15Watch,body.inHome #v15Watch,body.inMall #v15Watch,body.riding #v15Watch,body.driving #v15Watch{display:none !important}`;
+        #v15Watch .vw-main{display:flex;align-items:flex-end;justify-content:space-between}
+        #v15Watch .vw-main .vw-c{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;line-height:1}
+        #v15Watch .vw-main .vw-c+.vw-c{border-left:1px solid rgba(255,255,255,.16)}
+        #v15Watch .vw-main small{font-size:6.5px;color:#c6e8d4;font-weight:800;white-space:nowrap;opacity:.92}
+        #v15Watch .vw-v{display:flex;align-items:baseline;gap:1px;margin-top:1px}
+        #v15Watch .vw-v b{font-size:15px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.05}
+        #v15Watch .vw-v i{font-size:6.5px;color:#a9cdb8;font-style:normal;font-weight:700;line-height:1}
+        #v15Watch .vw-sub{display:flex;align-items:center;justify-content:space-between;gap:4px;
+          font-size:7px;color:#bfe0cc;font-weight:700;white-space:nowrap;line-height:1.1;
+          border-top:1px solid rgba(255,255,255,.12);padding-top:1px;margin-top:1px}
+        #v15Watch .vw-sub b{font-size:9.5px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;margin-left:1px}
+        #v15Watch .vw-sub i{font-size:5.5px;font-style:normal;font-weight:700;color:#9fc0ad;margin-left:1px}
+        #v15Watch .vw-sub .hr b{color:#ff9d9d}
+        @media (min-width:720px){
+          #v15Watch{left:50%;right:auto;transform:translateX(-50%);width:360px;padding:4px 12px 5px}
+          #v15Watch .vw-top{font-size:8px}
+          #v15Watch .vw-top small{font-size:8.5px}
+          #v15Watch .vw-main small{font-size:7.5px}
+          #v15Watch .vw-v b{font-size:17px}
+          #v15Watch .vw-v i{font-size:7px}
+          #v15Watch .vw-sub{font-size:8px}
+          #v15Watch .vw-sub b{font-size:11px}
+          #v15Watch .vw-sub i{font-size:6px}
+        }
+        @media (max-width:380px){
+          #v15Watch{width:calc(100vw - 94px);padding:3px 7px 4px}
+          #v15Watch .vw-v b{font-size:14px}
+          #v15Watch .vw-main small{font-size:6px}
+        }
+        body.modal-open #v15Watch,body.panel-open #v15Watch,body.inHome #v15Watch,body.inMall #v15Watch,body.inClub #v15Watch,body.riding #v15Watch,body.driving #v15Watch{display:none !important}`;
       document.head.appendChild(st);
       setInterval(tickWatch, 480);
     }
@@ -27110,11 +27141,11 @@ window.V12 = (function () {
       _wk.hr += (target - _wk.hr) * 0.25;
       const hr = Math.round(_wk.hr + Math.sin(sec * 1.7) * 2);
       const spm = running ? Math.round(162 + ((Player && Player.speed) || 2.75) * 3.2 + Math.sin(sec * 2.2) * 4) : 0;
-      const paceSec = km > 0.004 ? sec / km : 0;
-      const pace = paceSec ? Math.floor(paceSec / 60) + "'" + String(Math.round(paceSec % 60)).padStart(2, '0') + '"' : '--\'--"';
+      const paceSec = km > 0.004 ? Math.round(sec / km) : 0;
+      const pace = paceSec ? Math.floor(paceSec / 60) + "'" + String(paceSec % 60).padStart(2, '0') + '"' : '--\'--"';
       const kcal = Math.round(62 * km * 1.036);
       const mm = Math.floor(sec / 60), ss = Math.floor(sec % 60);
-      const kmh = running ? ((Player && Player.speed) || 2.75) * 3.6 : 0;
+      const kmh = running && sec > 2 && d > 0.04 ? (d / sec) * 3.6 : 0;
       const set = (id, v) => { const n = $(id); if (n && n.textContent !== String(v)) n.textContent = v; };
       set('vwHr', hr); set('vwCad', spm); set('vwPace', pace);
       set('vwDist', km.toFixed(2)); set('vwKcal', kcal);
