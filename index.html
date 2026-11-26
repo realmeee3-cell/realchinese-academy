@@ -47406,7 +47406,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     const g = setInterval(function () {
       tries++;
       try {
-        if (tries > 80) { clearInterval(g); return; }
+        if (tries > 300) { clearInterval(g); return; }
         if (!D.pending || D.pending.claimed || !D.pending.fresh) { if (tries > 30) clearInterval(g); return; }
         if (typeof State === 'undefined' || !State || !State.joined) return;
         if (document.body.classList.contains('modal-open')) return;
