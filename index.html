@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer" />
 <link rel="preconnect" href="https://translate.google.com" crossorigin />
 <link rel="preconnect" href="https://translate.googleapis.com" crossorigin />
-<meta name="app-build" content="2026-11-22-v10-chibi-cybertruck-restaurant-department" />
+<meta name="app-build" content="2026-11-26-v16.3-sims-autonomous-journal" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <title>리얼통번역 중국어 학원 · 3D 캠퍼스</title>
 <style>
@@ -46603,6 +46603,843 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (tries > 40) clearInterval(timer);
   }, 700);
 })();
+/* =====================================================================
+   v16.3 SIMS 모듈 (심즈식 자율 생활 · 오프라인 학원 일지)
+   ===================================================================== */
+/* =====================================================================
+   v16.3 SIMS — 🫧 심즈식 자율 생활 + 오프라인 학원 일지
+   ---------------------------------------------------------------------
+   · 수강생 NPC 5명(수연·해리·보화·예솔·안우바리)의 상태를 localStorage 에
+     영구 저장한다 (HSK 급수·경험치·기분·현재 행동·친밀도·관계 메모)
+   · 화면을 켜 두면 20~30초마다 스스로 행동을 바꾸고, 가끔 둘이 마주치면
+     한국어+중국어 짧은 말풍선 대화를 나누며 경험치·기분이 변한다
+   · 마지막 접속 시각(lastActiveAt)을 기억했다가, 다시 오면 그동안 학원에서
+     일어난 일을 「📋 학원 일지」로 만들어 준다 (상한 12시간)
+   · 유료 API · 외부 서버 없음 — 전부 이 브라우저에서 계산한다
+   ===================================================================== */
+(function () {
+  const V16 = window.V16;
+  if (!V16 || V16.sims) return;
+  const err = V16.err || function () {};
+  const choose = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  /* ---------------- 저장 ---------------- */
+  const KEY = 'rtb_v163_sims_v1';
+  const NAMES = ['수연', '해리', '보화', '예솔', '안우바리'];
+  const COLOR = {
+    '수연': '#c07f84', '해리': '#b08b52', '보화': '#5f7f9c', '예솔': '#8472a8', '안우바리': '#a2735c',
+  };
+  const expMaxOf = (hsk) => 160 + (Math.max(1, Math.min(6, hsk)) - 1) * 40;
+
+  const MOOD = {
+    happy: { ic: '😊', n: '행복' },
+    focus: { ic: '🎯', n: '집중' },
+    hungry: { ic: '🍜', n: '배고픔' },
+    sleepy: { ic: '😴', n: '졸림' },
+    excited: { ic: '🤩', n: '신남' },
+  };
+
+  /* 캠퍼스 생활 장소 — 지도 칸과 1:1로 맞춘다 */
+  const PLACES = [
+    { id: 'class', ic: '🏫', n: '강의실' },
+    { id: 'study', ic: '📝', n: '자습실' },
+    { id: 'lobby', ic: '🏛️', n: '로비' },
+    { id: 'cafe', ic: '☕', n: '리얼카페' },
+    { id: 'sbux', ic: '🥤', n: '스타벅스' },
+    { id: 'book', ic: '📚', n: '서점' },
+    { id: 'arcade', ic: '🕹️', n: '오락실' },
+    { id: 'ktv', ic: '🎤', n: '노래방' },
+    { id: 'mala', ic: '🥘', n: '마라탕' },
+    { id: 'seongsu', ic: '🌿', n: '성수동' },
+    { id: 'hangang', ic: '🌉', n: '한강' },
+    { id: 'gym', ic: '🏃', n: '운동장' },
+  ];
+  const PLACE = {};
+  PLACES.forEach((p) => { PLACE[p.id] = p; });
+
+  /* 자율 행동 — 학생마다 잘 하는 것/좋아하는 것이 다르다 */
+  const ACTS = [
+    { id: 'review', ic: '📖', place: 'class', exp: [7, 15], mood: 'focus', energy: -6, skill: '회화',
+      line: { ko: '오늘 배운 문장 다시 읽는 중', hz: '复习中', bub: '复习中～' },
+      pref: { '수연': 5, '예솔': 3 } },
+    { id: 'words', ic: '📝', place: 'study', exp: [8, 18], mood: 'focus', energy: -7, skill: '어휘',
+      line: { ko: 'HSK 단어 30개 외우는 중', hz: '背单词中', bub: '단어 30개!' },
+      pref: { '예솔': 5, '수연': 4, '보화': 2 } },
+    { id: 'sbux', ic: '☕', place: 'sbux', exp: [0, 3], mood: 'happy', energy: 10, skill: '',
+      line: { ko: '아아 한 잔에 집중 충전', hz: '冰美式续命', bub: '아아 최고' },
+      pref: { '해리': 6, '안우바리': 2 } },
+    { id: 'mala', ic: '🥘', place: 'mala', exp: [0, 3], mood: 'happy', energy: 14, skill: '',
+      line: { ko: '마라탕 微辣로 주문 완료', hz: '麻辣烫微辣', bub: '微辣 주세요' },
+      pref: { '보화': 6, '해리': 3 } },
+    { id: 'duo', ic: '🦉', place: 'lobby', exp: [5, 12], mood: 'focus', energy: -4, skill: '어휘',
+      line: { ko: '듀오링고 연속 학습 12일째', hz: '连续打卡十二天', bub: '12일 연속!' },
+      pref: { '안우바리': 5, '보화': 3 } },
+    { id: 'arcade', ic: '🕹️', place: 'arcade', exp: [1, 4], mood: 'excited', energy: -3, skill: '',
+      line: { ko: '오락실 한 판만 더…', hz: '再玩一局', bub: '한 판만!' },
+      pref: { '보화': 5, '안우바리': 3 } },
+    { id: 'walk', ic: '🚶', place: 'seongsu', exp: [1, 4], mood: 'happy', energy: 8, skill: '',
+      line: { ko: '연무장길 구경 중', hz: '延武场路散步', bub: '성수동 좋다' },
+      pref: { '안우바리': 4, '해리': 4 } },
+    { id: 'talk', ic: '💬', place: 'lobby', exp: [2, 6], mood: 'excited', energy: -2, skill: '회화',
+      line: { ko: '오늘 수업 어땠는지 수다 중', hz: '聊天中', bub: '수다 중' },
+      pref: { '해리': 5, '보화': 4 } },
+    { id: 'book', ic: '📚', place: 'book', exp: [3, 8], mood: 'focus', energy: -3, skill: '어휘',
+      line: { ko: '새 단어장 고르는 중', hz: '挑单词书', bub: '이 책 어때?' },
+      pref: { '예솔': 4, '수연': 3 } },
+    { id: 'ktv', ic: '🎤', place: 'ktv', exp: [3, 7], mood: 'excited', energy: -2, skill: '발음',
+      line: { ko: '중국어 노래 《晴天》 연습 중', hz: '在练《晴天》', bub: '《晴天》!' },
+      pref: { '해리': 4, '안우바리': 3 } },
+    { id: 'hangang', ic: '🌉', place: 'hangang', exp: [1, 4], mood: 'happy', energy: 9, skill: '',
+      line: { ko: '한강 바람 쐬는 중', hz: '汉江吹风', bub: '바람 좋다' },
+      pref: { '예솔': 4, '수연': 2 } },
+    { id: 'rest', ic: '😴', place: 'study', exp: [0, 1], mood: 'sleepy', energy: 16, skill: '',
+      line: { ko: '5분만 눈 붙이는 중', hz: '眯五分钟', bub: 'zzz' },
+      pref: { '보화': 2, '예솔': 2 } },
+  ];
+  const ACT = {};
+  ACTS.forEach((a) => { ACT[a.id] = a; });
+
+  /* 둘이 마주치면 나누는 짧은 대화 (한국어 + 중국어) */
+  const CONVS = [
+    { a: '수연', b: '해리', place: 'study',
+      la: { ko: '오늘 복습했어?', hz: '你今天复习了吗?', bub: '복습했어?' },
+      lb: { ko: '응! 단어 30개 외웠어', hz: '嗯，背了三十个', bub: '30개 외웠어!' } },
+    { a: '수연', b: '해리', place: 'class',
+      la: { ko: '이 문장 발음 어때?', hz: '这句发音怎么样?', bub: '발음 어때?' },
+      lb: { ko: '다시 한 번 읽어 봐', hz: '再读一遍给我听', bub: '다시 읽어봐' } },
+    { a: '보화', b: '안우바리', place: 'mala',
+      la: { ko: '마라탕 먹을래?', hz: '要吃麻辣烫吗?', bub: '마라탕 갈래?' },
+      lb: { ko: '微辣로 가자!', hz: '微辣，走起', bub: '微辣 가자!' } },
+    { a: '보화', b: '안우바리', place: 'arcade',
+      la: { ko: '나 오늘 신기록 세웠어', hz: '我今天破纪录了', bub: '신기록!' },
+      lb: { ko: '진짜? 대단하다', hz: '真的? 厉害', bub: '진짜 대단해' } },
+    { a: '예솔', b: '수연', place: 'study',
+      la: { ko: 'HSK 5급 듣기 팁 있어?', hz: 'HSK五级听力有技巧吗?', bub: '듣기 팁 있어?' },
+      lb: { ko: '뉴스 많이 들으면 좋아', hz: '多听新闻，很有用', bub: '뉴스 많이 들어' } },
+    { a: '해리', b: '보화', place: 'seongsu',
+      la: { ko: '성수동 팝업 갈래?', hz: '要去圣水洞快闪店吗?', bub: '팝업 갈래?' },
+      lb: { ko: '좋아, 사진 찍자', hz: '好啊，拍照片', bub: '사진 찍자!' } },
+    { a: '안우바리', b: '예솔', place: 'book',
+      la: { ko: '이 글자 어떻게 읽어?', hz: '这个字怎么读?', bub: '이 글자 뭐야?' },
+      lb: { ko: '‘晴’, qíng 이라고 읽어', hz: '读“晴”，qíng', bub: 'qíng!' } },
+    { a: '안우바리', b: '예솔', place: 'hangang',
+      la: { ko: '오늘 날씨 진짜 좋다', hz: '今天天气真好', bub: '날씨 좋다' },
+      lb: { ko: '우리 한강 걸을까?', hz: '我们去汉江吧', bub: '한강 가자' } },
+    { a: '수연', b: '보화', place: 'cafe',
+      la: { ko: '이번 시험 같이 준비할래?', hz: '这次考试一起准备吗?', bub: '같이 준비할래?' },
+      lb: { ko: '좋아, 단어장 공유할게', hz: '好啊，单词书共享', bub: '단어장 공유!' } },
+    { a: '해리', b: '예솔', place: 'ktv',
+      la: { ko: '중국어 노래 한 곡 어때?', hz: '来一首中文歌吧?', bub: '한 곡 어때?' },
+      lb: { ko: '《小幸运》 불러 볼게', hz: '我唱《小幸运》', bub: '小幸运!' } },
+  ];
+
+  const INIT = {
+    '수연': { hsk: 4, exp: 120, aff: 58, memo: '요즘 HSK 4급 듣기 집중', act: 'review' },
+    '해리': { hsk: 3, exp: 95, aff: 64, memo: '스타벅스 아아 없이는 못 살아요', act: 'sbux' },
+    '보화': { hsk: 2, exp: 70, aff: 71, memo: '마라탕 微辣가 취향', act: 'mala' },
+    '예솔': { hsk: 5, exp: 210, aff: 47, memo: '조용한 상위권 · 한강 산책 애호가', act: 'words' },
+    '안우바리': { hsk: 3, exp: 150, aff: 60, memo: '성수동 팝업 투어가 취미', act: 'duo' },
+  };
+  const REL0 = {
+    '수연': { '해리': 66, '예솔': 54, '보화': 41, '안우바리': 33 },
+    '해리': { '수연': 66, '보화': 49, '안우바리': 38, '예솔': 30 },
+    '보화': { '안우바리': 72, '해리': 49, '수연': 41, '예솔': 36 },
+    '예솔': { '수연': 54, '안우바리': 44, '보화': 36, '해리': 30 },
+    '안우바리': { '보화': 72, '예솔': 44, '해리': 38, '수연': 33 },
+  };
+
+  function freshStudent(name) {
+    const i = INIT[name] || { hsk: 2, exp: 0, aff: 50, memo: '', act: 'review' };
+    const a = ACT[i.act] || ACTS[0];
+    return {
+      name: name, hsk: i.hsk, exp: i.exp, mood: a.mood === 'sleepy' ? 'happy' : a.mood,
+      energy: 72, act: a.id, place: a.place, aff: i.aff, memo: i.memo,
+      rel: Object.assign({}, REL0[name] || {}), actedAt: 0, talks: 0,
+    };
+  }
+
+  const D = (V16.simsData = {
+    v: 1,
+    started: 0,
+    lastActiveAt: 0,
+    totalMin: 0,
+    rep: 0,
+    students: {},
+    journal: [],
+    pending: null,
+    hintDone: 0,
+    sessions: 0,
+  });
+
+  function load() {
+    try {
+      const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (o && typeof o === 'object') {
+        D.v = o.v || 1;
+        D.started = Number(o.started) || 0;
+        D.lastActiveAt = Number(o.lastActiveAt) || 0;
+        D.totalMin = Number(o.totalMin) || 0;
+        D.rep = Number(o.rep) || 0;
+        D.hintDone = Number(o.hintDone) || 0;
+        D.sessions = Number(o.sessions) || 0;
+        if (o.students && typeof o.students === 'object') D.students = o.students;
+        if (Array.isArray(o.journal)) D.journal = o.journal.slice(0, 60);
+        if (o.pending && typeof o.pending === 'object') D.pending = o.pending;
+      }
+    } catch (e) { err('sims:load:' + e.message); }
+    NAMES.forEach((n) => { if (!D.students[n] || typeof D.students[n] !== 'object') D.students[n] = freshStudent(n); });
+    return D;
+  }
+  function save() {
+    try {
+      D.journal = D.journal.slice(0, 60);
+      localStorage.setItem(KEY, JSON.stringify(D));
+      D.lastActiveAt = D.lastActiveAt || Date.now();
+    } catch (e) { err('sims:save:' + e.message); }
+  }
+  load();
+
+  /* ---------------- 한국어 조사 ---------------- */
+  function josa(w, pair) {
+    const s = String(w || '');
+    if (!s) return pair[1];
+    const c = s.charCodeAt(s.length - 1);
+    if (c < 0xac00 || c > 0xd7a3) return pair[1];
+    return ((c - 0xac00) % 28) ? pair[0] : pair[1];
+  }
+  const i_ga = (n) => n + josa(n, ['이', '가']);
+  const wa_gwa = (n) => n + josa(n, ['과', '와']);
+  const eun_neun = (n) => n + josa(n, ['은', '는']);
+
+  /* ---------------- 상태 계산 ---------------- */
+  function pickAct(st, avoid) {
+    const list = [];
+    let sum = 0;
+    ACTS.forEach((a) => {
+      let w = (a.pref && a.pref[st.name]) || 1;
+      if (a.id === avoid) w *= 0.12;
+      if (a.id === 'rest') w *= st.energy < 30 ? 3.2 : 0.15;
+      if (a.id === 'mala') w *= st.mood === 'hungry' ? 3 : 1;
+      if (a.id === 'sbux') w *= st.energy < 55 ? 1.6 : 1;
+      if (a.skill && st.energy < 28) w *= 0.5;
+      list.push([a, w]);
+      sum += w;
+    });
+    let r = Math.random() * sum;
+    for (let i = 0; i < list.length; i++) { r -= list[i][1]; if (r <= 0) return list[i][0]; }
+    return ACTS[0];
+  }
+
+  function applyAct(st, act, mult) {
+    const prev = st.act;
+    st.act = act.id;
+    st.place = act.place;
+    st.actedAt = Date.now();
+    const gain = Math.round(rand(act.exp[0], act.exp[1]) * (mult || 1));
+    st.exp = Math.max(0, st.exp + gain);
+    st.energy = clampN(st.energy + act.energy * (mult || 1) * 0.6, 0, 100);
+    let mood = act.mood;
+    if (st.energy < 22 && Math.random() < 0.5) mood = 'sleepy';
+    else if (st.mood === 'hungry' && Math.random() < 0.4) mood = 'happy';
+    st.mood = mood;
+    let up = 0;
+    while (st.exp >= expMaxOf(st.hsk) && st.hsk < 6) {
+      st.exp -= expMaxOf(st.hsk);
+      st.hsk += 1;
+      up = st.hsk;
+      st.memo = 'HSK ' + st.hsk + '급 준비 중';
+    }
+    if (st.hsk >= 6) st.exp = Math.min(st.exp, expMaxOf(6) - 1);
+    if (Math.random() < 0.16 && st.energy < 45) st.mood = 'hungry';
+    return { gain: gain, up: up, prevAct: prev };
+  }
+
+  function doConv(c) {
+    const A = D.students[c.a], B = D.students[c.b];
+    if (!A || !B) return null;
+    [A, B].forEach((s) => {
+      s.place = c.place;
+      s.act = 'talk';
+      s.mood = 'excited';
+      s.talks = (s.talks || 0) + 1;
+      s.actedAt = Date.now();
+      s.energy = clampN(s.energy - 1, 0, 100);
+    });
+    const up = 2 + Math.floor(Math.random() * 4);
+    A.rel[c.b] = clampN((A.rel[c.b] || 0) + up, 0, 100);
+    B.rel[c.a] = clampN((B.rel[c.a] || 0) + up, 0, 100);
+        A.aff = clampN(A.aff + 1, 0, 100);
+    B.aff = clampN(B.aff + 1, 0, 100);
+    return { up: up };
+  }
+
+  /* ---------------- 일지 ---------------- */
+  function push(ev) {
+    D.journal.unshift(ev);
+    if (D.journal.length > 60) D.journal.length = 60;
+  }
+  function evMove(st, act, at) {
+    const p = PLACE[act.place] || PLACE.lobby;
+    return { t: at, ic: act.ic, kind: 'live', who: st.name,
+      txt: i_ga(st.name) + ' ' + p.n + '에서 ' + act.line.ko };
+  }
+  function evGain(st, gain, act, at) {
+    if (!act.skill || gain < 3) return null;
+    const p = PLACE[act.place] || PLACE.lobby;
+    return { t: at, ic: '✨', kind: 'gain', who: st.name,
+      txt: i_ga(st.name) + ' ' + p.n + '에서 ' + act.skill + ' 실력을 조금 더 키웠어요 (+' + gain + ' XP)' };
+  }
+  function evLevel(st, lv, at) {
+    return { t: at, ic: '🎉', kind: 'up', who: st.name,
+      txt: '🎉 ' + i_ga(st.name) + ' HSK ' + lv + '급으로 올랐어요!' };
+  }
+  function evConv(c, at, up) {
+    const p = PLACE[c.place] || PLACE.lobby;
+    return { t: at, ic: '💬', kind: 'talk', who: c.a + '·' + c.b,
+      txt: wa_gwa(c.a) + ' ' + i_ga(c.b) + ' ' + p.n + '에서 수다 — “' + c.la.ko + '” / “' + c.lb.ko + '” (친밀도 +' + up + ')',
+      hz: c.la.hz + ' / ' + c.lb.hz,
+      lines: [{ who: c.a, ko: c.la.ko, hz: c.la.hz }, { who: c.b, ko: c.lb.ko, hz: c.lb.hz }] };
+  }
+
+  /* ---------------- 오프라인 경과 (방치) 시뮬레이션 ---------------- */
+  const OFFLINE_CAP_MIN = 12 * 60;   /* 하루 이상 자리를 비워도 12시간까지만 */
+  const OFFLINE_MIN_MIN = 10;        /* 10분 넘게 비웠을 때만 일지를 만든다 */
+
+  function offlineSim(gapMs) {
+    const now = Date.now();
+    const gap = Math.max(0, gapMs || 0);
+    const min = Math.min(gap / 60000, OFFLINE_CAP_MIN);
+    if (min < OFFLINE_MIN_MIN) return null;
+    const steps = clampN(Math.round(min / 18), 2, 14);
+    const from = now - gap;
+    const events = [];
+    let levelUps = 0;
+    for (let i = 0; i < steps; i++) {
+      const at = Math.round(from + (gap * (i + 0.6)) / (steps + 0.2));
+      if (Math.random() < 0.2) {
+        const c = choose(CONVS);
+        const r = doConv(c);
+        if (r) events.push(evConv(c, at, r.up));
+        continue;
+      }
+      const st = pickStudent();
+      const act = pickAct(st, st.act);
+      const r = applyAct(st, act, 1.35);
+      events.push(evMove(st, act, at));
+      const g = evGain(st, r.gain, act, at);
+      if (g) events.push(g);
+      if (r.up) { levelUps++; events.push(evLevel(st, r.up, at)); }
+    }
+    /* 일지가 끝난 뒤에는 '수다' 상태로 남지 않고 각자 하던 일로 돌아간다 */
+    NAMES.forEach(function (n) {
+      const st = D.students[n];
+      if (st.act !== 'talk') return;
+      const a = pickAct(st, 'talk');
+      st.act = a.id;
+      st.place = a.place;
+      st.mood = a.mood;
+    });
+    const coins = clampN(Math.round(min * 0.8) + levelUps * 25, 10, 400);
+    const rep = clampN(Math.round(min / 8) + levelUps * 2, 1, 90);
+    D.pending = {
+      from: from, to: now, gap: gap, min: Math.round(min), coins: coins, rep: rep,
+      levels: levelUps, events: events.slice(-16), claimed: false, fresh: true,
+      at: now,
+    };
+    D.totalMin = Math.round((D.totalMin || 0) + min);
+    events.forEach((e) => push(e));
+    save();
+    return D.pending;
+  }
+
+  function pickStudent() {
+    const sorted = NAMES.slice().sort((a, b) => (D.students[a].actedAt || 0) - (D.students[b].actedAt || 0));
+    const edge = sorted.slice(0, 3);
+    return D.students[choose(edge)];
+  }
+
+  /* ---------------- 실시간 자율 생활 ---------------- */
+  let tickTimer = 0;
+  let tickDueAt = 0;
+  let liveCount = 0;
+
+  function liveTick() {
+    try {
+      const now = Date.now();
+      const st = pickStudent();
+      const act = pickAct(st, st.act);
+      const r = applyAct(st, act, 0.7);
+      push(evMove(st, act, now));
+      const g = evGain(st, r.gain, act, now);
+      if (g) push(g);
+      if (r.up) push(evLevel(st, r.up, now));
+      bubble(st.name, act.line.bub, r.up ? 'cheer' : null);
+      let convo = null;
+      if (Math.random() < 0.34) {
+        const c = choose(CONVS);
+        const cr = doConv(c);
+        if (cr) {
+          push(evConv(c, now, cr.up));
+          convo = { c: c, at: now };
+          bubble(c.a, c.la.bub, 'wave');
+          setTimeout(() => { try { bubble(c.b, c.lb.bub, 'wave'); } catch (e) {} }, 1400);
+        }
+      }
+      D.lastActiveAt = now;
+      liveCount++;
+      save();
+      refresh();
+      return { st: st.name, act: act.id, up: r.up, convo: !!convo };
+    } catch (e) { err('sims:tick:' + e.message); return null; }
+  }
+
+  function schedule() {
+    clearTimeout(tickTimer);
+    const wait = 20000 + Math.random() * 10000;      /* 20~30초 */
+    tickDueAt = Date.now() + wait;
+    tickTimer = setTimeout(function () { liveTick(); schedule(); }, wait);
+    return wait;
+  }
+  function nextInSec() {
+    return Math.max(0, Math.round((tickDueAt - Date.now()) / 1000));
+  }
+
+  /* 3D 학생에게 말풍선 — 그 자리에 있을 때 자연스럽게 보인다 */
+  function avatarOf(name) {
+    try {
+      if (typeof npcs === 'undefined' || !npcs) return null;
+      for (let i = 0; i < npcs.length; i++) {
+        const n = npcs[i];
+        if (n && n.avatar && n.avatar.name === name && n.avatar.say) return n.avatar;
+      }
+    } catch (e) {}
+    return null;
+  }
+  function bubble(name, text, gesture) {
+    try {
+      const av = avatarOf(name);
+      if (!av) return;
+      av.say(text, 6200);
+      if (gesture && av.gesture) av.gesture(gesture);
+    } catch (e) {}
+  }
+
+  /* ---------------- UI ---------------- */
+  const CSS = [
+    '.v163-sheet{width:min(560px,96vw);max-height:92vh;overflow-y:auto;overscroll-behavior:contain;padding:18px 15px calc(16px + env(safe-area-inset-bottom))}',
+    '.v163-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin:0 0 10px}',
+    '.v163-hd b{display:block;font-family:var(--serif,Georgia,serif);font-size:19px;letter-spacing:.01em;line-height:1.2}',
+    '.v163-hd small{display:block;font-size:10.5px;color:#8b7c66;letter-spacing:.06em;margin-top:3px}',
+    '.v163-rep{flex:0 0 auto;font-size:11px;font-weight:900;color:#7a5a12;background:linear-gradient(150deg,#fdf1d2,#f3e2b8);border:1px solid rgba(201,154,63,.45);border-radius:12px;padding:5px 9px;text-align:center;line-height:1.25}',
+    '.v163-rep i{display:block;font-style:normal;font-size:8.5px;color:#a0824a;font-weight:800;margin-top:1px}',
+    '.v163-tabs{display:flex;gap:6px;margin:0 0 11px}',
+    '.v163-tabs button{flex:1;min-height:38px;border-radius:12px;background:rgba(94,80,62,.07);font-size:11.5px;font-weight:800;color:#6b6252}',
+    '.v163-tabs button.on{background:linear-gradient(150deg,#8aa885,#4f6a4c);color:#fdfaf2;box-shadow:0 6px 14px -10px rgba(79,106,76,.9)}',
+    '.v163-off{border-radius:16px;padding:11px 12px;margin:0 0 11px;background:linear-gradient(150deg,#fff8e6,#f6ead0);border:1px dashed rgba(201,154,63,.6)}',
+    '.v163-off h3{margin:0;font-size:13px;color:#7a5a12;display:flex;align-items:center;gap:6px;line-height:1.35}',
+    '.v163-off .sum{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}',
+    '.v163-off .sum span{font-size:9.5px;font-weight:800;color:#7a5a12;background:rgba(255,255,255,.78);border:1px solid rgba(201,154,63,.35);border-radius:99px;padding:3px 7px}',
+    '.v163-off .evs{display:flex;flex-direction:column;gap:4px;margin:0 0 9px;padding:0 2px}',
+    '.v163-off .evs div{font-size:10.5px;line-height:1.45;color:#5c5145;display:flex;gap:5px}',
+    '.v163-off .evs div i{font-style:normal;flex:0 0 auto}',
+    '.v163-claim{width:100%;min-height:44px;border-radius:13px;background:linear-gradient(150deg,#d8ab4b,#b8862c);color:#fffaf0;font-size:13px;font-weight:900}',
+    '.v163-claim:active{transform:scale(.99)}',
+    '.v163-done{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:#2f6b4a;line-height:1.4}',
+    '.v163-sec{margin:0 0 12px}',
+    '.v163-sh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 7px}',
+    '.v163-sh b{font-size:12px;color:#3f382e;letter-spacing:.01em}',
+    '.v163-sh span{font-size:9px;color:#a2937c;font-weight:700}',
+    '.v163-map{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}',
+    '.v163-cell{min-height:52px;border-radius:11px;background:rgba(94,80,62,.05);border:1px solid rgba(94,80,62,.1);padding:4px;display:flex;flex-direction:column;gap:3px;transition:background .35s,border-color .35s}',
+    '.v163-cell.on{background:linear-gradient(160deg,#f4f9ef,#e8f2e2);border-color:#a8cf9f;box-shadow:0 3px 9px -6px rgba(79,106,76,.6)}',
+    '.v163-cell>span{font-size:8px;color:#9a8d79;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}',
+    '.v163-cell.on>span{color:#4f6a4c}',
+    '.v163-dots{display:flex;flex-wrap:wrap;gap:2px;align-items:center}',
+    '.v163-dot{width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-size:7.5px;font-weight:900;color:#fff;letter-spacing:-.04em;box-shadow:0 1px 3px rgba(0,0,0,.2)}',
+    '.v163-list{display:flex;flex-direction:column;gap:7px}',
+    '.v163-card{display:flex;gap:9px;align-items:center;padding:9px 10px;border-radius:14px;background:rgba(255,255,255,.78);border:1px solid rgba(200,184,158,.5)}',
+    '.v163-av{position:relative;flex:0 0 auto;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:900;color:#fff}',
+    '.v163-av em{position:absolute;right:-3px;bottom:-3px;font-size:11px;font-style:normal;filter:drop-shadow(0 1px 2px rgba(0,0,0,.28))}',
+    '.v163-tx{flex:1 1 auto;min-width:0}',
+    '.v163-tx .nm{display:flex;align-items:center;gap:5px;flex-wrap:wrap}',
+    '.v163-tx .nm b{font-size:12.5px;color:#2d2620}',
+    '.v163-lv{font-size:9px;font-weight:800;color:#2f6b4a;background:#eaf5ec;border-radius:99px;padding:2px 6px;white-space:nowrap}',
+    '.v163-tx .ac{font-size:10.5px;color:#6b6252;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.v163-tx .ac i{font-style:normal;color:#a2937c}',
+    '.v163-bar{height:4px;border-radius:99px;background:rgba(94,80,62,.14);overflow:hidden;margin-top:4px}',
+    '.v163-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#9ccb95,#4f6a4c)}',
+    '.v163-memo{font-size:9.5px;color:#a2937c;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.v163-rel{flex:0 0 auto;text-align:right;font-size:8.5px;color:#9a8d79;line-height:1.3;max-width:62px}',
+    '.v163-rel b{display:block;font-size:11px;color:#8a6418}',
+    '.v163-chats{display:flex;flex-direction:column;gap:6px;margin-top:8px}',
+    '.v163-bub{display:flex;gap:6px;align-items:flex-start}',
+    '.v163-bub .w{flex:0 0 auto;font-size:9px;font-weight:900;color:#fff;border-radius:99px;padding:2px 6px;margin-top:1px;white-space:nowrap}',
+    '.v163-bub p{flex:1;min-width:0;margin:0;font-size:11px;line-height:1.45;color:#3f382e;background:rgba(255,255,255,.92);border:1px solid rgba(200,184,158,.55);border-radius:12px 12px 12px 4px;padding:6px 8px}',
+    '.v163-bub p em{display:block;font-style:normal;font-size:10px;color:#9a6a3a;margin-top:1px}',
+    '.v163-tl{display:flex;flex-direction:column}',
+    '.v163-ev{display:flex;gap:7px;padding:7px 0;border-bottom:1px dashed rgba(150,130,100,.2)}',
+    '.v163-ev:last-child{border-bottom:0}',
+    '.v163-ev .ic{flex:0 0 auto;width:20px;text-align:center;font-size:12px;line-height:1.5}',
+    '.v163-ev .tx{flex:1;min-width:0}',
+    '.v163-ev .tx p{margin:0;font-size:11px;line-height:1.5;color:#4a4034;word-break:keep-all}',
+    '.v163-ev .tx time{display:block;font-size:9px;color:#a99b85;margin-top:1px}',
+    '.v163-ev.up .tx p{color:#2f6b4a;font-weight:800}',
+    '.v163-ev.reward .tx p{color:#8a6418;font-weight:800}',
+    '.v163-empty{padding:16px 10px;text-align:center;font-size:11px;color:#9a8d79;line-height:1.7}',
+    '.v163-foot{margin:12px 0 0;font-size:9px;color:#b0a390;text-align:center;letter-spacing:.04em}',
+    '@media (max-width:380px){.v163-sheet{padding:16px 12px calc(14px + env(safe-area-inset-bottom))}.v163-cell{min-height:50px}.v163-rel{display:none}}',
+    'body.modal-open #v163Badge{display:none}',
+  ].join('');
+
+  let tab = 'live';
+
+  function ensureDom() {
+    if (document.getElementById('v163SimsModal')) return;
+    try {
+      const st = document.createElement('style');
+      st.id = 'v163css';
+      st.textContent = CSS;
+      document.head.appendChild(st);
+      const d = document.createElement('div');
+      d.className = 'modal';
+      d.id = 'v163SimsModal';
+      d.setAttribute('aria-label', '학원 일지 · 심즈 리포트');
+      d.innerHTML = '<div class="sheet v163-sheet">' +
+        '<button class="v12-x" id="v163X" aria-label="닫기">✕</button>' +
+        '<div class="v163-hd"><div><b>📋 학원 일지</b><small>SIMS REPORT · 자율 생활</small></div>' +
+        '<div class="v163-rep" id="v163Rep">⭐ 0<i>학원 평판</i></div></div>' +
+        '<div class="v163-tabs" id="v163Tabs">' +
+        '<button type="button" data-t="live" class="on">🫧 지금 학원</button>' +
+        '<button type="button" data-t="log">📜 지난 기록</button></div>' +
+        '<div id="v163Body"></div>' +
+        '<div class="v163-foot">v16.3 · 심즈 모드 · 이 기기에 자동 저장</div>' +
+        '</div>';
+      document.body.appendChild(d);
+      d.querySelector('#v163X').onclick = function () { close(); };
+      d.addEventListener('click', function (e) { if (e.target === d) close(); });
+      d.querySelectorAll('#v163Tabs button').forEach(function (b) {
+        b.onclick = function () { tab = b.getAttribute('data-t'); paintTabs(); render(); };
+      });
+    } catch (e) { err('sims:dom:' + e.message); }
+  }
+
+  function paintTabs() {
+    const t = document.getElementById('v163Tabs');
+    if (!t) return;
+    t.querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-t') === tab);
+    });
+  }
+
+  function repTitle(r) {
+    if (r >= 600) return '명문 학원';
+    if (r >= 300) return '인기 학원';
+    if (r >= 120) return '소문난 학원';
+    return '새내기 학원';
+  }
+  function ago(t) {
+    const s = Math.max(0, (Date.now() - t) / 1000);
+    if (s < 50) return '방금';
+    if (s < 3600) return Math.round(s / 60) + '분 전';
+    if (s < 86400) return Math.round(s / 3600) + '시간 전';
+    return Math.round(s / 86400) + '일 전';
+  }
+  function gapText(ms) {
+    const m = Math.round(ms / 60000);
+    if (m < 60) return m + '분';
+    const h = Math.floor(m / 60), mm = m % 60;
+    if (h < 24) return mm ? h + '시간 ' + mm + '분' : h + '시간';
+    const d = Math.floor(h / 24);
+    return d + '일 ' + (h % 24) + '시간';
+  }
+
+  function bannerHTML() {
+    const p = D.pending;
+    if (!p) return '';
+    if (p.claimed) {
+      return '<div class="v163-off"><h3>✅ 보상 수령 완료</h3>' +
+        '<div class="v163-done" style="margin-top:6px">+' + p.coins + ' 코인과 평판 +' + p.rep + '를 받았어요. ' +
+        '그동안 학생들이 열심히 공부했어요!</div></div>';
+    }
+    const allEv = p.events || [];
+    /* 경험치 줄만 잔뜩 보이지 않게 — 이야기(행동·대화·레벨업)를 먼저 보여 준다 */
+    let showEv = allEv.filter(function (e) { return e.kind !== 'gain'; }).slice(-6);
+    if (showEv.length < 3) showEv = allEv.slice(-6);
+    const evs = showEv.map(function (e) {
+      return '<div><i>' + (e.ic || '·') + '</i><span>' + e.txt + '</span></div>';
+    }).join('') + (allEv.length > showEv.length
+      ? '<div style="color:#a0824a;font-weight:800">…외 ' + (allEv.length - showEv.length) + '건 더 있었어요</div>' : '');
+    const capped = p.gap > OFFLINE_CAP_MIN * 60000;
+    return '<div class="v163-off">' +
+      '<h3>🕐 ' + (capped ? '12시간 넘게 자리를 비웠어요' : gapText(p.gap) + ' 만에 돌아왔어요') + '</h3>' +
+      (capped ? '<div style="font-size:9.5px;color:#a0824a;margin-top:3px">너무 오래 비우면 학원이 지칠까 봐, 최대 12시간까지만 반영했어요</div>' : '') +
+      '<div class="sum"><span>사건 ' + (p.events || []).length + '건</span>' +
+      '<span>레벨업 ' + (p.levels || 0) + '번</span>' +
+      '<span>코인 +' + p.coins + '</span><span>평판 +' + p.rep + '</span></div>' +
+      '<div class="evs">' + evs + '</div>' +
+      '<button class="v163-claim" id="v163Claim" type="button">🪙 보상 받기 (+' + p.coins + ' 코인)</button>' +
+      '</div>';
+  }
+
+  function mapHTML() {
+    const byPlace = {};
+    PLACES.forEach(function (p) { byPlace[p.id] = []; });
+    NAMES.forEach(function (n) { const s = D.students[n]; (byPlace[s.place] = byPlace[s.place] || []).push(s); });
+    return '<div class="v163-map">' + PLACES.map(function (p) {
+      const list = byPlace[p.id] || [];
+      return '<div class="v163-cell' + (list.length ? ' on' : '') + '">' +
+        '<span>' + p.ic + ' ' + p.n + '</span>' +
+        '<div class="v163-dots">' + list.map(function (s) {
+          return '<span class="v163-dot" style="background:' + (COLOR[s.name] || '#9a8d79') + '" title="' + s.name + '">' +
+            s.name.slice(0, 1) + '</span>';
+        }).join('') + '</div></div>';
+    }).join('') + '</div>';
+  }
+
+  function cardsHTML() {
+    return '<div class="v163-list">' + NAMES.map(function (n) {
+      const s = D.students[n];
+      const m = MOOD[s.mood] || MOOD.happy;
+      const a = ACT[s.act] || ACTS[0];
+      const p = PLACE[s.place] || PLACE.lobby;
+      const max = expMaxOf(s.hsk);
+      const pct = Math.max(3, Math.min(100, Math.round((s.exp / max) * 100)));
+      let best = '', bv = -1;
+      Object.keys(s.rel || {}).forEach(function (k) { if (s.rel[k] > bv) { bv = s.rel[k]; best = k; } });
+      return '<div class="v163-card">' +
+        '<span class="v163-av" style="background:' + (COLOR[n] || '#9a8d79') + '">' + n.slice(0, 1) +
+        '<em>' + m.ic + '</em></span>' +
+        '<div class="v163-tx"><div class="nm"><b>' + n + '</b>' +
+        '<span class="v163-lv">HSK ' + s.hsk + '급 · ' + s.exp + '/' + max + '</span></div>' +
+        '<div class="ac">' + a.ic + ' ' + p.n + ' · ' + a.line.ko + ' <i>(' + m.n + ')</i></div>' +
+        '<div class="v163-bar"><i style="width:' + pct + '%"></i></div>' +
+        (s.memo ? '<div class="v163-memo">📝 ' + s.memo + '</div>' : '') + '</div>' +
+        '<div class="v163-rel">친밀도<b>' + s.aff + '</b>' + (best ? '단짝 ' + best : '') + '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
+
+  function chatsHTML() {
+    const talks = D.journal.filter(function (e) { return e.kind === 'talk' && e.lines; }).slice(0, 3);
+    if (!talks.length) return '';
+    return '<div class="v163-chats">' + talks.map(function (e) {
+      return e.lines.map(function (l) {
+        return '<div class="v163-bub"><span class="w" style="background:' + (COLOR[l.who] || '#9a8d79') + '">' + l.who + '</span>' +
+          '<p>' + l.ko + '<em>' + l.hz + '</em></p></div>';
+      }).join('');
+    }).join('') + '</div>';
+  }
+
+  function liveHTML() {
+    return bannerHTML() +
+      '<div class="v163-sec"><div class="v163-sh"><b>🫧 지금 학원</b>' +
+      '<span id="v163Next">20~30초마다 스스로 움직여요</span></div>' + mapHTML() + '</div>' +
+      '<div class="v163-sec"><div class="v163-sh"><b>👧 수강생 5명</b><span>HSK 급수 · 기분 · 친밀도</span></div>' +
+      cardsHTML() + '</div>' +
+      '<div class="v163-sec"><div class="v163-sh"><b>💬 방금 나눈 대화</b><span>한국어 + 中文</span></div>' +
+      (chatsHTML() || '<div class="v163-empty">아직 조용해요. 잠시 두면 학생들이 수다를 시작해요 🫧</div>') + '</div>';
+  }
+
+  function logHTML() {
+    const list = D.journal.slice(0, 40);
+    if (!list.length) return '<div class="v163-empty">아직 기록이 없어요.<br>학원을 둘러보고 다시 오면 그동안의 이야기가 쌓여요.</div>';
+    return '<div class="v163-tl">' + list.map(function (e) {
+      const cls = e.kind === 'up' ? ' up' : (e.kind === 'reward' ? ' reward' : '');
+      return '<div class="v163-ev' + cls + '"><span class="ic">' + (e.ic || '·') + '</span>' +
+        '<div class="tx"><p>' + e.txt + '</p><time>' + ago(e.t) + '</time></div></div>';
+    }).join('') + '</div>';
+  }
+
+  function render() {
+    ensureDom();
+    const body = document.getElementById('v163Body');
+    if (!body) return;
+    const sheet = body.closest('.v163-sheet');
+    const sc = sheet ? sheet.scrollTop : 0;
+    body.innerHTML = tab === 'live' ? liveHTML() : logHTML();
+    const rep = document.getElementById('v163Rep');
+    if (rep) rep.innerHTML = '⭐ ' + (D.rep || 0) + '<i>' + repTitle(D.rep || 0) + '</i>';
+    const claim = document.getElementById('v163Claim');
+    if (claim) claim.onclick = claimReward;
+    if (sheet) sheet.scrollTop = sc;
+    paintTabs();
+  }
+  function refresh() {
+    if (!document.getElementById('v163SimsModal')) return;
+    if (!document.getElementById('v163SimsModal').classList.contains('show')) return;
+    render();
+  }
+
+  function claimReward() {
+    const p = D.pending;
+    if (!p || p.claimed) return;
+    p.claimed = true;
+    p.claimedAt = Date.now();
+    D.rep = clampN((D.rep || 0) + (p.rep || 0), 0, 9999);
+    try { if (V16.gold) V16.gold(p.coins); } catch (e) {}
+    push({ t: Date.now(), ic: '🪙', kind: 'reward',
+      txt: '학원 일지 보상 수령 — +' + p.coins + ' 코인 · 평판 +' + p.rep });
+    save();
+    render();
+    try { if (window.toast) toast('🪙 ' + p.coins + ' 코인 · 평판 +' + p.rep + ' 받았어요!', 2600); } catch (e) {}
+    try { if (window.Sound && Sound.coin) Sound.coin(); } catch (e) {}
+    paintBadge();
+  }
+
+  function open() {
+    ensureDom();
+    tab = (D.pending && !D.pending.claimed && D.pending.fresh) ? 'live' : tab;
+    render();
+    try { if (window.V12 && V12.open) V12.open('v163SimsModal'); else document.getElementById('v163SimsModal').classList.add('show'); } catch (e) {}
+    if (D.pending) D.pending.fresh = false;
+    save();
+  }
+  function close() {
+    const m = document.getElementById('v163SimsModal');
+    if (m) m.classList.remove('show');
+    try { if (window.V12 && V12.syncModalState) V12.syncModalState(); } catch (e) {}
+  }
+
+  /* 메뉴(더보기)에 항목 추가 + 🎛️ 배지 */
+  function paintBadge() {
+    try {
+      const b = document.getElementById('btnMore');
+      if (!b) return;
+      let sp = b.querySelector('#v163Badge');
+      const p = D.pending;
+      const show = !!(p && !p.claimed);
+      if (!show) { if (sp) sp.remove(); return; }
+      if (!sp) {
+        sp = document.createElement('span');
+        sp.id = 'v163Badge';
+        sp.className = 'badge';
+        b.appendChild(sp);
+      }
+      sp.textContent = '!';
+    } catch (e) {}
+  }
+  function addMenu() {
+    try {
+      const more = document.getElementById('moreSheet');
+      if (more && !document.getElementById('v163More')) {
+        const b = document.createElement('button');
+        b.id = 'v163More';
+        b.type = 'button';
+        b.innerHTML = '<span aria-hidden="true">📋</span> 심즈 학원 일지';
+        b.onclick = function () {
+          try { document.getElementById('moreClose').click(); } catch (e) {}
+          open();
+        };
+        more.insertBefore(b, more.querySelector('#moreBoard') || more.querySelector('#moreJob') || null);
+      }
+      paintBadge();
+    } catch (e) {}
+  }
+
+  /* ---------------- 부팅 · 되돌아왔을 때 ---------------- */
+  function catchUp(force) {
+    const now = Date.now();
+    const last = D.lastActiveAt || 0;
+    if (!last) return null;
+    const gap = now - last;
+    if (gap < OFFLINE_MIN_MIN * 60000) return null;
+    const p = offlineSim(gap);
+    paintBadge();
+    return p;
+  }
+
+  (function boot() {
+    const now = Date.now();
+    if (!D.started) {
+      D.started = now;
+      D.lastActiveAt = now;
+      D.sessions = 1;
+      NAMES.forEach(function (n) { if (!D.students[n]) D.students[n] = freshStudent(n); });
+      save();
+    } else {
+      D.sessions = (D.sessions || 0) + 1;
+      catchUp(true);
+      D.lastActiveAt = now;
+      save();
+    }
+    schedule();
+    setInterval(addMenu, 2500);
+    addMenu();
+    setInterval(function () {
+      const el = document.getElementById('v163Next');
+      if (!el) return;
+      el.textContent = '다음 소식 ' + nextInSec() + '초 후';
+    }, 1000);
+    /* 화면을 보고 있을 때만 '지금'으로 갱신한다 — 백그라운드에 있는 동안은 비운 시간으로 남긴다 */
+    setInterval(function () {
+      if (document.hidden) return;
+      D.lastActiveAt = Date.now(); save();
+    }, 30000);
+
+    /* 앱을 닫거나 다른 탭으로 갈 때 마지막 시각을 남긴다 */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { D.lastActiveAt = Date.now(); save(); }
+      else if (D.started && Date.now() - (D.lastActiveAt || 0) > OFFLINE_MIN_MIN * 60000) catchUp(true);
+    });
+    window.addEventListener('pagehide', function () { D.lastActiveAt = Date.now(); save(); });
+
+    /* 첫 방문 안내 (한 번만 · 학원에 들어온 뒤) */
+    let hintShown = false;
+    setInterval(function () {
+      if (hintShown) return;
+      try {
+        if (typeof State === 'undefined' || !State || !State.joined) return;
+        hintShown = true;
+        if (D.hintDone) return;
+        D.hintDone = 1; save();
+        if (D.pending && !D.pending.claimed) return;   /* 일지가 먼저 뜨면 안내는 생략 */
+        setTimeout(function () {
+          try { if (V16.say) V16.say('📋 심즈 학원 일지', '더보기(🎛️)에서 수강생들의 자율 생활을 볼 수 있어요', 4600); } catch (e) {}
+        }, 2200);
+      } catch (e) {}
+    }, 1500);
+
+    /* 돌아왔을 때: 학원에 들어간 뒤에 일지가 뜨도록 */
+    let tries = 0;
+    const g = setInterval(function () {
+      tries++;
+      try {
+        if (tries > 80) { clearInterval(g); return; }
+        if (!D.pending || D.pending.claimed || !D.pending.fresh) { if (tries > 30) clearInterval(g); return; }
+        if (typeof State === 'undefined' || !State || !State.joined) return;
+        if (document.body.classList.contains('modal-open')) return;
+        clearInterval(g);
+        open();
+      } catch (e) {}
+    }, 1200);
+  })();
+
+  /* ---------------- 공개 API (테스트 · 진단) ---------------- */
+  V16.sims = {
+    open: open,
+    close: close,
+    data: D,
+    tick: liveTick,
+    offline: function (minutes) { return offlineSim((minutes || 0) * 60000); },
+    claim: claimReward,
+    render: render,
+    save: save,
+    catchUp: catchUp,
+    nextIn: nextInSec,
+    info: function () {
+      const out = { rep: D.rep, pending: D.pending ? { coins: D.pending.coins, rep: D.pending.rep, claimed: D.pending.claimed, events: (D.pending.events || []).length } : null,
+        gold: (function () { try { return V16.goldNow ? V16.goldNow() : null; } catch (e) { return null; } })(), students: {} };
+      NAMES.forEach(function (n) {
+        const s = D.students[n];
+        out.students[n] = { hsk: s.hsk, exp: s.exp, mood: s.mood, act: s.act, place: s.place, aff: s.aff };
+      });
+      return out;
+    },
+  };
+})();
+
 /* =====================================================================
    v16 BOOT — 등록 · 존 이름 · 메뉴 버튼 · 진단
    ===================================================================== */
