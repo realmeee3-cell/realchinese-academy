@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer" />
 <link rel="preconnect" href="https://translate.google.com" crossorigin />
 <link rel="preconnect" href="https://translate.googleapis.com" crossorigin />
-<meta name="app-build" content="2026-11-27-v16.5-autonomy-jobs-personality-needs" />
+<meta name="app-build" content="2026-11-27-v16.6-autonomous-creators-architect-designer-chef-dj-creator" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <title>리얼통번역 중국어 학원 · 3D 캠퍼스</title>
 <style>
@@ -20298,6 +20298,9 @@ const BGM_TRACKS = [
     bass: [C3, E3, A3, G3], style: 'winter' },
 ];
 
+/* v16.6 — 자율 작곡가가 만든 신곡을 BGM 목록에 붙일 수 있게 공개 */
+window.__V166_BGM = BGM_TRACKS;
+
 /* Music 확장 — 트랙 선택 · 재생 스타일 */
 (function extendMusic() {
   const M = Music;
@@ -37732,6 +37735,9 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   ];
   const MAP = {};
   BAEMIN.concat(COUPANG).forEach((x) => { MAP[x.id] = x; });
+  /* v16.6 — 자율 셰프가 개발한 신메뉴를 배달 목록에 붙일 수 있게 공개 */
+  window.__V166_BAEMIN = BAEMIN;
+  window.__V166_DELIVERY_MAP = MAP;
 
   const D = {
     orders: [], rider: null, built: false,
@@ -47614,9 +47620,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         '<div class="v163-tabs" id="v163Tabs">' +
         '<button type="button" data-t="live" class="on">🫧 지금 학원</button>' +
         '<button type="button" data-t="job">💼 직업</button>' +
+        '<button type="button" data-t="craft">🎨 자율 창작</button>' +
         '<button type="button" data-t="log">📜 지난 기록</button></div>' +
         '<div id="v163Body"></div>' +
-        '<div class="v163-foot">v16.5 · 자율 직업 · 이 기기에 자동 저장</div>' +
+        '<div class="v163-foot">v16.6 · 자율 창작(건축·패션·요리·음악·크리에이터) · 이 기기에 자동 저장</div>' +
         '</div>';
       document.body.appendChild(d);
       d.querySelector('#v163X').onclick = function () { close(); };
@@ -47814,7 +47821,8 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (!body) return;
     const sheet = body.closest('.v163-sheet');
     const sc = sheet ? sheet.scrollTop : 0;
-    body.innerHTML = tab === 'live' ? liveHTML() : (tab === 'job' ? jobHTML() : logHTML());
+    body.innerHTML = tab === 'live' ? liveHTML() : (tab === 'job' ? jobHTML() : (tab === 'craft' ? ((window.V166 && V166.panelHTML) ? V166.panelHTML() : '<div class="v163-empty">자율 창작을 불러오는 중…</div>') : logHTML()));
+    if (tab === 'craft') { try { if (window.V166 && V166.bindPanel) V166.bindPanel(body); } catch (e2) {} }
     const rep = document.getElementById('v163Rep');
     if (rep) rep.innerHTML = '⭐ ' + (D.rep || 0) + '<i>' + repTitle(D.rep || 0) + '</i>';
     const claim = document.getElementById('v163Claim');
@@ -47975,6 +47983,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   /* ---------------- 공개 API (테스트 · 진단) ---------------- */
   V16.sims = {
     open: open,
+    openCraft: function () { tab = 'craft'; open(); },
     close: close,
     data: D,
     tick: liveTick,
@@ -49360,5 +49369,1418 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
 
 </script>
 
+<!--V166-START-->
+<script id="v166script">
+/* =====================================================================
+   v16.6 AUTOCREATORS — 🏗️ 자율 건축가 · 👗 패션 디자이너 · 🍜 셰프
+                        🎵 작곡가 · 📱 크리에이터
+   ---------------------------------------------------------------------
+   · 도현(건축가)이 캠퍼스 잔디밭에 5채를 스스로 짓는다
+     (공사 예정 표지 → 펜스·골조 → 완공 3D 건물)
+   · 세아(디자이너)가 신상 의상 8종을 만들어 옷장에 자동 등록
+   · 연우(셰프)가 신메뉴 6종을 개발해 배민 메뉴에 자동 추가
+   · 민재(작곡가)가 Web Audio 신곡 5곡을 만들어 BGM 목록에 추가
+   · 서연(크리에이터)이 오늘의 실전 중국어 카드를 자동 발행 (평판·코인)
+   · 시간이 흐르면 알아서 진행된다 (오프라인 최대 12시간 반영)
+   · 골드 후원으로 앞당길 수 있지만, 가만히 둬도 스스로 완성된다
+   · 유료 API 0원 — 전부 이 브라우저에서 계산/저장
+   ===================================================================== */
+(function () {
+  const V16 = window.V16, V15 = window.V15, V14 = window.V14, V12 = window.V12;
+  if (!V16 || !V15) return;
+  if (window.V166 && window.V166.ready) return;
+  const THREE = window.THREE;
+  const M = (window.V166 = { ready: false, errors: [], version: '16.6' });
+  const err = function (m) {
+    try { if (M.errors.length < 300) M.errors.push(String(m)); console.warn('[v166]', m); } catch (e) {}
+  };
+  const SIMS = (V16.simsData = V16.simsData || { journal: [], rep: 0 });
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const KEY = 'rtb_v166_studio_v1';
+
+  /* =================================================================
+     1) 창작품 목록
+     ================================================================= */
+  const ARCH = [
+    { id: 'pavilion', name: '중국풍 정자', hz: '八角凉亭', x: -43, z: 72, ry: 0, w: 5.0, d: 5.0, need: 180,
+      learn: { title: '중국풍 정자 · 八角凉亭', hz: '明月松间照，清泉石上流。', py: 'míng yuè sōng jiān zhào, qīng quán shí shàng liú.',
+        ko: '밝은 달은 소나무 사이로 비추고, 맑은 물은 돌 위로 흐른다.', src: '왕유(王维) 《산거추명(山居秋暝)》',
+        word: '亭子 tíngzi · 정자 / 石 shí · 돌' } },
+    { id: 'tea', name: '야외 찻집 부스', hz: '功夫茶亭', x: -24, z: 77, ry: 0, w: 4.2, d: 3.6, need: 180,
+      learn: { title: '야외 찻집 · 功夫茶亭', hz: '请喝茶！这是今年的新茶。', py: 'qǐng hē chá! zhè shì jīnnián de xīn chá.',
+        ko: '차 드세요! 올해 나온 새 차예요.', src: '중국 차 문화 · 功夫茶',
+        word: '茶具 chájù · 다기 / 泡茶 pào chá · 차를 우려내다 / 干杯 gānbēi · 건배' } },
+    { id: 'gallery', name: '성수 미니 갤러리', hz: '艺术小馆', x: -9, z: 72, ry: 0, w: 5.0, d: 4.0, need: 180,
+      learn: { title: '성수 미니 갤러리 · 艺术小馆', hz: '这幅画的颜色很温柔。', py: 'zhè fú huà de yánsè hěn wēnróu.',
+        ko: '이 그림의 색감이 아주 부드러워요.', src: '전시 관람 · 看展',
+        word: '展览 zhǎnlǎn · 전시 / 作品 zuòpǐn · 작품 / 设计 shèjì · 디자인' } },
+    { id: 'fountain', name: '연꽃 분수대 · 등불 타워', hz: '莲花喷泉·灯塔', x: -25, z: 63, ry: 0, w: 6.4, d: 6.4, need: 210,
+      learn: { title: '연꽃 분수대 · 莲花喷泉', hz: '晚上这里的灯特别漂亮。', py: 'wǎnshang zhèlǐ de dēng tèbié piàoliang.',
+        ko: '밤에 이곳 등불이 특히 예뻐요.', src: '캠퍼스 랜드마크 · 地标',
+        word: '喷泉 pēnquán · 분수 / 灯 dēng · 등불 / 夜景 yèjǐng · 야경' } },
+    { id: 'study', name: '한자 서재', hz: '汉书院', x: -37, z: 58, ry: 0, w: 5.2, d: 4.2, need: 180,
+      learn: { title: '한자 서재 · 汉书院', hz: '我们一起写汉字吧。', py: 'wǒmen yìqǐ xiě Hànzì ba.',
+        ko: '우리 같이 한자를 써 봐요.', src: '한자 학습 · 汉字',
+        word: '书法 shūfǎ · 서예 / 毛笔 máobǐ · 붓 / 练习 liànxí · 연습' } },
+  ];
+
+  const FASH = [
+    { id: 'v166merino', icon: '🧣', name: '성수 겨울 니트 머플러', hz: '圣水针织围巾', py: 'Shèngshuǐ zhēnzhī wéijīn',
+      slot: 'neck', shape: 'v166scarf', color: 0xe8dcc8, accent: 0x8a3b45, release: '무료 증정', need: 100,
+      story: '성수 연무장길 겨울 바람에서 영감을 받은 두꺼운 니트 머플러' },
+    { id: 'v166beret', icon: '🎨', name: '탕후루 베레모', hz: '糖葫芦贝雷帽', py: 'tánghúlu bèi léi mào',
+      slot: 'hat', shape: 'v166beret', color: 0xc0392b, accent: 0xf2cf6a, need: 100,
+      story: '탕후루 산사의 빨간 유리 같은 광택을 담은 베레모' },
+    { id: 'v166qipao', icon: '🧥', name: '네오 치파오 자켓', hz: '新式旗袍外套', py: 'xīnshì qípáo wàitào',
+      slot: 'body', shape: 'jacket', color: 0x201b1d, accent: 0xd8b06a, need: 105,
+      story: '치파오의 깃과 금단추를 현대적인 크롭 자켓으로' },
+    { id: 'v166trench', icon: '🧥', name: '상하이 트렌치코트', hz: '上海风衣', py: 'Shànghǎi fēngyī',
+      slot: 'body', shape: 'v166trench', color: 0xc8b08a, accent: 0x6b4a32, need: 110,
+      story: '와이탄의 안개를 닮은 베이지 트렌치' },
+    { id: 'v166cape', icon: '🎅', name: '홀리데이 망토', hz: '圣诞斗篷', py: 'shèngdàn dǒupeng',
+      slot: 'body', shape: 'v166cape', color: 0x9a1f2b, accent: 0xf7f0e2, need: 110,
+      story: '성수 겨울 팝업을 위한 크리스마스 망토' },
+    { id: 'v166catband', icon: '🐱', name: '야광 고양이 머리띠', hz: '夜光猫耳发箍', py: 'yèguāng māo ěr fāgū',
+      slot: 'hat', shape: 'v166catband', color: 0x5aa6e0, accent: 0x8ce8ff, need: 115,
+      story: '밤에 은은하게 빛나는 고양이 귀 머리띠' },
+    { id: 'v166hood', icon: '🧢', name: '벨벳 후드', hz: '天鹅绒连帽衫', py: 'tiān é róng lián mào shān',
+      slot: 'body', shape: 'v166hood', color: 0x4a2a5a, accent: 0x7a4a8a, need: 115,
+      story: '북촌 밤 골목에서 영감을 받은 벨벳 후드' },
+    { id: 'v166goldscarf', icon: '✨', name: '골드 스카프', hz: '金色丝巾', py: 'jīnsè sījīn',
+      slot: 'neck', shape: 'v166scarf', color: 0xd8b06a, accent: 0xf7e6b0, metal: 1, need: 120,
+      story: '마지막 컬렉션을 장식하는 금빛 실크 스카프' },
+  ];
+
+  const CHEF = [
+    { id: 'v166tangice', icon: '🍧', name: '탕후루 아이스크림', hz: '糖葫芦冰淇淋', py: 'tánghúlu bīngqílín', price: 16,
+      need: 80, xp: 26, food: 30, energy: 12, foodKind: 'icecream',
+      phrase: { hz: '我要一个糖葫芦冰淇淋。', py: 'wǒ yào yí ge tánghúlu bīngqílín.', ko: '탕후루 아이스크림 하나 주세요.' } },
+    { id: 'v166osmanthus', icon: '🍡', name: '계화 떡', hz: '桂花糕', py: 'guìhuā gāo', price: 14,
+      need: 80, xp: 22, food: 26, energy: 8, foodKind: 'onigiri',
+      phrase: { hz: '桂花糕很香，也不太甜。', py: 'guìhuā gāo hěn xiāng, yě bú tài tián.', ko: '계화 떡은 향이 좋고 많이 달지 않아요.' } },
+    { id: 'v166xiaolong', icon: '🥟', name: '상하이 샤오롱바오', hz: '上海小笼包', py: 'Shànghǎi xiǎolóngbāo', price: 20,
+      need: 85, xp: 30, food: 36, energy: 14, foodKind: 'bento',
+      phrase: { hz: '小笼包要趁热吃。', py: 'xiǎolóngbāo yào chèn rè chī.', ko: '샤오롱바오는 뜨거울 때 먹어야 해요.' } },
+    { id: 'v166mala', icon: '🥘', name: '마라샹궈 정식', hz: '麻辣香锅套餐', py: 'málà xiāngguō tàocān', price: 24,
+      need: 90, xp: 34, food: 42, energy: 16, foodKind: 'bento',
+      phrase: { hz: '麻辣香锅，微辣，谢谢。', py: 'málà xiāngguō, wēilà, xièxie.', ko: '마라샹궈, 살짝 맵게 주세요.' } },
+    { id: 'v166boba', icon: '🧋', name: '흑당 버블티', hz: '黑糖珍珠奶茶', py: 'hēitáng zhēnzhū nǎichá', price: 12,
+      need: 75, xp: 20, food: 18, energy: 20, foodKind: 'banana',
+      phrase: { hz: '一杯黑糖珍珠奶茶，少冰。', py: 'yì bēi hēitáng zhēnzhū nǎichá, shǎo bīng.', ko: '흑당 버블티 한 잔, 얼음 적게요.' } },
+    { id: 'v166dumpling', icon: '🥠', name: '베이징 왕교자', hz: '北京锅贴', py: 'Běijīng guōtiē', price: 18,
+      need: 85, xp: 28, food: 34, energy: 12, foodKind: 'odeng',
+      phrase: { hz: '锅贴要煎到底部金黄。', py: 'guōtiē yào jiān dào dǐbù jīnhuáng.', ko: '군만두는 밑면이 노릇해질 때까지 구워요.' } },
+  ];
+
+  const MUSIC = [
+    { id: 'v166seongsu', icon: '🌙', name: '성수 겨울 로파이', sub: 'SEONGSU WINTER LO-FI · 圣水冬夜', need: 140,
+      style: 'classic', spb: 0.74,
+      pat: [60, 0, 64, 0, 67, 0, 69, 0, 64, 0, 62, 0, 60, 0, 57, 0],
+      chords: [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]] },
+    { id: 'v166shanghai', icon: '🌃', name: '상하이 야경 재즈', sub: 'SHANGHAI NIGHT JAZZ · 上海夜景', need: 150,
+      style: 'classic', spb: 0.58,
+      pat: [72, 0, 69, 0, 67, 0, 64, 0, 62, 0, 60, 0, 57, 0, 60, 0],
+      chords: [[53, 57, 60], [57, 60, 64], [48, 52, 55], [55, 59, 62]] },
+    { id: 'v166beijing', icon: '🔔', name: '베이징 아침 차임', sub: 'BEIJING MORNING · 北京早晨', need: 145,
+      style: 'classic', spb: 0.7,
+      pat: [64, 0, 67, 0, 69, 0, 72, 0, 74, 0, 72, 0, 69, 0, 67, 0],
+      chords: [[60, 64, 67], [55, 59, 62], [57, 60, 64], [55, 59, 62]] },
+    { id: 'v166hangang', icon: '🌉', name: '한강 야간 드라이브', sub: 'HANGANG NIGHT DRIVE · 汉江夜行', need: 155,
+      style: 'classic', spb: 0.44,
+      pat: [72, 76, 79, 81, 79, 76, 74, 72, 69, 72, 76, 79, 81, 79, 76, 72],
+      chords: [[60, 64, 67], [57, 60, 64], [53, 57, 60], [55, 59, 62]] },
+    { id: 'v166pavilion', icon: '🪕', name: '정자 명상', sub: 'PAVILION MEDITATION · 亭中冥想', need: 160,
+      style: 'classic', spb: 0.86,
+      pat: [57, 0, 0, 64, 0, 67, 0, 0, 69, 0, 67, 0, 64, 0, 62, 0],
+      chords: [[57, 60, 64], [52, 55, 59], [50, 53, 57], [48, 52, 55]] },
+  ];
+
+  const CREATE = [
+    { tag: '건축', ic: '🏗️', title: '정자에서 배우는 한 문장', hz: '我们坐下来休息一下吧。', py: 'wǒmen zuò xiàlái xiūxi yíxià ba.', ko: '우리 앉아서 좀 쉬어요.' },
+    { tag: '패션', ic: '👗', title: '옷 가게에서 쓰는 표현', hz: '这件衣服可以试穿吗？', py: 'zhè jiàn yīfu kěyǐ shìchuān ma?', ko: '이 옷 입어 봐도 될까요?' },
+    { tag: '요리', ic: '🍜', title: '맛집에서 한마디', hz: '这个太好吃了，再来一份！', py: 'zhège tài hǎochī le, zàilái yí fèn!', ko: '이거 너무 맛있어요, 하나 더 주세요!' },
+    { tag: '음악', ic: '🎵', title: '노래방에서', hz: '唱得太好了，再来一首！', py: 'chàng de tài hǎo le, zàilái yì shǒu!', ko: '노래 너무 잘했어요, 한 곡 더!' },
+    { tag: '산책', ic: '🌿', title: '성수에서 사진 찍기', hz: '帮我拍张照片，好吗？', py: 'bāng wǒ pāi zhāng zhàopiàn, hǎo ma?', ko: '사진 한 장 찍어 줄래요?' },
+    { tag: '수업', ic: '📚', title: '수업 시작 인사', hz: '大家准备好了吗？我们开始吧。', py: 'dàjiā zhǔnbèi hǎo le ma? wǒmen kāishǐ ba.', ko: '다들 준비됐나요? 시작해요.' },
+    { tag: '카페', ic: '☕', title: '카페 주문 표현', hz: '我要一杯冰美式，谢谢。', py: 'wǒ yào yì bēi bīngměishì, xièxie.', ko: '아이스 아메리카노 한 잔 주세요.' },
+    { tag: '칭찬', ic: '✨', title: '친구 칭찬하기', hz: '你的中文说得越来越好了。', py: 'nǐ de Zhōngwén shuō de yuè lái yuè hǎo le.', ko: '네 중국어가 점점 좋아지네요.' },
+    { tag: '여행', ic: '✈️', title: '여행지에서', hz: '请问这里怎么走？', py: 'qǐngwèn zhèlǐ zěnme zǒu?', ko: '여쭤볼게요, 여기는 어떻게 가요?' },
+    { tag: '응원', ic: '💪', title: '오늘의 응원', hz: '加油！你一定可以的。', py: 'jiāyóu! nǐ yídìng kěyǐ de.', ko: '힘내세요! 넌 분명 잘할 수 있어요.' },
+  ];
+
+  /* =================================================================
+     2) 저장
+     ================================================================= */
+  const D = (M.data = {
+    v: 1, lastSeen: 0, seeded: 0,
+    arch: { i: 1, prog: 0, done: [], itemDone: {} },
+    fash: { i: 2, prog: 0, done: [], itemDone: {} },
+    chef: { i: 2, prog: 0, done: [], itemDone: {} },
+    music: { i: 1, prog: 0, done: [], itemDone: {} },
+    creator: { i: 0, prog: 0, pills: 0 },
+    cards: [],
+    me: { food: 66, energy: 72, ate: {}, buffUntil: 0 },
+    log: [],
+  });
+
+  function save() {
+    try {
+      D.log = (D.log || []).slice(0, 40);
+      if (D.cards && D.cards.length > 12) D.cards.length = 12;
+      localStorage.setItem(KEY, JSON.stringify(D));
+    } catch (e) { err('save:' + e.message); }
+  }
+  function load() {
+    try {
+      const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!o || typeof o !== 'object') return false;
+      ['arch', 'fash', 'chef', 'music', 'creator'].forEach((k) => {
+        if (o[k] && typeof o[k] === 'object') Object.assign(D[k], o[k]);
+      });
+      ['done', 'itemDone'].forEach((k) => {
+        ['arch', 'fash', 'chef', 'music'].forEach((mk) => {
+          if (!D[mk][k] || typeof D[mk][k] !== 'object') D[mk][k] = Array.isArray(D[mk][k]) ? D[mk][k] : {};
+        });
+      });
+      if (!Array.isArray(D.arch.done)) D.arch.done = [];
+      if (!Array.isArray(D.fash.done)) D.fash.done = [];
+      if (!Array.isArray(D.chef.done)) D.chef.done = [];
+      if (!Array.isArray(D.music.done)) D.music.done = [];
+      if (Array.isArray(o.cards)) D.cards = o.cards.slice(0, 12);
+      if (o.me && typeof o.me === 'object') Object.assign(D.me, o.me);
+      if (Array.isArray(o.log)) D.log = o.log.slice(0, 40);
+      D.lastSeen = Number(o.lastSeen) || 0;
+      D.seeded = Number(o.seeded) || 0;
+      return true;
+    } catch (e) { err('load:' + e.message); return false; }
+  }
+
+  /* =================================================================
+     3) 로그 · 평판 · 골드
+     ================================================================= */
+  function push(ic, kind, who, txt, at) {
+    const ev = { t: at || Date.now(), ic: ic, kind: kind, who: who || '', txt: txt };
+    try {
+      if (SIMS.journal && Array.isArray(SIMS.journal)) {
+        SIMS.journal.unshift(ev);
+        if (SIMS.journal.length > 60) SIMS.journal.length = 60;
+      }
+      D.log.unshift(ev);
+      if (D.log.length > 40) D.log.length = 40;
+    } catch (e) {}
+    return ev;
+  }
+  function rep(n) {
+    try {
+      SIMS.rep = clamp((SIMS.rep || 0) + n, 0, 99999);
+      if (V16.sims && V16.sims.render) { try { V16.sims.render(); } catch (e) {} }
+    } catch (e) {}
+  }
+  function goldNow() { try { return (typeof Gold !== 'undefined' && Gold) ? (Gold.gold || 0) : 0; } catch (e) { return 0; } }
+  function goldAdd(n) { try { if (V16.gold) V16.gold(n); } catch (e) {} }
+  function goldSpend(n) { try { if (V16.spend) return !!V16.spend(n); } catch (e) {} return false; }
+  function toast(t, ms) { try { if (window.toast) toast(t, ms || 2600); } catch (e) {} }
+  function say(a, b, ms) { try { if (V16.say) V16.say(a, b, ms); } catch (e) {} }
+  function xp(n) { try { if (V16.xp) V16.xp(n); } catch (e) {} }
+  function sound(k) { try { if (window.Sound && Sound[k]) Sound[k](); } catch (e) {} }
+  function saveSims() { try { if (V16.sims && V16.sims.save) V16.sims.save(); } catch (e) {} }
+
+  /* =================================================================
+     4) 진행 (오프라인 · 실시간 · 후원)
+     ================================================================= */
+  const RATE = { online: 2.0, offline: 0.5 };   /* 분당 자재/영감 포인트 */
+  const OFFLINE_CAP = 720;                       /* 12시간 */
+
+  function cur(mk, list) { return list[mk.i] || null; }
+  function ratio(mk, list) {
+    const it = cur(mk, list);
+    if (!it) return 1;
+    return clamp((mk.prog || 0) / it.need, 0, 1);
+  }
+  function remainMin(mk, list, rate) {
+    const it = cur(mk, list);
+    if (!it) return 0;
+    return Math.max(0, Math.ceil((it.need - (mk.prog || 0)) / (rate || RATE.offline)));
+  }
+
+  function grantFash(it) {
+    try {
+      if (V15.grantItem) V15.grantItem(it.id, 1);
+      else if (V15.Wear && V15.Wear.owned) { V15.Wear.owned[it.id] = 1; V15.Wear.save(); }
+    } catch (e) { err('grant:' + it.id); }
+  }
+  function addDish(it) {
+    try {
+      const list = window.__V166_BAEMIN;
+      const map = window.__V166_DELIVERY_MAP;
+      if (!list || !map) return;
+      if (!map[it.id]) {
+        const row = { id: it.id, icon: it.icon, name: it.name, hz: it.hz, py: it.py, price: it.price, food: it.foodKind || 'bento' };
+        map[it.id] = row;
+        list.push(row);
+      }
+    } catch (e) { err('dish:' + it.id); }
+  }
+  function addTrack(it) {
+    try {
+      const list = window.__V166_BGM;
+      if (!list) return;
+      if (list.some((t) => t.id === it.id)) return;
+      list.push({ id: it.id, emoji: it.icon, name: it.name, sub: it.sub, spb: it.spb, pat: it.pat, chords: it.chords, style: it.style || 'classic', v166: true });
+      try { if (typeof V14 !== 'undefined' && V14.bgmMenu) V14.bgmMenu(); } catch (e) {}
+      try { const hd = document.querySelector('#bgmMenu .bgm-head b'); if (hd) hd.textContent = '🎵 BGM · 학원'; } catch (e) {}
+      try { if (typeof renderBgmUI === 'function') renderBgmUI(); } catch (e) {}
+    } catch (e) { err('track:' + it.id); }
+  }
+
+  function complete(kind, it) {
+    const now = Date.now();
+    if (kind === 'arch') {
+      if (D.arch.done.indexOf(it.id) < 0) D.arch.done.push(it.id);
+      D.arch.itemDone = D.arch.itemDone || {}; D.arch.itemDone[it.id] = now;
+      push('🏗️', 'build', '도현', '[완공] ' + it.name + '(' + it.hz + ')이 완공되었어요! 잔디밭 창작 마을에서 만나요 · 평판 +25', now);
+      rep(25); goldAdd(40); xp(30);
+      toast('🏗️ 완공! ' + it.name + ' · 平壤 +25', 3600);
+      say('🏗️ 도현 건축가', it.name + ' 완공! 恭喜完工！ 잔디밭에서 구경해 보세요', 4200);
+      sound('correct');
+      paintBuildingById(it.id);
+    } else if (kind === 'fash') {
+      if (D.fash.done.indexOf(it.id) < 0) D.fash.done.push(it.id);
+      D.fash.itemDone[it.id] = now;
+      grantFash(it);
+      push('👗', 'fashion', '세아', '[신상] 세아 디자이너가 \'' + it.name + '\'(' + it.hz + ')를 출시했어요! 옷장에 자동 등록 · 평판 +15', now);
+      rep(15); xp(20);
+      toast('👗 신상 출시! ' + it.name + ' — 옷장에 들어왔어요', 3600);
+      say('👗 세아 디자이너', '新商品！ ' + it.name + ' 나왔어요. 옷장에서 바로 입어 보세요!', 3800);
+      sound('coin');
+    } else if (kind === 'chef') {
+      if (D.chef.done.indexOf(it.id) < 0) D.chef.done.push(it.id);
+      D.chef.itemDone[it.id] = now;
+      addDish(it);
+      push('🍜', 'chef', '연우', '[신메뉴] 연우 셰프가 \'' + it.name + '\'(' + it.hz + ')를 개발했어요! 배민 메뉴에 추가 · 평판 +12', now);
+      rep(12); xp(18);
+      toast('🍜 신메뉴! ' + it.name + ' — 배달 메뉴에 추가됐어요', 3600);
+      say('🍜 연우 셰프', '新菜上市！ ' + it.name + ' 드셔 보세요', 3600);
+      sound('coin');
+    } else if (kind === 'music') {
+      if (D.music.done.indexOf(it.id) < 0) D.music.done.push(it.id);
+      D.music.itemDone[it.id] = now;
+      addTrack(it);
+      push('🎵', 'music', '민재', '[신곡] 민재 작곡가가 \'' + it.name + '\'(' + it.sub + ')을 작곡했어요! BGM 목록에 추가 · 평판 +12', now);
+      rep(12); xp(18);
+      toast('🎵 신곡! ' + it.name + ' — BGM 목록에서 들어 보세요', 3600);
+      say('🎵 민재 작곡가', '新歌完成！ ' + it.name + ' 들어 보세요', 3600);
+      sound('correct');
+    }
+    save();
+  }
+
+  function publishCard(now) {
+    const idx = (D.creator.i || 0) % CREATE.length;
+    const c = CREATE[idx];
+    const card = { id: 'c' + now, t: now, i: idx, tag: c.tag, ic: c.ic, title: c.title, hz: c.hz, py: c.py, ko: c.ko };
+    D.cards.unshift(card);
+    if (D.cards.length > 12) D.cards.length = 12;
+    D.creator.i = (D.creator.i || 0) + 1;
+    D.creator.pills = (D.creator.pills || 0) + 1;
+    push('📱', 'creator', '서연', '[발행] 서연이 \'' + c.title + '\' 카드를 올렸어요 — 오늘의 표현 “' + c.hz + '” · 평판 +8 · 코인 +12', now);
+    rep(8); goldAdd(12); xp(10);
+    save();
+    return card;
+  }
+
+  function advance(mins, why) {
+    if (!(mins > 0)) return;
+    const full = D.me.food >= 55 && D.me.energy >= 55 ? 1.15 : 1;
+    const rate = (why === 'offline' ? RATE.offline : RATE.online) * full;
+    const gain = mins * rate;
+    const add = (mk, list, kind) => {
+      if (!mk) return;
+      let left = gain;
+      let guard = 0;
+      while (left > 0.0001 && mk.i < list.length && guard++ < 20) {
+        if (typeof mk.prog !== 'number' || mk.prog < 0) mk.prog = 0;
+        const it = list[mk.i];
+        const need = it.need - (mk.prog || 0);
+        if (left >= need) {
+          left -= need; mk.prog = 0; complete(kind, it); mk.i += 1;
+        } else { mk.prog = (mk.prog || 0) + left; left = 0; }
+      }
+    };
+    add(D.arch, ARCH, 'arch');
+    add(D.fash, FASH, 'fash');
+    add(D.chef, CHEF, 'chef');
+    add(D.music, MUSIC, 'music');
+    /* 크리에이터 — 카드 한 장에 60 포인트 */
+    D.creator.prog = (D.creator.prog || 0) + gain;
+    let guard = 0;
+    while (D.creator.prog >= 60 && guard++ < 12) { D.creator.prog -= 60; publishCard(Date.now()); }
+    /* 포만감 · 에너지는 천천히 줄어든다 */
+    D.me.food = clamp((D.me.food === undefined ? 66 : D.me.food) - mins * 0.22, 0, 100);
+    D.me.energy = clamp((D.me.energy === undefined ? 72 : D.me.energy) - mins * 0.18, 0, 100);
+    D.lastSeen = Date.now();
+    save();
+  }
+
+  /* 처음 열었을 때 — 이미 지어 둔 것들로 시작 (학원은 계속 운영 중이니까) */
+  function seed() {
+    if (D.seeded) return;
+    const now = Date.now();
+    D.seeded = now;
+    D.lastSeen = now;
+    D.arch.done = ['pavilion'];
+    D.arch.itemDone = { pavilion: now - 3 * 3600e3 };
+    D.arch.i = 1; D.arch.prog = Math.round(ARCH[1].need * 0.62);
+    D.fash.done = ['v166merino', 'v166beret'];
+    D.fash.itemDone = { v166merino: now - 26 * 3600e3, v166beret: now - 9 * 3600e3 };
+    D.fash.i = 2; D.fash.prog = Math.round(FASH[2].need * 0.7);
+    D.chef.done = ['v166tangice', 'v166osmanthus'];
+    D.chef.itemDone = { v166tangice: now - 20 * 3600e3, v166osmanthus: now - 6 * 3600e3 };
+    D.chef.i = 2; D.chef.prog = Math.round(CHEF[2].need * 0.55);
+    D.music.done = ['v166seongsu'];
+    D.music.itemDone = { v166seongsu: now - 14 * 3600e3 };
+    D.music.i = 1; D.music.prog = Math.round(MUSIC[1].need * 0.4);
+    D.creator.i = 2; D.creator.prog = 22;
+    D.cards = [
+      { id: 'c' + (now - 40 * 60000), t: now - 40 * 60000, i: 1, tag: CREATE[1].tag, ic: CREATE[1].ic, title: CREATE[1].title, hz: CREATE[1].hz, py: CREATE[1].py, ko: CREATE[1].ko },
+      { id: 'c' + (now - 3 * 3600e3), t: now - 3 * 3600e3, i: 0, tag: CREATE[0].tag, ic: CREATE[0].ic, title: CREATE[0].title, hz: CREATE[0].hz, py: CREATE[0].py, ko: CREATE[0].ko },
+    ];
+    push('🏗️', 'build', '도현', '[건축] 도현 건축가가 야외 찻집 부스 골조를 세웠어요', now - 50 * 60000);
+    push('🏗️', 'build', '도현', '[완공] 중국풍 정자(八角凉亭)가 완공되었어요!', now - 3 * 3600e3);
+    push('👗', 'fashion', '세아', '[신상] 세아 디자이너가 \'탕후루 베레모\'를 출시했어요!', now - 9 * 3600e3);
+    push('🍜', 'chef', '연우', '[신메뉴] 연우 셰프가 \'계화 떡\'을 개발했어요!', now - 6 * 3600e3);
+    /* 이미 출시된 것은 옷장/메뉴/BGM에 반영 */
+    FASH.slice(0, 2).forEach(grantFash);
+    CHEF.slice(0, 2).forEach(addDish);
+    MUSIC.slice(0, 1).forEach(addTrack);
+    save();
+  }
+
+  function catchUp() {
+    const last = D.lastSeen || 0;
+    if (!last) return;
+    const gapMin = Math.min(OFFLINE_CAP, Math.max(0, (Date.now() - last) / 60000));
+    if (gapMin < 1.5) return;
+    advance(gapMin, 'offline');
+    saveSims();
+  }
+
+  /* =================================================================
+     5) 3D 창작 마을 — 도현의 건물
+     ================================================================= */
+  const MB = {};
+  function L(c, m, r, e) {
+    const k = c + '_' + (m || 0) + '_' + (r || 0) + '_' + (e || 0);
+    if (MB[k]) return MB[k];
+    const o = { color: c, roughness: r || .86, metalness: m || 0 };
+    if (e) { o.emissive = e; o.emissiveIntensity = 1; }
+    return (MB[k] = new THREE.MeshStandardMaterial(o));
+  }
+  function bx(g, w, h, d, c, x, y, z, ry, o) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), L(c, (o && o.m) || 0, (o && o.r) || .86, (o && o.e) || 0));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (ry) m.rotation.y = ry;
+    if (o && o.rx) m.rotation.x = o.rx;
+    if (o && o.rz) m.rotation.z = o.rz;
+    if (o && o.ry2) m.rotation.y = o.ry2;
+    g.add(m); return m;
+  }
+  function cy(g, rt, rb, h, c, x, y, z, seg, o) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg || 12), L(c, (o && o.m) || 0, (o && o.r) || .86, (o && o.e) || 0));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (o && o.rx) m.rotation.x = o.rx;
+    g.add(m); return m;
+  }
+  function cn(g, r, h, c, x, y, z, seg, o) {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg || 12), L(c, (o && o.m) || 0, (o && o.r) || .86, (o && o.e) || 0));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (o && o.rx) m.rotation.x = o.rx;
+    g.add(m); return m;
+  }
+  function sp(g, r, c, x, y, z, o) {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), L(c, (o && o.m) || 0, (o && o.r) || .86, (o && o.e) || 0));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (o && o.sy) m.scale.y = o.sy;
+    g.add(m); return m;
+  }
+  function sg(g, w, h, lines, opt, x, y, z, ry) {
+    const s = V16.sign(w, h, lines, opt || {});
+    s.position.set(x, y, z);
+    if (ry) s.rotation.y = ry;
+    g.add(s); return s;
+  }
+  /* 현판 — 캔버스에 직접 그려 어느 조명에서도 또렷하게 */
+  function plaque(g, w, h, text, bg, fg, x, y, z, ry, sub) {
+    try {
+      const W = 512, H = Math.max(96, Math.round(512 * h / w));
+      const tx = V15.tex(W, H, function (c) {
+        c.fillStyle = bg || '#8a2620';
+        c.fillRect(0, 0, W, H);
+        c.strokeStyle = 'rgba(216,176,106,.9)';
+        c.lineWidth = Math.max(4, H * 0.05);
+        c.strokeRect(H * 0.07, H * 0.07, W - H * 0.14, H - H * 0.14);
+        c.fillStyle = fg || '#ffe9bd';
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        const size = Math.round(H * (sub ? 0.44 : 0.56));
+        c.font = '800 ' + size + 'px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+        c.fillText(text, W / 2, sub ? H * 0.38 : H * 0.52);
+        if (sub) {
+          c.font = '700 ' + Math.round(H * 0.24) + 'px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+          c.fillStyle = 'rgba(255,235,190,.85)';
+          c.fillText(sub, W / 2, H * 0.74);
+        }
+      });
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tx, side: THREE.DoubleSide }));
+      m.position.set(x, y, z);
+      if (ry) m.rotation.y = ry;
+      g.add(m); return m;
+    } catch (e) { err('plaque:' + e.message); return null; }
+  }
+  function hitAt(g, b) {
+    const h = new THREE.Mesh(new THREE.BoxGeometry(b.w + 1.6, 3.2, b.d + 1.6),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+    h.position.set(b.x, 1.6, b.z);
+    h.userData.v166arch = b.id;
+    scene.add(h);
+    try {
+      V12.hit(h, 'v166:arch:' + b.id);
+      V12.tapHandlers['v166:arch:' + b.id] = function () { openLearn(b.id); };
+    } catch (e) { err('hit:' + b.id); }
+    return h;
+  }
+
+  const GROUPS = {};
+  function paintBuilding(b) {
+    let g = GROUPS[b.id];
+    if (!g) {
+      g = new THREE.Group();
+      g.name = 'v166:' + b.id;
+      g.position.set(b.x, 0, b.z);
+      g.rotation.y = b.ry || 0;
+      scene.add(g);
+      GROUPS[b.id] = g;
+    }
+    while (g.children.length) { const c = g.children.pop(); try { g.remove(c); } catch (e) {} }
+    const done = D.arch.done.indexOf(b.id) >= 0;
+    const idx = ARCH.indexOf(b);
+    const busy = !done && idx === D.arch.i;
+    const planned = !done && idx > D.arch.i;
+    const p = busy ? ratio(D.arch, ARCH) : 0;
+    try {
+      if (planned) drawPlanned(g, b);
+      else if (done) drawDone(g, b);
+      else {
+        drawSite(g, b, p);
+        if (p > 0.34) drawFrame(g, b, p);
+        if (p > 0.68) drawRender(g, b, p);
+      }
+    } catch (e) { err('paint:' + b.id + ':' + e.message); }
+  }
+  function drawPlanned(g, b) {
+    drawFence(g, b, '🪧 공사 예정 부지 · 待建');
+    bx(g, 2.0, 0.06, 0.06, 0x8a7a63, 0, 0.06, 0);
+  }
+  function rail(g, x1, z1, x2, z2, y, c) {
+    const dx = x2 - x1, dz = z2 - z1;
+    const len = Math.hypot(dx, dz);
+    const m = bx(g, len, 0.05, 0.05, c, (x1 + x2) / 2, y, (z1 + z2) / 2);
+    m.rotation.y = -Math.atan2(dz, dx);
+    return m;
+  }
+  function drawFence(g, b, label) {
+    const w = b.w + 1.0, d = b.d + 1.0;
+    cy(g, w / 2, w / 2, 0.05, 0xd8cfb8, 0, 0.025, 0, 24, { r: 1 });
+    const post = function (x, z) {
+      cy(g, 0.05, 0.05, 1.05, 0xd8a33a, x, 0.52, z, 6);
+      cy(g, 0.08, 0.08, 0.03, 0x2f2a24, x, 1.05, z, 8);
+    };
+    const xs = [-w / 2, -w / 6, w / 6, w / 2], zs = [-d / 2, -d / 6, d / 6, d / 2];
+    xs.forEach(function (x) { post(x, -d / 2); post(x, d / 2); });
+    zs.forEach(function (z) { post(-w / 2, z); post(w / 2, z); });
+    [0.55, 0.92].forEach(function (y) {
+      rail(g, -w / 2, -d / 2, w / 2, -d / 2, y, 0xd8a33a);
+      rail(g, -w / 2, d / 2, w / 2, d / 2, y, 0xd8a33a);
+      rail(g, -w / 2, -d / 2, -w / 2, d / 2, y, 0xd8a33a);
+      rail(g, w / 2, -d / 2, w / 2, d / 2, y, 0xd8a33a);
+    });
+    /* 자재 더미 */
+    bx(g, 0.7, 0.25, 0.5, 0x9a8a72, -w / 2 + 0.8, 0.15, d / 2 - 0.4, 0.3);
+    bx(g, 0.6, 0.2, 0.6, 0xc8b48a, -w / 2 + 1.3, 0.14, d / 2 - 0.30, -0.2);
+    /* 안내판 — 두 기둥 위에 */
+    cy(g, 0.04, 0.04, 1.25, 0x8a5a3a, -0.85, 0.62, d / 2 + 0.45, 5);
+    cy(g, 0.04, 0.04, 1.25, 0x8a5a3a, 0.85, 0.62, d / 2 + 0.45, 5);
+    const done = D.arch.done.indexOf(b.id) >= 0;
+    const idx = ARCH.indexOf(b);
+    const pct = done ? 100 : (idx === D.arch.i ? Math.round(ratio(D.arch, ARCH) * 100) : 0);
+    const tone = done ? '#2f6b4a' : '#8a5a18';
+    const s = sg(g, 2.15, 0.6, [
+      { t: label, c: '#3a2a12', s: .34 },
+      { t: (idx === D.arch.i && !done ? pct + '% · ' : '') + b.hz, c: tone, s: .27 },
+    ], { bg: '#ffe9b8', borderColor: '#d8a33a' }, 0, 1.28, d / 2 + 0.45);
+    return s;
+  }
+  function drawSite(g, b, p) {
+    cy(g, b.w / 2 + 0.3, b.w / 2 + 0.3, 0.05, 0xb8a98c, 0, 0.025, 0, 28, { r: 1 });
+    drawFence(g, b, '🏗️ 공사 중 · 施工中', 0xd8a33a);
+  }
+  function drawFrame(g, b, p) {
+    const n = 6;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      const r = Math.min(b.w, b.d) * 0.36;
+      cy(g, 0.09, 0.11, 2.4 + (p > .5 ? .5 : 0), 0x9aa0a6, Math.cos(a) * r, 1.2, Math.sin(a) * r, 6);
+    }
+    bx(g, b.w * 0.8, 0.1, 0.12, 0x8a5a3a, 0, 2.35, 0);
+    bx(g, 0.12, 0.1, b.d * 0.8, 0x8a5a3a, 0, 2.35, 0);
+    /* 비계 */
+    for (let i = -1; i <= 1; i += 2) {
+      cy(g, 0.04, 0.04, 3.0, 0xb8b2a4, i * (b.w / 2 - 0.3), 1.5, b.d / 2 - 0.4, 5);
+    }
+  }
+  function drawRender(g, b, p) {
+    bx(g, b.w * 0.8, 0.9, b.d * 0.7, 0xe8dcc4, 0, 0.45, 0);
+    cn(g, b.w * 0.62, 1.1, 0x8a3a30, 0, 1.6, 0, 8);
+  }
+
+  function drawDone(g, b) {
+    if (b.id === 'pavilion') {
+      cy(g, 3.0, 3.15, 0.22, 0xcfc6b2, 0, 0.11, 0, 8, { r: 1 });
+      for (let i = 0; i < 8; i++) {
+        const a = i / 8 * Math.PI * 2;
+        cy(g, 0.1, 0.115, 2.5, 0xb03a30, Math.cos(a) * 2.5, 1.46, Math.sin(a) * 2.5, 8);
+      }
+      /* 상단 도리 */
+      for (let i = 0; i < 8; i++) {
+        const a = i / 8 * Math.PI * 2, a2 = (i + 1) / 8 * Math.PI * 2;
+        rail(g, Math.cos(a) * 2.5, Math.sin(a) * 2.5, Math.cos(a2) * 2.5, Math.sin(a2) * 2.5, 2.62, 0x8a2620);
+      }
+      /* 난간 벤치 — 기둥 사이에 앉을 자리 */
+      for (let i = 0; i < 8; i++) {
+        if (i === 2 || i === 3) continue;
+        const a = i / 8 * Math.PI * 2 + Math.PI / 8;
+        const px = Math.cos(a) * 2.05, pz = Math.sin(a) * 2.05;
+        const bar = bx(g, 1.45, 0.09, 0.4, 0x8a5a3a, px, 0.5, pz);
+        bar.rotation.y = -a - Math.PI / 2;
+        bx(g, 0.07, 0.45, 0.3, 0x6b4428, px - Math.cos(a) * 0.55, 0.24, pz - Math.sin(a) * 0.55);
+        bx(g, 0.07, 0.45, 0.3, 0x6b4428, px + Math.cos(a) * 0.55, 0.24, pz + Math.sin(a) * 0.55);
+        const back = bx(g, 1.45, 0.07, 0.06, 0xb03a30, px, 0.85, pz);
+        back.rotation.y = -a - Math.PI / 2;
+      }
+      /* 지붕 — 처마가 넓게 퍼지는 이층 기와 */
+      cn(g, 3.5, 1.35, 0x323942, 0, 3.35, 0, 8, { r: .78 });
+      cy(g, 3.45, 3.45, 0.1, 0xd8b06a, 0, 2.64, 0, 8, { r: .5, m: .3 });
+      cn(g, 2.05, 1.0, 0x2b323b, 0, 3.95, 0, 8, { r: .78 });
+      sp(g, 0.2, 0xd8b06a, 0, 4.55, 0, { m: .5, r: .35 });
+      cy(g, 0.02, 0.02, 0.4, 0x8a6a2a, 0, 4.3, 0, 5);
+      /* 기둥에 다는 등롱 */
+      sp(g, 0.15, 0xd8463a, 0, 2.25, 1.1, { e: 0xd8463a });
+      cy(g, 0.015, 0.015, 0.35, 0x3a2a1a, 0, 2.5, 1.1, 5);
+      /* 현판과 안내판 */
+      plaque(g, 2.0, 0.5, '八角凉亭', '#8a2620', '#ffe9bd', 0, 2.26, 2.47, 0, '중국풍 정자 · PAVILION');
+    } else if (b.id === 'tea') {
+      bx(g, 3.6, 0.18, 3.0, 0x9a7a52, 0, 0.09, 0);
+      bx(g, 2.9, 0.95, 0.55, 0x7d5a38, 0, 0.56, -0.95);
+      bx(g, 3.05, 0.08, 0.75, 0xc9a26a, 0, 1.05, -0.95);
+      [-1, 1].forEach(function (s) {
+        cy(g, 0.08, 0.09, 2.3, 0x8a2f26, 1.55 * s, 1.25, 1.15, 7);
+        cy(g, 0.08, 0.09, 2.3, 0x8a2f26, 1.55 * s, 1.25, -1.15, 7);
+      });
+      bx(g, 4.0, 0.14, 3.3, 0x8a2f26, 0, 2.42, 0, 0, { rx: 0.12 });
+      bx(g, 3.5, 0.1, 2.8, 0x6b4a2a, 0, 2.62, 0, 0, { rx: 0.1 });
+      /* 다기 */
+      sp(g, 0.16, 0x8a5a3a, 0.25, 1.22, -0.9, { sy: .75 });
+      cy(g, 0.03, 0.03, 0.16, 0x8a5a3a, 0.43, 1.24, -0.9, 6);
+      for (let i = 0; i < 4; i++) cy(g, 0.07, 0.06, 0.09, 0xf2e8d4, -0.75 + i * 0.28, 1.13, -0.65, 8);
+      cy(g, 0.26, 0.3, 0.5, 0x8a6a45, 0.8, 0.25, 1.05, 10);
+      cy(g, 0.26, 0.3, 0.5, 0x8a6a45, -0.8, 0.25, 1.05, 10);
+      plaque(g, 2.2, 0.6, '功夫茶亭', '#7a1f1a', '#ffe9bd', 0, 2.72, 1.7);
+      plaque(g, 1.7, 0.4, '야외 찻집', '#7a1f1a', '#ffe9bd', 0, 2.3, 1.71, 0, '茶 · TEA');
+    } else if (b.id === 'gallery') {
+      bx(g, 4.4, 0.18, 3.4, 0x8a8478, 0, 0.09, 0);
+      bx(g, 4.2, 2.7, 3.0, 0xf4f0e6, 0, 1.35, 0);
+      bx(g, 3.9, 2.1, 0.06, 0xa8d0dc, 0, 1.25, 1.52, 0, { r: .15 });
+      bx(g, 4.5, 0.18, 3.3, 0x33363c, 0, 2.8, 0);
+      for (let i = 0; i < 3; i++) {
+        const fr = bx(g, 0.78, 0.62, 0.05, 0xd8b06a, -1.1 + i * 1.1, 1.55, 1.55);
+        const art = ['花', '猫', '灯'][i];
+        const tex = V15.tex(160, 128, function (c2, W2, H2) {
+          const grd = c2.createLinearGradient(0, 0, W2, H2);
+          grd.addColorStop(0, ['#e8c9a0', '#b8d0c0', '#e0b0b0'][i]);
+          grd.addColorStop(1, ['#8a5a3a', '#5a7a6a', '#8a4a4a'][i]);
+          c2.fillStyle = grd; c2.fillRect(0, 0, W2, H2);
+          c2.fillStyle = 'rgba(255,250,240,.92)';
+          c2.font = '800 66px "Noto Sans CJK KR","Apple SD Gothic Neo",serif';
+          c2.textAlign = 'center'; c2.textBaseline = 'middle';
+          c2.fillText(art, W2 / 2, H2 / 2);
+          c2.strokeStyle = 'rgba(255,255,255,.6)'; c2.lineWidth = 3;
+          c2.strokeRect(W2 * 0.08, H2 * 0.1, W2 * 0.84, H2 * 0.8);
+        });
+        const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.64, 0.5), new THREE.MeshBasicMaterial({ map: tex }));
+        pl.position.set(-1.1 + i * 1.1, 1.55, 1.59);
+        g.add(pl);
+        bx(g, 0.5, 0.05, 0.12, 0xfff0c8, -1.1 + i * 1.1, 1.93, 1.5, 0, { e: 0xffe8b0 });
+      }
+      plaque(g, 2.4, 0.55, '艺术小馆', '#f7f0e0', '#2d2620', 0, 2.52, 1.56);
+      plaque(g, 1.7, 0.32, '성수 미니 갤러리', '#f7f0e0', '#6b5a44', 0, 2.2, 1.57);
+    } else if (b.id === 'fountain') {
+      cy(g, 3.2, 3.35, 0.42, 0xd0c8b6, 0, 0.21, 0, 26, { r: .92 });
+      cy(g, 2.95, 2.95, 0.06, 0x5a97b0, 0, 0.44, 0, 26, { r: .18, e: 0x1e4a5a });
+      for (let i = 0; i < 8; i++) {
+        const a = i / 8 * Math.PI * 2;
+        const petal = cn(g, 0.34, 0.75, 0xe8a0b8, Math.cos(a) * 1.95, 0.62, Math.sin(a) * 1.95, 6, { r: .7 });
+        petal.rotation.z = Math.cos(a) * 0.5;
+        petal.rotation.x = Math.sin(a) * 0.5;
+      }
+      cy(g, 0.55, 0.8, 1.5, 0xd8d2c2, 0, 1.15, 0, 12);
+      cy(g, 0.16, 0.16, 2.6, 0x8a5a3a, 0, 3.0, 0, 8);
+      sp(g, 0.42, 0xd8463a, 0, 4.4, 0, { e: 0xd8463a });
+      sp(g, 0.28, 0xf2b134, 0, 5.0, 0, { e: 0xf2b134 });
+      [-1, 1].forEach(function (x) {
+        [-1, 1].forEach(function (z) {
+          cy(g, 0.2, 0.26, 0.9, 0x9a8a72, x * 2.6, 0.45, z * 2.6, 6);
+          sp(g, 0.24, 0xffd98a, x * 2.6, 1.0, z * 2.6, { e: 0xffc25a });
+          cy(g, 0.34, 0.34, 0.08, 0x3a3a3a, x * 2.6, 1.2, z * 2.6, 6);
+        });
+      });
+      try {
+        const pl2 = new THREE.PointLight(0xffc98a, 0.85, 13, 2);
+        pl2.position.set(0, 4.4, 0);
+        g.add(pl2);
+      } catch (e) {}
+      plaque(g, 2.6, 0.6, '莲花喷泉', '#2f3a44', '#fff2cf', 0, 0.95, 3.06);
+      plaque(g, 2.1, 0.4, '연꽃 분수대', '#2f3a44', '#ffe9bd', 0, 0.52, 3.07, 0, '등불 타워 · LIGHTHOUSE');
+    } else if (b.id === 'study') {
+      bx(g, 4.8, 0.2, 3.8, 0x8a6a45, 0, 0.1, 0);
+      bx(g, 4.4, 0.1, 3.4, 0xc9a26a, 0, 0.22, 0);
+      [-1, 1].forEach(function (x) {
+        [-1, 1].forEach(function (z) {
+          cy(g, 0.11, 0.12, 2.6, 0x9a2f26, x * 1.9, 1.55, z * 1.5, 8);
+        });
+      });
+      bx(g, 4.2, 1.9, 0.12, 0xf2e8d4, 0, 1.2, -1.55);
+      bx(g, 0.12, 1.9, 3.1, 0xf2e8d4, -2.05, 1.2, 0);
+      bx(g, 0.12, 1.9, 3.1, 0xf2e8d4, 2.05, 1.2, 0);
+      for (let i = 0; i < 5; i++) {
+        bx(g, 0.05, 0.05, 1.0, 0x9a2f26, -1.6 + i * 0.8, 0.62, -1.48);
+      }
+      /* 책장 */
+      for (let r = 0; r < 3; r++) {
+        bx(g, 3.2, 0.06, 0.3, 0x6b4a2a, 0, 0.55 + r * 0.5, -1.42);
+        for (let i = 0; i < 9; i++) {
+          bx(g, 0.11, 0.34, 0.2, [0x8a3a30, 0x2f5b86, 0x4f6a4c, 0xc9a26a][i % 4], -1.44 + i * 0.34, 0.76 + r * 0.5, -1.41);
+        }
+      }
+      [-1, 1].forEach(function (s2) {
+        const slab = bx(g, 2.9, 0.14, 4.5, 0x333a42, 1.32 * s2, 3.02, 0, 0, { rz: -0.34 * s2 });
+        bx(g, 0.14, 0.1, 4.3, 0x2a3038, 0, 3.5, 0);
+      });
+      bx(g, 0.16, 0.12, 4.4, 0xd8b06a, 0, 3.52, 0);
+      cy(g, 0.6, 0.72, 0.55, 0x8a6a45, 0, 0.5, 0.5, 10);
+      const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.6), new THREE.MeshBasicMaterial({ color: 0xf7f1e0 }));
+      scr.position.set(0, 0.85, 0.5); scr.rotation.x = -Math.PI / 3.2; g.add(scr);
+      plaque(g, 2.2, 0.58, '汉书院', '#7a3a1a', '#ffe9bd', 0, 3.34, 0);
+      plaque(g, 1.6, 0.36, '한자 서재', '#7a3a1a', '#ffe9bd', 0, 2.98, 0.02);
+    }
+  }
+  function paintBuildingById(id) {
+    const b = ARCH.filter((x) => x.id === id)[0];
+    if (b) { try { paintBuilding(b); } catch (e) { err('repaint:' + id); } }
+  }
+  let plazaBuilt = false;
+  function buildPlaza() {
+    if (plazaBuilt || typeof scene === 'undefined') return;
+    plazaBuilt = true;
+    try {
+      const g = new THREE.Group();
+      g.name = 'v166plaza';
+      scene.add(g);
+      const pave = bx(g, 38, 0.06, 25, 0xcfc7b2, -25, 0.03, 69, 0, { r: 1 });
+      bx(g, 38.6, 0.05, 0.5, 0xa89e88, -25, 0.035, 81.5);
+      bx(g, 38.6, 0.05, 0.5, 0xa89e88, -25, 0.035, 56.5);
+      bx(g, 0.5, 0.05, 25, 0xa89e88, -44, 0.035, 69);
+      bx(g, 0.5, 0.05, 25, 0xa89e88, -6, 0.035, 69);
+      /* 입구 진입로 */
+      bx(g, 3.2, 0.05, 9, 0xcfc7b2, -25, 0.032, 84.4);
+      /* 입구 아치 */
+      cy(g, 0.09, 0.11, 2.7, 0x8a2620, -26.6, 1.35, 84.6, 8);
+      cy(g, 0.09, 0.11, 2.7, 0x8a2620, -23.4, 1.35, 84.6, 8);
+      bx(g, 3.9, 0.18, 0.26, 0x6b1f1a, -25, 2.78, 84.6);
+      bx(g, 4.3, 0.12, 0.4, 0x323942, -25, 2.94, 84.6);
+      plaque(g, 3.0, 0.56, '창작 마을', '#7a1f1a', '#ffe9bd', -25, 2.92, 84.6, 0, '创作村 · CREATOR VILLAGE');
+    } catch (e) { err('plaza:' + e.message); }
+  }
+
+  function paintAll() {
+    if (!THREE || typeof scene === 'undefined') return false;
+    buildPlaza();
+    ARCH.forEach(function (b) {
+      try { paintBuilding(b); } catch (e) { err('build:' + b.id + ':' + e.message); }
+      if (!b.__hit) { try { b.__hit = hitAt(scene, b); } catch (e) {} }
+    });
+    try {
+      if (!M.__zone) {
+        M.__zone = 1;
+        V16.addZone && V16.addZone({ x0: -47, x1: -4, z0: 56, z1: 82 }, '창작 마을 · 创作村');
+        if (V16.installZone) V16.installZone();
+      }
+    } catch (e) {}
+    /* 건물 footprint 는 막아 둔다 — 벽을 뚫고 걸어 들어가지 않게 */
+    ARCH.forEach(function (b) {
+      if (b.__solid) return;
+      b.__solid = 1;
+      try { if (V14 && V14.addSolid) V14.addSolid(b.x - b.w / 2 - 0.2, b.x + b.w / 2 + 0.2, b.z - b.d / 2 - 0.2, b.z + b.d / 2 + 0.2, 'v166:' + b.id); } catch (e) {}
+    });
+    return true;
+  }
+
+  /* =================================================================
+     6) NPC — 도현 · 세아 · 연우 · 민재 · 서연
+     ================================================================= */
+  const LINES = {
+    '도현': [
+      { hz: '你看，柱子已经立好了。', py: 'nǐ kàn, zhùzi yǐjīng lì hǎo le.', ko: '봐요, 기둥은 다 세웠어요.' },
+      { hz: '别急，慢慢来，建筑要稳。', py: 'bié jí, mànman lái, jiànzhù yào wěn.', ko: '서두르지 마세요. 건물은 튼튼해야 하니까요.' },
+      { hz: '这座亭子是八角形的。', py: 'zhè zuò tíngzi shì bājiǎoxíng de.', ko: '이 정자는 팔각형이에요.' },
+      { hz: '下个月我想盖一座小书院。', py: 'xià ge yuè wǒ xiǎng gài yí zuò xiǎo shūyuàn.', ko: '다음 달에는 작은 서재를 짓고 싶어요.' },
+      { hz: '材料和进度我每天都在记。', py: 'cáiliào hé jìndù wǒ měitiān dōu zài jì.', ko: '자재와 진행 상황은 매일 기록하고 있어요.' },
+    ],
+    '세아': [
+      { hz: '这件是新款，你要试试吗？', py: 'zhè jiàn shì xīnkuǎn, nǐ yào shìshi ma?', ko: '이건 신상인데, 입어 볼래요?' },
+      { hz: '颜色很适合你。', py: 'yánsè hěn shìhé nǐ.', ko: '색이 정말 잘 어울려요.' },
+      { hz: '我在圣水找灵感。', py: 'wǒ zài Shèngshuǐ zhǎo línggǎn.', ko: '저는 성수에서 영감을 찾아요.' },
+      { hz: '围巾要配大衣才好看。', py: 'wéijīn yào pèi dàyī cái hǎokàn.', ko: '머플러는 코트에 매치해야 예뻐요.' },
+      { hz: '下个系列是冬天的。', py: 'xià ge xìliè shì dōngtiān de.', ko: '다음 컬렉션은 겨울이에요.' },
+    ],
+    '연우': [
+      { hz: '趁热吃，小笼包凉了不好吃。', py: 'chèn rè chī, xiǎolóngbāo liáng le bù hǎochī.', ko: '뜨거울 때 드세요, 샤오롱바오는 식으면 맛없어요.' },
+      { hz: '这个甜度刚刚好。', py: 'zhège tiándù gānggāng hǎo.', ko: '이건 당도가 딱 좋아요.' },
+      { hz: '我今天试了新的配方。', py: 'wǒ jīntiān shì le xīn de pèifāng.', ko: '오늘 새 레시피를 시험해 봤어요.' },
+      { hz: '喜欢的话，再来一份？', py: 'xǐhuan de huà, zàilái yí fèn?', ko: '좋으면 하나 더 드릴까요?' },
+      { hz: '火候最重要。', py: 'huǒhòu zuì zhòngyào.', ko: '불 조절이 제일 중요해요.' },
+    ],
+    '민재': [
+      { hz: '这段旋律是给圣水写的。', py: 'zhè duàn xuánlǜ shì gěi Shèngshuǐ xiě de.', ko: '이 멜로디는 성수를 위해 썼어요.' },
+      { hz: '你听，这里像上海的夜晚。', py: 'nǐ tīng, zhèlǐ xiàng Shànghǎi de yèwǎn.', ko: '들어 봐요, 여기는 상하이 밤 같아요.' },
+      { hz: '再录一遍，我想要更轻一点。', py: 'zài lù yí biàn, wǒ xiǎng yào gèng qīng yìdiǎn.', ko: '한 번 더 녹음할게요, 조금 더 가볍게요.' },
+      { hz: '音乐是不用翻译的语言。', py: 'yīnyuè shì bú yòng fānyì de yǔyán.', ko: '음악은 번역이 필요 없는 언어예요.' },
+    ],
+    '서연': [
+      { hz: '今天的视频拍得怎么样？', py: 'jīntiān de shìpín pāi de zěnmeyàng?', ko: '오늘 영상은 잘 찍혔어요?' },
+      { hz: '这句很适合做封面。', py: 'zhè jù hěn shìhé zuò fēngmiàn.', ko: '이 문장은 표지로 딱이에요.' },
+      { hz: '我们一起拍一条吧！', py: 'wǒmen yìqǐ pāi yì tiáo ba!', ko: '우리 같이 하나 찍어요!' },
+      { hz: '点赞已经过一千了。', py: 'diǎnzàn yǐjīng guò yìqiān le.', ko: '좋아요가 벌써 1000을 넘었어요.' },
+    ],
+  };
+  const ROLE = { '도현': '건축가 · 建筑师', '세아': '패션 디자이너 · 设计师', '연우': '셰프 · 主厨', '민재': '작곡가 · 作曲家', '서연': '크리에이터 · 博主' };
+  const NPCS = [
+    { name: '도현', x: -31, z: 79, yaw: Math.PI, style: 'casual', shirt: 0x3a6b8a, pants: 0x4a4038, hat: 'cap', hatColor: 0xf2c14e, longHair: false, speed: 0.55, path: [[-33, 79], [-18, 80], [-12, 76], [-14, 66], [-28, 60], [-40, 64], [-44, 76]] },
+    { name: '세아', x: 9.2, z: 3.4, yaw: -1.2, style: 'casual', shirt: 0xd86a8a, pants: 0x2f3440, longHair: true, hairStyle: 'wave', bag: true, bagColor: 0xc8323a },
+    { name: '연우', x: 20.6, z: 19.4, yaw: 2.2, style: 'casual', shirt: 0xf2efe6, pants: 0x3a3f47, apron: 0xc8b48a, hat: 'beanie', hatColor: 0x2f3b46, glasses: true },
+    { name: '민재', x: -10.2, z: 5.6, yaw: 0.6, style: 'casual', shirt: 0x4a3a6a, pants: 0x2a2f38, headset: true, coffee: true },
+    { name: '서연', x: -2.4, z: 9.2, yaw: Math.PI, style: 'casual', shirt: 0xe8a04a, pants: 0x3f4a58, phone: true, longHair: true },
+  ];
+  let npcBuilt = false;
+  function buildNpcs() {
+    if (npcBuilt) return true;
+    if (!V15.person || typeof scene === 'undefined') return false;
+    npcBuilt = true;
+    try {
+      Object.keys(LINES).forEach(function (k) {
+        if (typeof Talk !== 'undefined') Talk.lines[k] = LINES[k];
+      });
+      if (typeof Talk !== 'undefined') {
+        const old = Talk.roleOf.bind(Talk);
+        const fn = function (av) {
+          const n = av && av.name;
+          if (ROLE[n]) return ROLE[n];
+          return old(av);
+        };
+        fn.__v166 = true;
+        Talk.roleOf = fn;
+      }
+      NPCS.forEach(function (c) {
+        try {
+          const p = V15.person({ name: c.name, x: c.x, z: c.z, yaw: c.yaw, style: c.style, shirt: c.shirt, pants: c.pants, longHair: !!c.longHair, hairStyle: c.hairStyle, bag: c.bag, bagColor: c.bagColor, apron: c.apron, hat: c.hat, hatColor: c.hatColor, glasses: c.glasses, coffee: c.coffee, phone: c.phone, scale: 1, path: c.path || null, speed: c.speed || 0.95 });
+          M['npc_' + c.name] = p;
+        } catch (e) { err('npc:' + c.name + ':' + e.message); }
+      });
+    } catch (e) { err('npcs:' + e.message); }
+    return true;
+  }
+
+  /* =================================================================
+     7) 옷장 연동 — 세아의 신상 의상
+     ================================================================= */
+  function registerWardrobe() {
+    try {
+      const W = V15.WARD;
+      if (!W || !W.cat || !W.map) return;
+      FASH.forEach(function (it) {
+        if (W.map[it.id]) return;
+        const row = { id: it.id, icon: it.icon, name: it.name, hz: it.hz, py: it.py || '', slot: it.slot, shape: it.shape, color: it.color, accent: it.accent, src: '세아 디자이너 · 设计师', price: 0, v166: true };
+        W.cat.push(row); W.map[it.id] = row;
+      });
+      /* 이미 출시된 것은 보유 처리 */
+      D.fash.done.forEach(function (id) { grantFash({ id: id }); });
+    } catch (e) { err('ward:' + e.message); }
+  }
+
+  const MS2 = function (c, o) {
+    return new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .72 }, o || {}));
+  };
+  function attachCustom(av) {
+    try {
+      if (!av || !av.root || !V15.Wear) return;
+      if (av.__v166wear) { av.__v166wear.forEach(function (o) { try { o.parent && o.parent.remove(o); } catch (e) {} }); }
+      const added = [];
+      const ids = V15.Wear.wearList().filter(function (id) { return /^v166/.test(id); });
+      ids.forEach(function (id) {
+        const it = FASH.filter(function (x) { return x.id === id; })[0];
+        if (!it) return;
+        const c = it.color, a = it.accent;
+        const body = av.body || av.root, head = av.head || av.root;
+        try {
+          if (it.shape === 'v166beret') {
+            const g = new THREE.Group();
+            const cap = new THREE.Mesh(new THREE.SphereGeometry(0.172, 14, 10), MS2(c, { roughness: .85 }));
+            cap.scale.set(1.12, .5, 1.12);
+            g.add(cap);
+            const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.185, 0.185, 0.018, 14), MS2(a, { roughness: .8 }));
+            brim.position.y = -0.042; g.add(brim);
+            const knob = new THREE.Mesh(new THREE.SphereGeometry(0.028, 8, 6), MS2(a));
+            knob.position.y = 0.115; g.add(knob);
+            g.position.set(0, 0.215, 0);
+            head.add(g); added.push(g);
+          } else if (it.shape === 'v166cape') {
+            const g = new THREE.Group();
+            const cape = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.46, 0.95, 16, 1, true), MS2(c, { side: THREE.DoubleSide, roughness: .92 }));
+            cape.position.y = 0.55; g.add(cape);
+            const trim = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.045, 6, 18), MS2(a, { roughness: .95 }));
+            trim.rotation.x = Math.PI / 2; trim.position.y = 0.09; g.add(trim);
+            const collar = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.035, 6, 16), MS2(a));
+            collar.rotation.x = Math.PI / 2; collar.position.y = 1.05; g.add(collar);
+            body.add(g); added.push(g);
+          } else if (it.shape === 'v166catband') {
+            const g = new THREE.Group();
+            const band = new THREE.Mesh(new THREE.TorusGeometry(0.158, 0.013, 6, 18, Math.PI), MS2(c, { roughness: .45 }));
+            band.rotation.x = Math.PI / 2; g.add(band);
+            [-1, 1].forEach(function (s) {
+              const ear = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.09, 4), MS2(c, { emissive: a, emissiveIntensity: 1.0, roughness: .45 }));
+              ear.position.set(0.085 * s, 0.085, 0); ear.rotation.z = -0.16 * s; g.add(ear);
+              const tip = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.04, 4), MS2(a, { emissive: a, emissiveIntensity: 1.8 }));
+              tip.position.set(0.085 * s, 0.135, 0); tip.rotation.z = -0.16 * s; g.add(tip);
+            });
+            g.position.set(0, 0.19, 0);
+            head.add(g); added.push(g);
+          } else if (it.shape === 'v166trench') {
+            const g = new THREE.Group();
+            const coat = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 0.86, 16, 1, true, Math.PI * 0.22, Math.PI * 1.56), MS2(c, { roughness: .9, side: THREE.DoubleSide }));
+            coat.position.y = 0.62; g.add(coat);
+            const sash = new THREE.Mesh(new THREE.TorusGeometry(0.212, 0.014, 6, 18), MS2(a, { roughness: .55 }));
+            sash.rotation.x = Math.PI / 2; sash.position.y = 0.76; g.add(sash);
+            [-1, 1].forEach(function (s2) {
+              const lap = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.26, 0.018), MS2(a, { roughness: .6 }));
+              lap.position.set(0.07 * s2, 0.98, 0.192); lap.rotation.z = 0.16 * s2; g.add(lap);
+              const arm = s2 > 0 ? av.armR : av.armL;
+              if (arm) {
+                const sl = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.06, 0.3, 10, 1, true), MS2(c, { roughness: .9, side: THREE.DoubleSide }));
+                sl.position.y = -0.12; arm.add(sl); added.push(sl);
+              }
+            });
+            body.add(g); added.push(g);
+          } else if (it.shape === 'v166scarf') {
+            const g = new THREE.Group();
+            const met = it.metal ? { metalness: .45, roughness: .42 } : { roughness: .95 };
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(0.138, 0.042, 8, 18), MS2(c, met));
+            ring.rotation.x = Math.PI / 2; ring.position.y = 1.07; g.add(ring);
+            const knot = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.09, 0.06), MS2(c, met));
+            knot.position.set(0.05, 1.0, 0.16); g.add(knot);
+            [-1, 1].forEach(function (s) {
+              const tail = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.28, 0.02), MS2(c, met));
+              tail.position.set(0.055 + 0.05 * s, 0.84, 0.165); tail.rotation.z = 0.08 * s; g.add(tail);
+              const fringe = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.035, 0.025), MS2(a, met));
+              fringe.position.set(0.055 + 0.055 * s, 0.69, 0.165); g.add(fringe);
+            });
+            body.add(g); added.push(g);
+          } else if (it.shape === 'v166hood') {
+            const g = new THREE.Group();
+            const back = new THREE.Mesh(new THREE.SphereGeometry(0.205, 14, 12, 0, Math.PI * 2, 0, Math.PI * 0.62), MS2(c, { roughness: .95, side: THREE.DoubleSide }));
+            back.scale.set(1.08, 1.02, 1.1); back.position.set(0, 0.0, -0.055); g.add(back);
+            /* 옆으로 늘어지는 후드 천 */
+            [-1, 1].forEach(function (s2) {
+              const flap = new THREE.Mesh(new THREE.SphereGeometry(0.085, 10, 8), MS2(c, { roughness: .95 }));
+              flap.scale.set(0.9, 1.25, 0.9); flap.position.set(0.165 * s2, -0.07, 0.0); g.add(flap);
+            });
+            /* 목 둘레 카울 */
+            const cowl = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.17, 14, 1, true), MS2(c, { roughness: .95, side: THREE.DoubleSide }));
+            cowl.position.set(0, -0.26, -0.01); g.add(cowl);
+            const rim = new THREE.Mesh(new THREE.TorusGeometry(0.185, 0.02, 6, 18), MS2(a, { roughness: .9 }));
+            rim.rotation.x = Math.PI / 2; rim.position.set(0, -0.185, -0.01); g.add(rim);
+            g.position.set(0, 0.0, 0);
+            head.add(g); added.push(g);
+          }
+        } catch (e) { err('attach:' + id + ':' + e.message); }
+      });
+      av.__v166wear = added;
+    } catch (e) { err('attachCustom:' + e.message); }
+  }
+  function hookWardrobe() {
+    try {
+      if (!V15.wardrobeAttach || V15.wardrobeAttach.__v166) return;
+      const prev = V15.wardrobeAttach;
+      const fn = function (av) {
+        try { prev(av); } catch (e) {}
+        try { attachCustom(av); } catch (e) {}
+      };
+      fn.__v166 = true;
+      V15.wardrobeAttach = fn;
+      if (typeof playerAvatar !== 'undefined' && playerAvatar) { try { V15.wardrobeAttach(playerAvatar); } catch (e) {} }
+    } catch (e) { err('hookWard:' + e.message); }
+  }
+
+  /* =================================================================
+     8) 밥 · 음악 · 카드
+     ================================================================= */
+  function eatDish(it) {
+    const now = Date.now();
+    D.me.ate = D.me.ate || {};
+    const last = D.me.ate[it.id] || 0;
+    if (now - last < 20 * 60000) {
+      const min = Math.ceil((20 * 60000 - (now - last)) / 60000);
+      toast('🍽️ 방금 먹었어요 · ' + min + '분 뒤에 또 먹을 수 있어요', 2400);
+      return false;
+    }
+    D.me.ate[it.id] = now;
+    D.me.food = clamp((D.me.food || 60) + it.food, 0, 100);
+    D.me.energy = clamp((D.me.energy || 60) + it.energy, 0, 100);
+    const boost = (D.me.food >= 55 && D.me.energy >= 55) ? ' · 집중 보너스 +15%' : '';
+    push('🍜', 'chef', '연우', '[시식] ' + it.name + '을(를) 맛보았어요 — 포만감 +' + it.food + ' · 에너지 +' + it.energy + boost, now);
+    xp(it.xp || 20); rep(3);
+    sound('correct');
+    toast(it.icon + ' ' + it.name + ' 냠냠! 포만감 +' + it.food + ' · 에너지 +' + it.energy, 2800);
+    say(it.icon + ' ' + it.name, it.phrase.hz + ' — ' + it.phrase.ko, 4200);
+    try { if (typeof speak === 'function') speak(it.hz); } catch (e) {}
+    save(); return true;
+  }
+  function playTrack(it) {
+    try {
+      const list = window.__V166_BGM || [];
+      const i = list.findIndex(function (t) { return t.id === it.id; });
+      if (i < 0) { toast('BGM 목록에서 곡을 찾지 못했어요'); return; }
+      if (typeof Music === 'undefined') return;
+      Music.pick(i, true);
+      toast('🎵 ' + it.name + ' 재생', 2200);
+    } catch (e) { err('play:' + e.message); }
+  }
+  function openCard(card) {
+    if (!card) return;
+    css();
+    const el = V16.modal('v166CardModal', card.ic + ' 오늘의 실전 중국어', '서연이 발행한 카드 · ' + card.tag);
+    const body = V16.bodyOf(el);
+    body.innerHTML = '<div class="v166-phrase"><b>' + card.hz + '</b><small>' + card.py + '</small><em>' + card.ko + '</em></div>' +
+      '<div class="v16-row"><button class="v12-btn" id="v166Say">🔊 듣기</button><button class="v12-btn" id="v166Save">⭐ 저장</button></div>' +
+      '<div class="v16-note">' + card.title + ' · ' + new Date(card.t).toLocaleString('ko-KR') + '</div>';
+    V16.open(el);
+    const b1 = body.querySelector('#v166Say');
+    if (b1) b1.onclick = function () { try { if (typeof speak === 'function') speak(card.hz); } catch (e) {} };
+    const b2 = body.querySelector('#v166Save');
+    if (b2) b2.onclick = function () {
+      push('📱', 'creator', '서연', '[복습] 오늘의 표현 저장 — “' + card.hz + '”', Date.now());
+      xp(8); rep(2); toast('⭐ 표현을 저장했어요 · XP +8', 2200); save();
+    };
+  }
+
+  /* =================================================================
+     9) UI — 자율 창작 패널
+     ================================================================= */
+  let tab = 'arch';
+  const TABS = [
+    ['arch', '🏗️ 건축'], ['fash', '👗 패션'], ['chef', '🍜 셰프'],
+    ['music', '🎵 작곡'], ['creator', '📱 크리에이터'], ['log', '📜 기록'],
+  ];
+  function css() {
+    if (document.getElementById('v166css')) return;
+    const st = document.createElement('style');
+    st.id = 'v166css';
+    st.textContent = [
+      '.v166-tabs{display:flex;gap:4px;flex-wrap:wrap;padding:2px;margin:2px 0 6px}',
+      '.v166-tabs::-webkit-scrollbar{display:none}',
+      '.v166-tabs button{flex:0 0 auto;font-size:10px;font-weight:900;padding:6px 9px;border-radius:99px;border:1px solid rgba(94,80,62,.18);background:#fffdf7;color:#6b6252;white-space:nowrap}',
+      '.v166-tabs button.on{background:linear-gradient(135deg,#f7dfa2,#d8ab4b);color:#4a3208;border-color:transparent}',
+      '.v166-hero{display:flex;gap:8px;padding:9px 10px;border-radius:15px;background:linear-gradient(150deg,#fff8e8,#f6ecd8);border:1px solid #ecd8b0}',
+      '.v166-hero .av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;background:#fff;border:1px solid #e8d8b8;flex:0 0 auto}',
+      '.v166-hero .tx{flex:1;min-width:0}',
+      '.v166-hero b{display:block;font-size:13px;color:#2d2620}',
+      '.v166-hero small{display:block;font-size:10px;color:#8a7a63;line-height:1.45}',
+      '.v166-prog{height:6px;border-radius:99px;background:rgba(94,80,62,.14);overflow:hidden;margin-top:5px}',
+      '.v166-prog>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#e8b24a,#c8692a)}',
+      '.v166-meta{display:flex;justify-content:space-between;font-size:9.5px;color:#8a7a63;margin-top:3px;font-weight:700}',
+      '.v166-row2{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}',
+      '.v166-row2 button{flex:1;min-width:78px;font-size:10.5px;font-weight:800;padding:7px 6px;border-radius:10px;border:1px solid rgba(94,80,62,.18);background:#fffdf7;color:#4a4034}',
+      '.v166-row2 button.gold{background:linear-gradient(135deg,#f7dfa2,#e2b45a);border-color:#d8ab4b;color:#4a3208}',
+      '.v166-row2 button:disabled{opacity:.45}',
+      '.v166-done{display:flex;flex-direction:column;gap:5px;margin-top:4px}',
+      '.v166-item{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:12px;background:rgba(255,253,247,.92);border:1px solid rgba(94,80,62,.13)}',
+      '.v166-item .ic{width:26px;height:26px;border-radius:9px;background:#f4ecdc;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto}',
+      '.v166-item .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}',
+      '.v166-item b{font-size:11.5px;color:#2d2620;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.v166-item small{font-size:9px;color:#8a7a63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.v166-item button{flex:0 0 auto;font-size:9.5px;font-weight:800;padding:5px 7px;border-radius:9px;border:1px solid rgba(94,80,62,.2);background:#eef4ec;color:#3f5a3c}',
+      '.v166-sec{font-size:10px;letter-spacing:.05em;color:#9a8d79;font-weight:900;margin-top:8px}',
+      '.v166-empty{font-size:10.5px;color:#9a8d79;text-align:center;padding:10px;line-height:1.6}',
+      '.v166-phrase{padding:12px;border-radius:14px;background:linear-gradient(150deg,#fdf6e6,#f6ecd8);border:1px solid #ecd8b0;text-align:center}',
+      '.v166-phrase b{display:block;font-size:20px;color:#2d2620;line-height:1.35}',
+      '.v166-phrase small{display:block;font-size:11px;color:#8a6a3a;margin-top:4px;font-weight:700}',
+      '.v166-phrase em{display:block;font-size:11.5px;color:#6b6252;font-style:normal;margin-top:5px;line-height:1.5}',
+      '.v166-bars{display:flex;gap:5px;margin-top:7px}',
+      '.v166-bar{flex:1;min-width:0;font-size:8.5px;color:#8a7a63;font-weight:800}',
+      '.v166-bar i{display:block;height:4px;border-radius:99px;background:rgba(94,80,62,.14);margin-top:2px;overflow:hidden}',
+      '.v166-bar i b{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#9cc0f0,#4c6fa8)}',
+      '@media (max-width:380px){.v166-hero b{font-size:12px}.v166-tabs button{font-size:9.5px;padding:5px 7px}}',
+    ].join('\n');
+    document.head.appendChild(st);
+  }
+  function fmtLeft(mk, list) {
+    const it = cur(mk, list);
+    if (!it) return '모두 완성';
+    const m = remainMin(mk, list, RATE.online);
+    if (m < 60) return '약 ' + m + '분';
+    return '약 ' + (m / 60).toFixed(1).replace('.0', '') + '시간';
+  }
+  function MakerCard(o) {
+    const pct = o.pct;
+    return '<div class="v166-hero"><div class="av">' + o.ic + '</div><div class="tx"><b>' + o.name + ' <span style="font-size:9.5px;color:#a0824a">' + o.role + '</span></b>' +
+      '<small>' + (o.item ? o.item : '오늘 작업을 마쳤어요') + '</small>' +
+      '<div class="v166-prog"><i style="width:' + Math.round(pct * 100) + '%"></i></div>' +
+      '<div class="v166-meta"><span>' + (o.item ? '진행 ' + Math.round(pct * 100) + '%' : '완료') + '</span><span>' + o.note + '</span></div>' +
+      '<div class="v166-row2">' +
+        '<button class="gold" data-sponsor="' + o.kind + ':1">🪙 60G 후원 (+20%)</button>' +
+        '<button class="gold" data-sponsor="' + o.kind + ':2' + '">🪙 150G 후원 (+55%)</button>' +
+      '</div></div></div>';
+  }
+  function itemRow(ic, name, sub, btn, act) {
+    return '<div class="v166-item"><span class="ic">' + ic + '</span><div class="tx"><b>' + name + '</b><small>' + sub + '</small></div>' +
+      (btn ? '<button data-act="' + act + '">' + btn + '</button>' : '') + '</div>';
+  }
+  function panelHTML() {
+    css();
+    let h = '<div class="v166-tabs">' + TABS.map(function (t) {
+      return '<button type="button" data-v166tab="' + t[0] + '" class="' + (tab === t[0] ? 'on' : '') + '">' + t[1] + '</button>';
+    }).join('') + '</div>';
+    try {
+      if (tab === 'arch') {
+        const it = cur(D.arch, ARCH);
+        h += MakerCard({ kind: 'arch', ic: '👷', name: '도현', role: '건축가 · 建筑师', item: it ? '🔨 ' + it.name + ' (' + it.hz + ') 짓는 중' : '창작 마을 완공', pct: ratio(D.arch, ARCH), note: it ? fmtLeft(D.arch, ARCH) + ' 뒤 완공' : '5채 완공' });
+        h += '<div class="v166-sec">🏘️ 창작 마을 · 완공 ' + D.arch.done.length + '/' + ARCH.length + '</div><div class="v166-done">';
+        ARCH.forEach(function (b, i) {
+          const done = D.arch.done.indexOf(b.id) >= 0;
+          const busy = i === D.arch.i;
+          const p = done ? 100 : (busy ? Math.round(ratio(D.arch, ARCH) * 100) : 0);
+          h += '<div class="v166-item"><span class="ic">' + (done ? '🏯' : (busy ? '🏗️' : '🪧')) + '</span><div class="tx"><b>' + b.name + ' <span style="font-size:9px;color:#a0824a">' + b.hz + '</span></b>' +
+            '<small>' + (done ? '완공 · 클릭해서 시/표현 배우기' : (busy ? '공사 중 ' + p + '%' : '공사 예정')) + '</small></div>' +
+            (done ? '<button data-act="arch:go:' + b.id + '">📍 가기</button><button data-act="arch:learn:' + b.id + '">📖 배우기</button>' : '') +
+            '</div>';
+        });
+        h += '</div>';
+        if (!it) h += '<div class="v166-empty">창작 마을이 완성됐어요. 도현에게 말을 걸어 보세요!</div>';
+      } else if (tab === 'fash') {
+        const it = cur(D.fash, FASH);
+        h += MakerCard({ kind: 'fash', ic: '✂️', name: '세아', role: '패션 디자이너 · 设计师', item: it ? '🧵 ' + it.name + ' (' + it.hz + ') 제작 중' : '새 컬렉션 준비 중', pct: ratio(D.fash, FASH), note: it ? fmtLeft(D.fash, FASH) + ' 뒤 출시' : '8종 완성' });
+        h += '<div class="v166-sec">👗 신상 컬렉션 · ' + D.fash.done.length + '/' + FASH.length + ' (출시되면 옷장에 자동 등록)</div><div class="v166-done">';
+        FASH.forEach(function (f, i) {
+          const done = D.fash.done.indexOf(f.id) >= 0;
+          const busy = i === D.fash.i;
+          h += '<div class="v166-item"><span class="ic">' + f.icon + '</span><div class="tx"><b>' + f.name + ' <span style="font-size:9px;color:#a0824a">' + f.hz + '</span></b>' +
+            '<small>' + (done ? f.story : (busy ? '제작 중 ' + Math.round(ratio(D.fash, FASH) * 100) + '%' : '다음 순서')) + '</small></div>' +
+            (done ? '<button data-act="fash:wear:' + f.id + '">입기</button>' : '') + '</div>';
+        });
+        h += '</div><div class="v16-row" style="margin-top:7px"><button class="v12-btn" data-act="wardrobe">🎒 내 옷장 열기</button><button class="v12-btn" data-act="fash:preview">🪞 미리보기</button></div>';
+      } else if (tab === 'chef') {
+        const it = cur(D.chef, CHEF);
+        h += MakerCard({ kind: 'chef', ic: '🧑‍🍳', name: '연우', role: '셰프 · 主厨', item: it ? '🍳 ' + it.name + ' (' + it.hz + ') 개발 중' : '신메뉴 준비 중', pct: ratio(D.chef, CHEF), note: it ? fmtLeft(D.chef, CHEF) + ' 뒤 출시' : '6종 완성' });
+        h += '<div class="v166-bars"><div class="v166-bar">🍜 포만감 ' + Math.round(D.me.food) + '<i><b style="width:' + Math.round(D.me.food) + '%"></b></i></div>' +
+          '<div class="v166-bar">⚡ 에너지 ' + Math.round(D.me.energy) + '<i><b style="width:' + Math.round(D.me.energy) + '%"></b></i></div></div>' +
+          '<div class="v166-meta"><span>' + (D.me.food >= 55 && D.me.energy >= 55 ? '집중 보너스 +15% 적용 중' : '포만감·에너지 55 이상이면 창작 속도 +15%') + '</span></div>';
+        h += '<div class="v166-sec">🍜 신메뉴 · ' + D.chef.done.length + '/' + CHEF.length + ' (배민 메뉴에 자동 추가)</div><div class="v166-done">';
+        CHEF.forEach(function (c, i) {
+          const done = D.chef.done.indexOf(c.id) >= 0;
+          const busy = i === D.chef.i;
+          h += '<div class="v166-item"><span class="ic">' + c.icon + '</span><div class="tx"><b>' + c.name + ' <span style="font-size:9px;color:#a0824a">' + c.hz + '</span></b>' +
+            '<small>' + (done ? '포만감 +' + c.food + ' · 에너지 +' + c.energy + ' · ' + c.price + 'G' : (busy ? '개발 중 ' + Math.round(ratio(D.chef, CHEF) * 100) + '%' : '다음 순서')) + '</small></div>' +
+            (done ? '<button data-act="chef:eat:' + c.id + '">시식</button>' : '') + '</div>';
+        });
+        h += '</div><div class="v16-row" style="margin-top:7px"><button class="v12-btn" data-act="delivery">🛵 배달 메뉴 열기</button></div>';
+      } else if (tab === 'music') {
+        const it = cur(D.music, MUSIC);
+        h += MakerCard({ kind: 'music', ic: '🎧', name: '민재', role: '작곡가 · 作曲家', item: it ? '🎼 ' + it.name + ' (' + it.sub + ') 작곡 중' : '새 앨범 준비 중', pct: ratio(D.music, MUSIC), note: it ? fmtLeft(D.music, MUSIC) + ' 뒤 공개' : '5곡 완성' });
+        h += '<div class="v166-sec">🎵 신곡 · ' + D.music.done.length + '/' + MUSIC.length + ' (상단 🎵 BGM 목록에 자동 추가)</div><div class="v166-done">';
+        MUSIC.forEach(function (m, i) {
+          const done = D.music.done.indexOf(m.id) >= 0;
+          const busy = i === D.music.i;
+          h += '<div class="v166-item"><span class="ic">' + m.icon + '</span><div class="tx"><b>' + m.name + '</b><small>' + (done ? m.sub + ' · Web Audio 합성' : (busy ? '작곡 중 ' + Math.round(ratio(D.music, MUSIC) * 100) + '%' : '다음 순서')) + '</small></div>' +
+            (done ? '<button data-act="music:play:' + m.id + '">▶️</button>' : '') + '</div>';
+        });
+        h += '</div><div class="v16-row" style="margin-top:7px"><button class="v12-btn" data-act="bgm">🎵 BGM 메뉴 열기</button></div>';
+      } else if (tab === 'creator') {
+        h += MakerCard({ kind: 'creator', ic: '📱', name: '서연', role: '크리에이터 · 博主', item: '다음 카드 준비 중', pct: clamp((D.creator.prog || 0) / 60, 0, 1), note: '평판 +8 · 코인 +12씩 자동 적립' });
+        h += '<div class="v166-sec">📱 오늘의 실전 중국어 카드 · ' + (D.cards || []).length + '장</div><div class="v166-done">';
+        (D.cards || []).forEach(function (c) {
+          h += '<div class="v166-item"><span class="ic">' + (c.ic || '📱') + '</span><div class="tx"><b>' + c.title + '</b><small>' + c.hz + ' — ' + c.ko + '</small></div>' +
+            '<button data-act="creator:open:' + c.id + '">복습</button></div>';
+        });
+        if (!(D.cards || []).length) h += '<div class="v166-empty">아직 카드가 없어요. 조금 기다리면 서연이 첫 카드를 올려요.</div>';
+        h += '</div><div class="v166-meta"><span>누적 발행 ' + (D.creator.pills || 0) + '장</span><span>평판은 학원 평판에 바로 반영</span></div>';
+      } else {
+        h += '<div class="v166-sec">📜 자율 창작 기록</div><div class="v163-tl">' + (D.log || []).slice(0, 24).map(function (e) {
+          return '<div class="v163-ev"><span class="ic">' + (e.ic || '·') + '</span><div class="tx"><p>' + e.txt + '</p><time>' + ago(e.t) + '</time></div></div>';
+        }).join('') + '</div>';
+        if (!(D.log || []).length) h += '<div class="v166-empty">아직 기록이 없어요.</div>';
+      }
+    } catch (e) { err('panel:' + e.message); h += '<div class="v166-empty">창작 현황을 불러오지 못했어요.</div>'; }
+    return h;
+  }
+  function ago(t) {
+    const s = Math.max(0, (Date.now() - (t || 0)) / 1000);
+    if (s < 60) return '방금';
+    if (s < 3600) return Math.round(s / 60) + '분 전';
+    if (s < 86400) return Math.round(s / 3600) + '시간 전';
+    return Math.round(s / 86400) + '일 전';
+  }
+  function bindPanel(root) {
+    if (!root) return;
+    root.querySelectorAll('[data-v166tab]').forEach(function (b) {
+      b.onclick = function () { tab = b.getAttribute('data-v166tab'); var body = document.getElementById('v163Body'); if (body) { body.innerHTML = panelHTML(); bindPanel(body); } };
+    });
+    root.querySelectorAll('[data-sponsor]').forEach(function (b) {
+      b.onclick = function () { sponsor(b.getAttribute('data-sponsor')); };
+    });
+    root.querySelectorAll('[data-act]').forEach(function (b) {
+      b.onclick = function () { act(b.getAttribute('data-act')); };
+    });
+  }
+  function act(a) {
+    try {
+      if (a === 'wardrobe') { try { V15.openWardrobe(); } catch (e) {} return; }
+      if (a === 'delivery') { try { V15.openDelivery('baemin'); } catch (e) {} return; }
+      if (a === 'bgm') { try { var mb = document.getElementById('btnBgm'); if (mb) mb.click(); } catch (e) {} return; }
+      if (a === 'fash:preview') { try { if (V15.refreshAvatar) V15.refreshAvatar(); toast('🪞 캐릭터에 착용한 모습을 확인해 보세요', 2400); } catch (e) {} return; }
+      const p = a.split(':');
+      if (p[0] === 'arch' && p[1] === 'learn') return openLearn(p[2]);
+      if (p[0] === 'arch' && p[1] === 'go') {
+        const b = ARCH.filter(function (x) { return x.id === p[2]; })[0];
+        if (b) { V16.tele(b.x, b.z + b.d / 2 + 3.2); toast('📍 ' + b.name + ' 앞으로 이동했어요', 2200); }
+        return;
+      }
+      if (p[0] === 'fash' && p[1] === 'wear') {
+        const it = FASH.filter(function (x) { return x.id === p[2]; })[0];
+        if (!it) return;
+        grantFash(it);
+        let ok = false;
+        try { ok = V15.Wear.equip(it.id); } catch (e) {}
+        try { if (V15.refreshAvatar) V15.refreshAvatar(); } catch (e) {}
+        toast(ok ? '👗 ' + it.name + ' 착용! 캐릭터를 확인해 보세요' : '👗 옷장에서 착용할 수 있어요', 2600);
+        if (ok) { push('👗', 'fashion', '세아', '[착용] ' + it.name + '을(를) 입었어요', Date.now()); save(); }
+        return;
+      }
+      if (p[0] === 'chef' && p[1] === 'eat') {
+        const it = CHEF.filter(function (x) { return x.id === p[2]; })[0];
+        if (it) { eatDish(it); var body = document.getElementById('v163Body'); if (body) { body.innerHTML = panelHTML(); bindPanel(body); } }
+        return;
+      }
+      if (p[0] === 'music' && p[1] === 'play') {
+        const it = MUSIC.filter(function (x) { return x.id === p[2]; })[0];
+        if (it) playTrack(it);
+        return;
+      }
+      if (p[0] === 'creator' && p[1] === 'open') {
+        const c = (D.cards || []).filter(function (x) { return x.id === p[2]; })[0];
+        if (c) openCard(c);
+        return;
+      }
+    } catch (e) { err('act:' + a + ':' + e.message); }
+  }
+
+  function sponsor(arg) {
+    try {
+      const p = String(arg).split(':');
+      const kind = p[0], tier = Number(p[1]) || 1;
+      const conf = { arch: [ARCH, D.arch], fash: [FASH, D.fash], chef: [CHEF, D.chef], music: [MUSIC, D.music], creator: [CREATE, D.creator] }[kind];
+      if (!conf) return;
+      const list = conf[0], mk = conf[1];
+      const cost = tier === 2 ? 150 : 60;
+      const it = kind === 'creator' ? null : cur(mk, list);
+      if (!it) { toast('이미 모두 완성됐어요'); return; }
+      if (goldNow() < cost) { toast('🪙 골드가 부족해요 · ' + cost + 'G 필요', 2600); sound('wrong'); return; }
+      if (!goldSpend(cost)) { toast('골드가 부족해요'); return; }
+      const add = it.need * (tier === 2 ? 0.55 : 0.2);
+      mk.prog = (mk.prog || 0) + add;
+      push('🪙', 'build', '', '[후원] ' + cost + 'G로 ' + it.name + ' 공정을 앞당겼어요 (+' + Math.round(tier === 2 ? 55 : 20) + '%)', Date.now());
+      save();
+      /* 완성됐는지 확인 */
+      advance(0.01, 'online');
+      var body = document.getElementById('v163Body');
+      if (body) { body.innerHTML = panelHTML(); bindPanel(body); }
+      toast('🪙 후원 완료! ' + it.name + ' 공정이 빨라졌어요', 2600);
+    } catch (e) { err('sponsor:' + e.message); }
+  }
+
+  function openLearn(id) {
+    const b = ARCH.filter(function (x) { return x.id === id; })[0];
+    if (!b) return;
+    if (D.arch.done.indexOf(id) < 0) {
+      const it = cur(D.arch, ARCH);
+      toast('🏗️ 아직 공사 중이에요 · ' + Math.round(ratio(D.arch, ARCH) * 100) + '%', 2400);
+      return;
+    }
+    const L2 = b.learn;
+    css();
+    const el = V16.modal('v166LearnModal', '📖 ' + L2.title, '도현이 지은 건물 · 클릭 학습');
+    const body = V16.bodyOf(el);
+    body.innerHTML = '<div class="v166-phrase"><b>' + L2.hz + '</b><small>' + L2.py + '</small><em>' + L2.ko + '</em></div>' +
+      '<div class="v16-note">' + L2.src + '<br>📝 ' + L2.word + '</div>' +
+      '<div class="v16-row"><button class="v12-btn" id="v166Say2">🔊 듣기</button><button class="v12-btn" id="v166Rep">⭐ 평판 받기</button></div>';
+    V16.open(el);
+    const s1 = body.querySelector('#v166Say2');
+    if (s1) s1.onclick = function () { try { if (typeof speak === 'function') speak(L2.hz); } catch (e) {} };
+    const s2 = body.querySelector('#v166Rep');
+    if (s2) s2.onclick = function () {
+      const now = Date.now();
+      const last = D.arch.itemDone['learn:' + id] || 0;
+      if (now - last < 6 * 3600e3) { toast('이미 오늘 배웠어요 · 6시간 뒤에 다시 받을 수 있어요', 2400); return; }
+      D.arch.itemDone['learn:' + id] = now;
+      rep(10); goldAdd(10); xp(15);
+      push('📖', 'build', '도현', '[학습] ' + b.name + '에서 “' + L2.hz + '” 배우기 — 평판 +10 · 코인 +10', now);
+      save(); toast('⭐ 평판 +10 · 코인 +10', 2200);
+      s2.disabled = true;
+    };
+  }
+
+  function open() {
+    try {
+      if (V16.sims && V16.sims.openCraft) V16.sims.openCraft();
+      else { toast('학원에서 있었던 일을 먼저 열어 주세요'); }
+    } catch (e) { err('open:' + e.message); }
+  }
+
+  /* 더보기 메뉴에 🎨 자율 창작 버튼 */
+  let hookedMore = false;
+  function hookMore() {
+    try {
+      const more = document.getElementById('moreSheet');
+      if (!more || document.getElementById('v166More')) return;
+      const b = document.createElement('button');
+      b.id = 'v166More';
+      b.type = 'button';
+      b.innerHTML = '<span aria-hidden="true">🎨</span> 자율 창작 (건축·패션·요리)';
+      b.onclick = function () {
+        try { document.getElementById('moreClose').click(); } catch (e) {}
+        open();
+      };
+      more.insertBefore(b, more.querySelector('#v163More') || null);
+      hookedMore = true;
+    } catch (e) {}
+  }
+
+  /* =================================================================
+     10) 부팅
+     ================================================================= */
+  let booted = false;
+  function boot() {
+    if (booted) return;
+    load();
+    seed();
+    registerWardrobe();
+    hookWardrobe();
+    /* 오프라인 반영 */
+    try { catchUp(); } catch (e) { err('catch:' + e.message); }
+    /* 이미 출시된 것들 복원 */
+    D.fash.done.forEach(function (id) { grantFash({ id: id }); });
+    D.chef.done.forEach(function (id) { const it = CHEF.filter(function (x) { return x.id === id; })[0]; if (it) addDish(it); });
+    D.music.done.forEach(function (id) { const it = MUSIC.filter(function (x) { return x.id === id; })[0]; if (it) addTrack(it); });
+    try { hookMore(); } catch (e) {}
+    setInterval(hookMore, 3000);
+    try { buildNpcs(); } catch (e) {}
+    if (!paintAll()) {
+      let tries = 0;
+      const t = setInterval(function () {
+        tries++;
+        try { if (paintAll() || tries > 40) clearInterval(t); } catch (e) { if (tries > 40) clearInterval(t); }
+      }, 1200);
+    }
+    /* 실시간 진행 — 20초마다 */
+    setInterval(function () {
+      try {
+        if (document.hidden) return;
+        advance(20 / 60, 'online');
+        saveSims();
+        if (document.getElementById('v163Body') && document.getElementById('v163SimsModal') && document.getElementById('v163SimsModal').classList.contains('show')) {
+          const body = document.getElementById('v163Body');
+          const sh = body.closest('.v163-sheet');
+          const sc = sh ? sh.scrollTop : 0;
+          const b = body.querySelector('[data-v166tab].on');
+          if (b) { body.innerHTML = panelHTML(); bindPanel(body); if (sh) sh.scrollTop = sc; }
+        }
+      } catch (e) { err('tick:' + e.message); }
+    }, 20000);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { D.lastSeen = Date.now(); save(); }
+      else { catchUp(); }
+    });
+    window.addEventListener('pagehide', function () { D.lastSeen = Date.now(); save(); });
+    M.ready = true;
+    save();
+    /* NPC 는 조금 늦게 한 번 더 시도 (월드 로딩 뒤) */
+    setTimeout(function () { if (!npcBuilt) buildNpcs(); }, 9000);
+  }
+
+  /* =================================================================
+     11) 공개 API (테스트용)
+     ================================================================= */
+  M.panelHTML = panelHTML;
+  M.bindPanel = bindPanel;
+  M.open = open;
+  M.catalogs = { arch: ARCH, fash: FASH, chef: CHEF, music: MUSIC, creator: CREATE };
+  M.advance = function (min) { advance(min || 60, 'offline'); paintAll(); };
+  M.completeAll = function () {
+    ['arch', 'fash', 'chef', 'music'].forEach(function (k) {
+      const list = { arch: ARCH, fash: FASH, chef: CHEF, music: MUSIC }[k];
+      const mk = D[k];
+      let guard = 0;
+      while (mk.i < list.length && guard++ < 30) { complete(k, list[mk.i]); mk.i++; mk.prog = 0; }
+      mk.prog = 0;
+    });
+    while ((D.creator.i || 0) < CREATE.length) publishCard(Date.now());
+    save(); paintAll(); saveSims();
+  };
+  M.state = function () {
+    return {
+      arch: { i: D.arch.i, prog: Math.round(D.arch.prog), done: D.arch.done.slice(), pct: Math.round(ratio(D.arch, ARCH) * 100) },
+      fash: { i: D.fash.i, done: D.fash.done.slice(), pct: Math.round(ratio(D.fash, FASH) * 100) },
+      chef: { i: D.chef.i, done: D.chef.done.slice(), pct: Math.round(ratio(D.chef, CHEF) * 100) },
+      music: { i: D.music.i, done: D.music.done.slice(), pct: Math.round(ratio(D.music, MUSIC) * 100) },
+      creator: { i: D.creator.i, cards: (D.cards || []).length },
+      me: D.me, errors: M.errors.slice(0, 8),
+      baemin: (window.__V166_BAEMIN || []).length,
+      bgm: (window.__V166_BGM || []).length,
+      bodies: Object.keys(GROUPS).length,
+    };
+  };
+  M.info = M.state;
+  M.equip = function (id) {
+    grantFash({ id: id });
+    let ok = false;
+    try { ok = V15.Wear.equip(id); } catch (e) {}
+    try { if (V15.refreshAvatar) V15.refreshAvatar(); } catch (e) {}
+    return ok;
+  };
+  M.cards = function () { return (D.cards || []).slice(); };
+  M.reset = function () { try { localStorage.removeItem(KEY); } catch (e) {} };
+
+  setTimeout(boot, 2600);
+})();
+
+</script>
+<!--V166-END-->
 </body>
 </html>
