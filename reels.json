@@ -1,0 +1,35 @@
+{
+  "updated": "2026-11-26",
+  "handle": "@realchinese_official",
+  "profile": "https://www.instagram.com/realchinese_official/",
+  "reels": [
+    {
+      "code": "DeL5gI5xXKY",
+      "title": "네가 뭔데 · 凭什么",
+      "tag": "凭什么",
+      "likes": "1.1만",
+      "phrases": [
+        {
+          "hz": "凭什么？",
+          "py": "píng shénme?",
+          "ko": "무슨 자격으로? / 니가 뭔데?"
+        },
+        {
+          "hz": "你凭什么说我不行？",
+          "py": "nǐ píng shénme shuō wǒ bù xíng?",
+          "ko": "네가 뭔데 내가 안 된다고 해?"
+        },
+        {
+          "hz": "凭什么他可以去，我不能去？",
+          "py": "píng shénme tā kěyǐ qù, wǒ bù néng qù?",
+          "ko": "왜 걔는 가도 되고 나는 안 돼?"
+        },
+        {
+          "hz": "凭什么让我先道歉？",
+          "py": "píng shénme ràng wǒ xiān dàoqiàn?",
+          "ko": "왜 나한테 먼저 사과하라는 거야?"
+        }
+      ]
+    }
+  ]
+}

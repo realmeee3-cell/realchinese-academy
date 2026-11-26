@@ -6891,6 +6891,7 @@ seatNpc('해리', 'c13', { shirt: 0xd7c9a8, longHair: true, hair: 0x241d19, skin
 seatNpc('보화', 'c12', { shirt: 0x8ea6b8, pants: 0x3f4652 });
 // 자습실
 seatNpc('예솔', 's1', { shirt: 0xb0a6c4, longHair: true, hair: 0x2e231e });
+seatNpc('안우바리', 't2', { shirt: 0xd8b7a0, pants: 0x574d46, hair: 0x2b211c });
 // 라운지
 seatNpc('Jason', 'l0', { shirt: 0x9fb0a2, pants: 0x4a4e56, skin: 0xf0cfae });
 
@@ -11738,6 +11739,12 @@ const Talk = {
       { hz: '自習室很安静，适合学习。', py: 'zìxíshì hěn ānjìng, shìhé xuéxí.', ko: '자습실은 조용해서 공부하기 좋아요.' },
       { hz: '我们互相练习对话吧。', py: 'wǒmen hùxiāng liànxí duìhuà ba.', ko: '우리 서로 대화 연습해요.' },
       { hz: '明天有听写考试。', py: 'míngtiān yǒu tīngxiě kǎoshì.', ko: '내일 받아쓰기 시험이 있어요.' },
+    ],
+    '안우바리': [
+      { hz: '你好！我叫安乌巴里，请多关照。', py: 'nǐ hǎo! wǒ jiào Ān wū bā lǐ, qǐng duō guānzhào.', ko: '안녕하세요! 저는 안우바리예요, 잘 부탁해요.' },
+      { hz: '这个字的声调我总是记不住。', py: 'zhège zì de shēngdiào wǒ zǒngshì jì bú zhù.', ko: '이 글자 성조를 자꾸 잊어버려요.' },
+      { hz: '我们一起点一杯奶茶吧？', py: 'wǒmen yìqǐ diǎn yì bēi nǎichá ba?', ko: '같이 밀크티 한 잔 시켜요?' },
+      { hz: '老师说多听多说是最快的办法。', py: 'lǎoshī shuō duō tīng duō shuō shì zuì kuài de bànfǎ.', ko: '선생님이 많이 듣고 많이 말하는 게 제일 빠르대요.' },
     ],
   },
   roleOf(av) {
@@ -43593,6 +43600,17 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       .v16-live{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:99px;
         background:#e0457b;color:#fff;font-size:9px;font-weight:900;letter-spacing:.08em}
       .v16-stars{color:#f2b134;font-size:11px}
+      .v16-reelbar{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:13px;
+        background:rgba(94,80,62,.08);border:1px solid rgba(94,80,62,.14)}
+      .v16-reelbar .v16-reelname{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:0}
+      .v16-reelbar b{font-size:12.5px;color:#2d2620}
+      .v16-reelbar small{font-size:10px;color:#8a7a63}
+      .v16-nav{width:34px;height:34px;border-radius:11px;border:0;background:#2f5b86;color:#fff;font-size:13px;font-weight:900}
+      .v16-nav[disabled]{opacity:.35}
+      .v16-reelinput{display:flex;gap:6px;align-items:center}
+      .v16-reelinput input{flex:1;min-width:0;height:36px;border-radius:11px;border:1px solid rgba(94,80,62,.2);
+        padding:0 10px;font-size:11.5px;background:#fffdf7;color:#2d2620}
+      .v16-reelinput .v12-btn{min-width:56px;min-height:36px;font-size:11.5px}
     `;
     document.head.appendChild(st);
   }
@@ -43698,42 +43716,169 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   const IG = {
     handle: '@realchinese_official',
     profile: 'https://www.instagram.com/realchinese_official/',
-    reel: 'https://www.instagram.com/reel/DeL5gI5xXKY/',
-    embed: 'https://www.instagram.com/reel/DeL5gI5xXKY/embed/',
-    title: '네가 뭔데 · 凭什么',
-    likes: '1.1만',
-    phrases: [
-      { hz: '凭什么？', py: 'píng shénme?', ko: '무슨 자격으로? / 니가 뭔데?' },
-      { hz: '你凭什么说我不行？', py: 'nǐ píng shénme shuō wǒ bù xíng?', ko: '네가 뭔데 내가 안 된다고 해?' },
-      { hz: '凭什么他可以去，我不能去？', py: 'píng shénme tā kěyǐ qù, wǒ bù néng qù?', ko: '왜 걔는 가도 되고 나는 안 돼?' },
-      { hz: '凭什么让我先道歉？', py: 'píng shénme ràng wǒ xiān dàqiàn?', ko: '왜 나한테 먼저 사과하라는 거야?' },
+    list: [
+      {
+        code: 'DeL5gI5xXKY', title: '네가 뭔데 · 凭什么', tag: '凭什么', likes: '1.1만',
+        phrases: [
+          { hz: '凭什么？', py: 'píng shénme?', ko: '무슨 자격으로? / 니가 뭔데?' },
+          { hz: '你凭什么说我不行？', py: 'nǐ píng shénme shuō wǒ bù xíng?', ko: '네가 뭔데 내가 안 된다고 해?' },
+          { hz: '凭什么他可以去，我不能去？', py: 'píng shénme tā kěyǐ qù, wǒ bù néng qù?', ko: '왜 걔는 가도 되고 나는 안 돼?' },
+          { hz: '凭什么让我先道歉？', py: 'píng shénme ràng wǒ xiān dàoqiàn?', ko: '왜 나한테 먼저 사과하라는 거야?' },
+        ],
+      },
     ],
+    idx: 0,
+    load() {
+      /* 저장해 둔 내 릴스 (직접 붙여넣은 것) */
+      try {
+        const o = JSON.parse(localStorage.getItem('rtb_v16_reels') || 'null');
+        if (o && o.code) { this.list = [o].concat(this.list.filter((r) => r.code !== o.code)); }
+      } catch (e) {}
+      /* reels.json 이 있으면 그것을 사용 (앱을 고치지 않고 릴스만 교체 가능) */
+      try {
+        fetch('reels.json?t=' + Date.now()).then((r) => r.json()).then((d) => {
+          if (d && Array.isArray(d.reels) && d.reels.length) {
+            const keep = this.list.filter((r) => r.custom);
+            this.list = keep.concat(d.reels.map((r) => Object.assign({}, r, { embed: r.embed })));
+            if (this.idx >= this.list.length) this.idx = 0;
+            try { if (d.handle) this.handle = d.handle; if (d.profile) this.profile = d.profile; } catch (e) {}
+            const el = document.getElementById('v16InstaModal');
+            if (el && el.classList.contains('show')) renderInsta(el);
+          }
+        }).catch(() => {});
+      } catch (e) {}
+      return this;
+    },
+    reelUrl(r) { return 'https://www.instagram.com/reel/' + r.code + '/'; },
+    embedUrl(r) { return 'https://www.instagram.com/reel/' + r.code + '/embed/'; },
+    cur() { return this.list[Math.min(this.idx, this.list.length - 1)] || this.list[0]; },
   };
-  IG.phrases[3].py = 'píng shénme ràng wǒ xiān dàoqiàn?';
+  IG.load();
   V16.IG = IG;
+  function igSaveCustom(url) {
+    try {
+      const m = String(url).match(/(?:reel|reels|p)\/([A-Za-z0-9_-]{5,})/);
+      if (!m) return null;
+      const code = m[1];
+      const o = {
+        code: code, custom: true, title: '내가 추가한 릴스', tag: 'CUSTOM', likes: '-',
+        phrases: IG.cur() && IG.cur().phrases ? IG.cur().phrases : [],
+      };
+      localStorage.setItem('rtb_v16_reels', JSON.stringify(o));
+      IG.list = [o].concat(IG.list.filter((r) => !r.custom && r.code !== code));
+      IG.idx = 0;
+      return o;
+    } catch (e) { return null; }
+  }
+  V16.igSaveCustom = igSaveCustom;
+  function igResetCustom() {
+    try { localStorage.removeItem('rtb_v16_reels'); } catch (e) {}
+    IG.list = IG.list.filter((r) => !r.custom);
+    IG.idx = 0;
+    IG.load && null;
+  }
 
+  function renderInsta(el) {
+    const b = bodyOf(el);
+    const cur = IG.cur() || IG.list[0];
+    const n = IG.list.length;
+    b.innerHTML = `
+      <div class="v16-reelbar">
+        <button class="v16-nav" id="v16IgPrev" type="button" aria-label="이전 릴스"${n < 2 ? ' disabled' : ''}>◀</button>
+        <span class="v16-reelname"><b>${cur.title || ('릴스 ' + (IG.idx + 1))}</b><small>${IG.idx + 1} / ${n} · ${cur.tag || ''}</small></span>
+        <button class="v16-nav" id="v16IgNext" type="button" aria-label="다음 릴스"${n < 2 ? ' disabled' : ''}>▶</button>
+      </div>
+      <div class="v16-hero v16-reel" id="v16ReelWrap"></div>
+      <div class="v16-row">
+        <button class="v12-btn primary" id="v16IgOpen" type="button">▶ 인스타에서 열기</button>
+        <button class="v12-btn" id="v16IgFollow" type="button">➕ 팔로우</button>
+      </div>
+      ${(cur.phrases && cur.phrases.length) ? `<div class="v16-sec">🎧 릴스 핵심 표현 — 눌러서 듣기</div>` +
+        cur.phrases.map((p, i) => `<div class="v16-phrase">
+          <span class="tx"><b>${p.hz}</b><small>${p.py || ''}</small><em>${p.ko || ''}</em></span>
+          <button type="button" data-ig="${i}">🔊</button>
+        </div>`).join('') : ''}
+      <div class="v16-sec">🔗 릴스 바꾸기 · 새 릴스 URL 붙여넣기</div>
+      <div class="v16-reelinput">
+        <input id="v16ReelUrl" type="url" inputmode="url" placeholder="https://www.instagram.com/reel/..." autocomplete="off" />
+        <button class="v12-btn primary" id="v16ReelSave" type="button">저장</button>
+        <button class="v12-btn" id="v16ReelDefault" type="button">기본</button>
+      </div>
+      <div class="v16-note" id="v16ReelNote">바뀐 릴스는 이 기기에 저장돼요. 캠퍼스 전체 기본값을 바꾸려면 <b>reels.json</b>만 고쳐 올리면 돼요.</div>`;
+    /* iframe */
+    const wrap = b.querySelector('#v16ReelWrap');
+    if (wrap) {
+      const ifr = document.createElement('iframe');
+      ifr.src = IG.embedUrl(cur);
+      ifr.setAttribute('scrolling', 'no');
+      ifr.setAttribute('frameborder', '0');
+      ifr.setAttribute('allow', 'autoplay; encrypted-media; clipboard-write; picture-in-picture');
+      ifr.setAttribute('loading', 'lazy');
+      ifr.title = cur.title || '인스타그램 릴스';
+      wrap.appendChild(ifr);
+    }
+    const op = b.querySelector('#v16IgOpen');
+    if (op) op.onclick = () => { try { window.open(IG.reelUrl(cur), '_blank'); } catch (e) {} };
+    const fl = b.querySelector('#v16IgFollow');
+    if (fl) fl.onclick = () => { try { window.open(IG.profile, '_blank'); } catch (e) {} };
+    b.querySelectorAll('[data-ig]').forEach((btn) => {
+      btn.onclick = () => {
+        const p = (cur.phrases || [])[Number(btn.dataset.ig)];
+        if (p) { tts(p.hz); say('🔊 ' + p.hz, p.py || '', 2200); }
+      };
+    });
+    const pv = b.querySelector('#v16IgPrev');
+    if (pv) pv.onclick = () => { IG.idx = (IG.idx - 1 + n) % n; renderInsta(el); };
+    const nx = b.querySelector('#v16IgNext');
+    if (nx) nx.onclick = () => { IG.idx = (IG.idx + 1) % n; renderInsta(el); };
+    const sv = b.querySelector('#v16ReelSave');
+    if (sv) sv.onclick = () => {
+      const inp = b.querySelector('#v16ReelUrl');
+      const url = inp ? inp.value.trim() : '';
+      if (!url) { say('릴스 주소를 붙여넣어 주세요', '예: https://www.instagram.com/reel/XXXX/', 2400); return; }
+      const o = igSaveCustom(url);
+      if (!o) { say('릴스 주소를 확인해 주세요', 'instagram.com/reel/... 형식이 필요해요', 2600); return; }
+      say('📸 릴스 교체 완료', '이 기기에 저장했어요 · ' + o.code, 2600);
+      renderInsta(el);
+    };
+    const df = b.querySelector('#v16ReelDefault');
+    if (df) df.onclick = () => {
+      igResetCustom();
+      try {
+        const o = JSON.parse(localStorage.getItem('rtb_v16_reels') || 'null');
+        if (o && o.custom) localStorage.removeItem('rtb_v16_reels');
+      } catch (e) {}
+      say('↩️ 기본 릴스로 되돌렸어요', IG.cur() ? IG.cur().title : '', 2200);
+      renderInsta(el);
+    };
+  }
+
+  function openInsta() {
+    const el = modal('v16InstaModal', '📸 인스타그램 릴스 <span class="v16-live">REELS</span>',
+      IG.handle + ' · ' + (IG.cur() ? IG.cur().title : '') + ' · 탭으로 릴스 전환');
+    renderInsta(el);
+    open(el);
+    if (!S.data.insta) S.bump('insta');
+    say('📸 인스타 릴스', IG.cur() ? IG.cur().title : '', 1600);
+  }
+  V16.openInsta = openInsta;
+
+  /* ---------------- 로비 앞 릴스 부스 (3D) ---------------- */
   function posterTex() {
-    const T = V15.tex ? V15.tex : null;
+    const T = V15.tex;
     if (!T) return null;
     return T(512, 640, function (c, W, H) {
       const g = c.createLinearGradient(0, 0, W, H);
-      g.addColorStop(0, '#2a1140');
-      g.addColorStop(0.5, '#4b1a5c');
-      g.addColorStop(1, '#101018');
+      g.addColorStop(0, '#2a1140'); g.addColorStop(0.5, '#4b1a5c'); g.addColorStop(1, '#101018');
       c.fillStyle = g; c.fillRect(0, 0, W, H);
-      /* 배경 광 */
       const rg = c.createRadialGradient(W * 0.5, H * 0.42, 20, W * 0.5, H * 0.42, W * 0.7);
       rg.addColorStop(0, 'rgba(247,183,51,.5)');
       rg.addColorStop(0.5, 'rgba(224,69,123,.25)');
       rg.addColorStop(1, 'rgba(16,16,24,0)');
       c.fillStyle = rg; c.fillRect(0, 0, W, H);
-      /* 상단 LIVE */
-      c.fillStyle = '#e0457b';
-      c.beginPath(); c.roundRect ? c.roundRect(W * 0.06, H * 0.06, W * 0.2, H * 0.05, 20) : c.rect(W * 0.06, H * 0.06, W * 0.2, H * 0.05);
-      c.fill();
+      c.fillStyle = '#e0457b'; c.fillRect(W * 0.06, H * 0.06, W * 0.2, H * 0.05);
       c.fillStyle = '#fff'; c.font = '900 ' + Math.round(H * 0.032) + 'px sans-serif'; c.textAlign = 'center';
       c.fillText('REELS', W * 0.16, H * 0.095);
-      /* 凭什么 */
       c.textAlign = 'center'; c.textBaseline = 'middle';
       c.shadowColor = 'rgba(255,200,120,.9)'; c.shadowBlur = 34;
       c.fillStyle = '#fff3d8'; c.font = '900 ' + Math.round(H * 0.2) + 'px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
@@ -43743,12 +43888,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       c.fillText('píng shénme', W * 0.5, H * 0.55);
       c.fillStyle = '#e9e2ff'; c.font = '800 ' + Math.round(H * 0.042) + 'px "Noto Sans CJK KR",sans-serif';
       c.fillText('네가 뭔데', W * 0.5, H * 0.63);
-      /* 재생 버튼 */
       c.beginPath(); c.arc(W * 0.5, H * 0.75, W * 0.075, 0, Math.PI * 2);
       c.fillStyle = 'rgba(255,255,255,.92)'; c.fill();
       c.beginPath(); c.moveTo(W * 0.487, H * 0.723); c.lineTo(W * 0.487, H * 0.777); c.lineTo(W * 0.53, H * 0.75);
       c.closePath(); c.fillStyle = '#2a1140'; c.fill();
-      /* 핸들 · 좋아요 */
       c.fillStyle = '#fff'; c.font = '800 ' + Math.round(H * 0.036) + 'px sans-serif';
       c.fillText('@realchinese_official', W * 0.5, H * 0.865);
       c.fillStyle = '#ff9ec4'; c.font = '900 ' + Math.round(H * 0.036) + 'px sans-serif';
@@ -43763,34 +43906,28 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (boothBuilt) return;
     boothBuilt = true;
     try {
-      const { mat, emat, basic, box, cyl, plane } = V15;
+      const { mat, emat, box, cyl, plane } = V15;
       const g = group('v16instabooth');
       const X = 4.6, Z = 14.2, RY = Math.PI - 0.42;
       const nx = Math.sin(RY), nz = Math.cos(RY);
-      /* 바닥 무대 */
       const pad = plane(4.6, 4.0, mat(0x241a2e, { roughness: .9 }), X, 0.018, Z);
       pad.rotation.x = -Math.PI / 2;
       g.add(pad);
-      /* 본체 (부스) */
       const body = box(3.2, 2.9, 0.5, mat(0x17121f, { roughness: .55, metalness: .25 }), X, 1.62, Z);
       body.rotation.y = RY;
       g.add(body);
-      /* 뒤판 — 뒤에서 봐도 부스답게 */
       const backTex = V15.tex ? V15.tex(384, 512, function (c, W, H) {
         c.fillStyle = '#1a1024'; c.fillRect(0, 0, W, H);
         for (let i = 0; i < 26; i++) {
           c.fillStyle = ['#e0457b', '#8a3ab9', '#f7b733', '#3fd8ff'][i % 4];
           c.globalAlpha = 0.16;
-          c.beginPath();
-          c.arc((i * 97) % W, (i * 151) % H, 18 + (i % 5) * 9, 0, Math.PI * 2);
-          c.fill();
+          c.beginPath(); c.arc((i * 97) % W, (i * 151) % H, 18 + (i % 5) * 9, 0, Math.PI * 2); c.fill();
         }
         c.globalAlpha = 1;
         c.fillStyle = '#ffe9c8'; c.textAlign = 'center'; c.textBaseline = 'middle';
         c.font = '900 54px "Noto Sans CJK KR",sans-serif';
         c.fillText('인스타 릴스', W / 2, H * 0.3);
-        c.font = '800 30px sans-serif';
-        c.fillStyle = '#ff9ec4';
+        c.font = '800 30px sans-serif'; c.fillStyle = '#ff9ec4';
         c.fillText('@realchinese_official', W / 2, H * 0.44);
         c.fillStyle = '#9ff0ff'; c.font = '900 40px "Noto Sans CJK KR",sans-serif';
         c.fillText('凭什么', W / 2, H * 0.63);
@@ -43803,7 +43940,6 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         bp.rotation.y = RY + Math.PI;
         g.add(bp);
       }
-      /* 화면 */
       const t = posterTex();
       const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 3.05),
         new THREE.MeshBasicMaterial(t ? { map: t } : { color: 0x2a1140 }));
@@ -43812,18 +43948,15 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       screen.position.x += nx * 0.27; screen.position.z += nz * 0.27;
       g.add(screen);
       V16._igScreen = screen;
-      /* 화면 테두리 (네온) */
       const frame = new THREE.Mesh(new THREE.BoxGeometry(2.68, 3.22, 0.1), emat(0xe0457b, 0xe0457b, 0.9));
       frame.position.set(X + nx * 0.24, 1.9, Z + nz * 0.24);
       frame.rotation.y = RY;
       g.add(frame);
-      /* 상단 네온 사인 */
       const top = sign(2.9, 0.55, [{ t: '📸 INSTAGRAM REELS', c: '#fff4e0', s: .44, glow: '#ff7ab8' }],
         { bg: '#1a1024', borderColor: '#ff7ab8' });
       top.position.set(X + nx * 0.3, 3.72, Z + nz * 0.3);
       top.rotation.y = RY;
       g.add(top);
-      /* 좌우 스탠딩 배너 */
       const b1 = sign(1.05, 2.3, [
         { t: '凭什么', c: '#ffe9c8', s: .3, y: .2, glow: '#ffd66a' },
         { t: '@realchinese', c: '#ff9ec4', s: .13, y: .46 },
@@ -43834,23 +43967,19 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       b1.position.set(X + Math.cos(RY) * 1.95, 1.3, Z - Math.sin(RY) * 1.95);
       b1.rotation.y = RY;
       g.add(b1);
-      /* 사람 키 정도의 안내 기둥 + 스포트 */
       g.add(cyl(0.09, 0.11, 3.9, mat(0x2b2338, { metalness: .4 }), X - nx * 0.7 + Math.cos(RY) * -1.7, 1.95, Z - nz * 0.7 - Math.sin(RY) * -1.7, 8));
       const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 6), emat(0xffe9c0, 0xffd9a0, 1.8));
       lamp.position.set(X - nx * 0.7 + Math.cos(RY) * -1.7, 3.95, Z - nz * 0.7 - Math.sin(RY) * -1.7);
       g.add(lamp);
-      /* 반짝이 */
       V16._igGlow = [];
       for (let i = 0; i < 6; i++) {
-        const s = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 5), emat(0xffd9a0, 0xffc14d, 1.8));
-        s.position.set(X + (Math.random() - 0.5) * 2.4, 1.6 + Math.random() * 2.0, Z + (Math.random() - 0.5) * 1.6);
-        g.add(s);
-        V16._igGlow.push(s);
+        const sp = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 5), emat(0xffd9a0, 0xffc14d, 1.8));
+        sp.position.set(X + (Math.random() - 0.5) * 2.4, 1.6 + Math.random() * 2.0, Z + (Math.random() - 0.5) * 1.6);
+        g.add(sp);
+        V16._igGlow.push(sp);
       }
-      /* 탭 영역 */
       const h = ghost(2.9, 3.4, 1.5, X + nx * 0.5, 1.8, Z + nz * 0.5, RY);
       hit(h, 'v16:insta', function () { openInsta(); });
-      /* 바닥 안내 화살표 */
       const arrow = sign(1.7, 0.44, [{ t: '📸 인스타 릴스 · 按这里', c: '#fff3d8', s: .46 }],
         { bg: 'rgba(24,16,34,.9)', borderColor: '#ff7ab8' });
       arrow.position.set(X + Math.cos(RY) * 1.6 + nx * 1.9, 0.55, Z - Math.sin(RY) * 1.6 + nz * 1.9);
@@ -43860,72 +43989,6 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     } catch (e) { err('booth:' + e.message); }
   }
   V16.buildBooth = buildBooth;
-
-  let seenHint = false;
-  function openInsta() {
-    const el = modal('v16InstaModal', '📸 인스타그램 릴스 <span class="v16-live">REELS</span>',
-      IG.handle + ' · ' + IG.title + ' · ♥ ' + IG.likes);
-    const b = bodyOf(el);
-    if (!b.dataset.built) {
-      b.dataset.built = '1';
-      b.innerHTML = `
-        <div class="v16-hero v16-reel" id="v16ReelWrap">
-          <div class="v16-reel-holder" id="v16ReelFallback">
-            <b>凭什么</b>
-            <span style="font-size:12px;color:#ffd9a0">píng shénme · 네가 뭔데</span>
-            <span style="font-size:11px;opacity:.75">릴스를 불러오는 중…</span>
-          </div>
-        </div>
-        <div class="v16-row">
-          <button class="v12-btn primary" id="v16IgOpen" type="button">▶ 인스타에서 열기</button>
-          <button class="v12-btn" id="v16IgFollow" type="button">➕ @realchinese_official 팔로우</button>
-        </div>
-        <div class="v16-sec">🎧 릴스 핵심 표현 — 눌러서 듣기</div>
-        ${IG.phrases.map((p, i) => `<div class="v16-phrase">
-          <span class="tx"><b>${p.hz}</b><small>${p.py}</small><em>${p.ko}</em></span>
-          <button type="button" data-ig="${i}" aria-label="발음 듣기">🔊</button>
-        </div>`).join('')}
-        <div class="v16-note">인스타그램 안에서 열면 영상이 바로 재생돼요. 앱 미리보기(인앱 브라우저)에서 영상이 안 보이면
-          위 <b>Instagram에서 직접 열기</b>를 눌러 주세요. · 凭什么 = “무슨 자격으로, 니가 뭔데”</div>`;
-      const op = b.querySelector('#v16IgOpen');
-      if (op) op.onclick = () => { try { window.open(IG.reel, '_blank'); } catch (e) {} };
-      const fl = b.querySelector('#v16IgFollow');
-      if (fl) fl.onclick = () => { try { window.open(IG.profile, '_blank'); } catch (e) {} };
-      b.querySelectorAll('[data-ig]').forEach((btn) => {
-        btn.onclick = () => {
-          const p = IG.phrases[Number(btn.dataset.ig)];
-          if (p) { tts(p.hz); say('🔊 ' + p.hz, p.py, 2200); }
-        };
-      });
-    }
-    open(el);
-    /* iframe 은 열 때 한 번만 넣는다 (모바일 데이터·성능) */
-    const wrap = b.querySelector('#v16ReelWrap');
-    const fb = b.querySelector('#v16ReelFallback');
-    if (wrap && !wrap.dataset.frame) {
-      wrap.dataset.frame = '1';
-      const ifr = document.createElement('iframe');
-      ifr.src = IG.embed;
-      ifr.setAttribute('scrolling', 'no');
-      ifr.setAttribute('allowtransparency', 'true');
-      ifr.setAttribute('frameborder', '0');
-      ifr.setAttribute('allow', 'autoplay; encrypted-media; clipboard-write; picture-in-picture');
-      ifr.setAttribute('loading', 'lazy');
-      ifr.title = '인스타그램 릴스 · 凭什么';
-      let loaded = false;
-      ifr.addEventListener('load', () => { loaded = true; if (fb) fb.style.display = 'none'; });
-      wrap.appendChild(ifr);
-      setTimeout(() => {
-        if (!loaded && fb) {
-          const sm = fb.querySelector('span:last-child');
-          if (sm) sm.textContent = '아래 버튼으로 Instagram에서 바로 열 수 있어요';
-        }
-      }, 4200);
-    }
-    if (!S.data.insta) { S.bump('insta'); }
-    say('📸 인스타 릴스', IG.title, 1600);
-  }
-  V16.openInsta = openInsta;
 
   /* ---------------- 퀵바 · 더보기 · 메뉴 허브에 📸 인스타 ---------------- */
   function addButtons() {
@@ -44839,36 +44902,37 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   function openBoarding() {
     const el = V16.modal('v16Board', '✈️ 탑승 · 登机', '12번 게이트 · MU 5012 上海 SHANGHAI');
     const b = V16.bodyOf(el);
+    const ok = V16.immPassed ? V16.immPassed() : true;
     b.innerHTML = `
       <div class="v16-phrase"><span class="tx"><b>请出示您的登机牌。</b>
         <small>qǐng chūshì nín de dēngjīpái.</small><em>탑승권을 보여 주세요.</em></span>
         <button type="button" data-say="请出示您的登机牌。">🔊</button></div>
-      <div class="v16-phrase"><span class="tx"><b>欢迎登机，请往这边走。</b>
-        <small>huānyíng dēngjī, qǐng wǎng zhèbiān zǒu.</small><em>탑승을 환영합니다, 이쪽으로 오세요.</em></span>
-        <button type="button" data-say="欢迎登机，请往这边走。">🔊</button></div>
+      ${ok ? '' : '<div class="v16-note" style="color:#c0392b;font-weight:800">🛂 출국심사를 먼저 통과해야 탑승할 수 있어요.</div>'}
       <div class="v16-row">
-        <button class="v12-btn primary" id="v16GoBoard" type="button">✈️ 비행기 탑승하기</button>
-        <button class="v12-btn" id="v16GoWalk" type="button">🚶 탑승교로 걸어가기</button>
+        <button class="v12-btn primary" id="v16GoBoard" type="button">${ok ? '✈️ 탑승권 찍고 걸어 탑승' : '🛂 출국심사 받기'}</button>
+        <button class="v12-btn" id="v16GoWalk" type="button">🔊 탑승 안내 듣기</button>
       </div>
-      <div class="v16-note">탑승하면 기내 좌석·창밖 구름·승무원 기내식 주문까지 체험할 수 있어요.</div>`;
+      <div class="v16-note">탑승하면 보딩브리지를 걸어 들어가 기내석에 앉고, 목적지를 고르면 구름 위 비행 장면이 나옴니다.</div>`;
     b.querySelectorAll('[data-say]').forEach((btn) => { btn.onclick = () => V16.tts(btn.dataset.say); });
     const go = b.querySelector('#v16GoBoard');
     if (go) go.onclick = () => {
       V16.close(el);
-      V16.veil('✈️ 탑승 중 · 登机', 'MU 5012 · 좌석 23A · 기내로 이동합니다', 1500, function () {
+      if (!ok) { V16.openImmigration && V16.openImmigration(); return; }
+      V16.say('🎫 탑승권 스캔 완료', '삐- · 보딩브리지로 들어갑니다', 2200);
+      V16.tts('您的登机牌已经刷好了，请往这边走。');
+      if (V16.walkIn) {
+        V16.walkIn(function () {
+          V16.say('✈️ 기내 탑승 완료', '승무원을 눌러 기내식을 주문하거나 목적지를 고르세요', 3000);
+          V16.tts('欢迎登机！');
+          V16.store.bump('airport'); V16.xp(20);
+          setTimeout(function () { try { V16.openCrew && V16.openCrew(); } catch (e) {} }, 1800);
+        });
+      } else {
         V16.tele(290, 130.5, 0);
-        V16.say('✈️ 기내 탑승 완료', '승무원을 눌러 기내식을 주문해 보세요', 2800);
-        V16.tts('欢迎登机！');
-        V16.store.bump('airport');
-        V16.xp(20);
-      });
+      }
     };
     const walk = b.querySelector('#v16GoWalk');
-    if (walk) walk.onclick = () => {
-      V16.close(el);
-      V16.tele(290, 116, 0);
-      V16.say('🚶 탑승교 · 登机桥', '앞으로 걸어 들어가면 기내예요', 2400);
-    };
+    if (walk) walk.onclick = () => { V16.tts('请出示您的登机牌，欢迎登机。'); V16.say('🔊 登机广播', '请出示登机牌，欢迎登机', 2400); };
     V16.open(el);
   }
 
@@ -44966,17 +45030,18 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     const d = DEST[id];
     if (!d) return;
     V16.store.data.dest = id; V16.store.bump('flights'); V16.store.save();
-    V16.veil('✈️ ' + d.flight + ' · 인천 → ' + d.name,
-      '비행 중 · 飞行中 · 창밖 구름을 바라보세요', 2400, function () {
-        V16.tele(d.x, d.z, d.yaw);
-        try { if (V16.buildZone) V16.buildZone(id); } catch (e) {}
-        setTimeout(function () {
-          V16.say('🛬 ' + d.name + ' 도착!', d.hz + ' · 欢迎来到' + d.hz, 3000);
-          V16.tts('各位乘客，我们已到达' + d.hz + '，感谢您的乘坐。');
-          V16.xp(25);
-          V16.store.bump(id);
-        }, 400);
-      });
+    const arrive = function () {
+      V16.tele(d.x, d.z, d.yaw);
+      try { if (V16.buildZone) V16.buildZone(id); } catch (e) {}
+      setTimeout(function () {
+        V16.say('🛬 ' + d.name + ' 도착!', d.hz + ' · 欢迎来到' + d.hz, 3200);
+        V16.tts('各位乘客，我们已到达' + d.hz + '，感谢您的乘坐。');
+        V16.xp(25);
+        V16.store.bump(id);
+      }, 350);
+    };
+    if (V16.flyScene) V16.flyScene(id, arrive);
+    else V16.veil('✈️ ' + d.flight + ' · 인천 → ' + d.name, '비행 중', 2000, arrive);
   }
   V16.flyTo = flyTo;
 
@@ -45526,12 +45591,14 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (home) home.onclick = () => {
       V16.close(el);
       const name = from === 'beijing' ? '베이징' : '상하이';
-      V16.veil('✈️ ' + name + ' → 인천국제공항', '귀국 비행 · 回国航班', 2400, function () {
+      const arrive = function () {
         V16.tele(V16.AIR_ARRIVE.x, V16.AIR_ARRIVE.z, V16.AIR_ARRIVE.yaw);
-        V16.say('🛬 인천국제공항 도착', '입국장 · 欢迎回到韩国', 2800);
+        V16.say('🛬 인천국제공항 도착', '입국장 · 欢迎回到韩国', 3000);
         V16.tts('欢迎回到韩国。');
         V16.xp(20);
-      });
+      };
+      if (V16.flyScene) V16.flyScene(from === 'beijing' ? 'beijing' : 'shanghai', arrive);
+      else V16.veil('✈️ ' + name + ' → 인천국제공항', '귀국 비행 · 回国航班', 2400, arrive);
     };
     const ac = b.querySelector('#v16GoAcademy');
     if (ac) ac.onclick = () => {
@@ -45576,7 +45643,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
 
   const M = { x0: -130, x1: -112, z0: 92, z1: 108, h: 3.9 };
   const DOOR_X = -121;
-  const FRONT = { x: DOOR_X, z: 87.4, yaw: 0 };
+  const FRONT = { x: DOOR_X, z: 96.4, yaw: 0 };
   V16.MALA = M; V16.MALA_FRONT = FRONT;
 
   const ING = [
@@ -45638,7 +45705,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       });
       /* 간판 앞 파라솔 · 대기 의자 */
       const g = V16.group('v16malaFront');
-      const pad = plane(12, 8, mat(0x8f857a, { roughness: .95 }), DOOR_X, 0.02, 86);
+      const pad = plane(12, 8, mat(0x8f857a, { roughness: .95 }), DOOR_X, 0.02, 88);
       pad.rotation.x = -Math.PI / 2;
       g.add(pad);
       /* 입구 홍등 */
@@ -45665,13 +45732,30 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
         { t: '🥘 마라탕 · 麻辣烫', c: '#fff6e6', s: .36 },
         { t: '학원가 골목 ↑ · 여기서 10m', c: '#ffd9a0', s: .24 },
       ], { bg: '#2a0f10', borderColor: '#d8342a' });
-      way.position.set(DOOR_X, 3.2, 80);
+      way.position.set(DOOR_X - 4.8, 2.7, 84.5);
+      way.rotation.y = 0.35;
       g.add(way);
       V14.addSolid(DOOR_X - 5.2, DOOR_X - 3.4, M.z0 - 1.4, M.z0 - 0.8, 'malaBanner');
       /* 길 (학원가에서 이어지는 포장길) */
-      const path = plane(5.2, 12, mat(0x9c9488, { roughness: .95 }), DOOR_X, 0.012, 86);
+      const path = plane(4.2, 8, mat(0x8f887b, { roughness: .95 }), DOOR_X, 0.012, 88);
       path.rotation.x = -Math.PI / 2;
       g.add(path);
+      /* 가게 앞을 가리는 나무·풀숲 정리 (월드가 무작위로 심은 것들) */
+      try {
+        const bx = new THREE.Box3();
+        const victims = [];
+        scene.children.forEach(function (top) {
+          if (top === g) return;
+          top.traverse(function (o) {
+            if (!o.isMesh) return;
+            bx.setFromObject(o);
+            if (isNaN(bx.min.x)) return;
+            const cx = (bx.min.x + bx.max.x) / 2, cy = (bx.min.y + bx.max.y) / 2, cz = (bx.min.z + bx.max.z) / 2;
+            if (cy < 4.5 && Math.hypot(cx - DOOR_X, cz - 85) < 6.5) victims.push(o);
+          });
+        });
+        victims.forEach(function (o) { o.visible = false; });
+      } catch (e) {}
     } catch (e) { err('mala:' + e.message); }
   }
   V16.buildMala = build;
@@ -45933,11 +46017,526 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
   })();
 
   /* ---------------- 등록 ---------------- */
-  V16.addWarp({ id: 'mala', icon: '🥘', name: '마라탕 · 훠궈', sub: '麻辣烫 · 火锅 · 학원가', x: FRONT.x, z: FRONT.z, yaw: FRONT.yaw }, build);
-  V16.addZone({ x0: M.x0, x1: M.x1, z0: M.z0, z1: M.z1 }, '마라탕 · 훠궈 매장 · 麻辣烫');
+  V16.addWarp({ id: 'mala', icon: '🥘', name: '마라탕 · 훠궈', sub: '麻辣烫 · 火锅 · 학원가', x: FRONT.x, z: FRONT.z, yaw: FRONT.yaw }, build);  V16.addZone({ x0: M.x0, x1: M.x1, z0: M.z0, z1: M.z1 }, '마라탕 · 훠궈 매장 · 麻辣烫');
   V16.addZone({ x0: M.x0 - 4, x1: M.x1 + 4, z0: 78, z1: M.z0 }, '마라탕 골목 · 麻辣烫街');
 
   V16.resetMala = resetOrder;
+})();
+/* =====================================================================
+   v16 TRAVEL — 🛂 출국심사 · 🚶 보딩브리지 실제 탑승 · ☁️ 구름 위 비행 장면
+   ---------------------------------------------------------------------
+   · 공항 안에서 출국심사(여권·탑승권 확인 + 심사관 대화)를 통과해야
+     탑승 게이트 구역으로 들어갈 수 있다
+   · 게이트에서 ‘탑승’을 누르면 캐릭터가 보딩브리지를 실제로 걸어 들어간다
+   · 목적지를 고르면 3D 비행기가 구름 사이를 날아가는 장면이 화면에 보인다
+   ===================================================================== */
+(function () {
+  const V16 = window.V16;
+  if (!V16 || V16.travelReady) return;
+  V16.travelReady = true;
+  const err = V16.err;
+  const V15 = window.V15, V14 = window.V14;
+  if (!V15 || !V14) return;
+  const { mat, emat, basic, box, cyl, plane, tex, pick } = V15;
+  const sign = V16.sign;
+
+  const A = V16.AIR || { x0: 252, x1: 328, z0: 58, z1: 112 };
+  const LINE_Z = 95.0;              // 출국심사 라인
+  const BOOTH_Z = 93.2;
+
+  /* ---------------- 1) 출국심사대 (3D) ---------------- */
+  let built = false;
+  function buildImmigration() {
+    if (built) return;
+    built = true;
+    try {
+      if (!V16.airportBuilt && V16.buildAirport) V16.buildAirport();
+      const g = V16.group('v16immigration');
+      const BOOTHS = [266, 278, 290, 302];
+      BOOTHS.forEach((x, i) => {
+        /* 카운터 */
+        g.add(box(2.2, 1.05, 1.1, mat(0x2f4a66, { roughness: .55 }), x, 0.52, BOOTH_Z));
+        g.add(box(2.3, 0.1, 1.2, mat(0x1b2a3a, { metalness: .4 }), x, 1.06, BOOTH_Z));
+        /* 유리 칸막이 */
+        g.add(box(2.2, 1.5, 0.07, mat(0xa9d3e8, { transparent: true, opacity: .38, roughness: .1 }), x, 1.85, BOOTH_Z - 0.52));
+        /* 상부 표시등 */
+        const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 6), emat(0xffb347, 0xffb347, 1.6));
+        lamp.position.set(x + 0.95, 2.35, BOOTH_Z);
+        g.add(lamp);
+        (V16._immLamps = V16._immLamps || []).push(lamp);
+        /* 심사관 */
+        try {
+          V14.makeCrowd({
+            x: x, z: BOOTH_Z + 1.2, yaw: Math.PI, name: '심사관' + i,
+            shirt: 0x1d4a72, pants: 0x16283c, skin: 0xf3d5b6, hair: 0x241d19, tie: true,
+          });
+        } catch (e) {}
+        /* 탭 영역 */
+        const h = V16.ghost(2.6, 2.4, 2.2, x, 1.2, BOOTH_Z);
+        V16.hit(h, 'v16:imm:' + i, function () { openImmigration(); });
+      });
+      /* 줄 안내 · 바닥 라인 */
+      for (let x = 258; x <= 320; x += 1.2) {
+        const l = plane(0.5, 0.24, mat(0xe8c33a), x, 0.058, LINE_Z);
+        l.rotation.x = -Math.PI / 2;
+        g.add(l);
+      }
+      [255.5, 322].forEach((x) => {
+        g.add(box(0.16, 1.15, 0.16, mat(0x9aa3ad, { metalness: .5 }), x, 0.57, LINE_Z, 6));
+        g.add(box(0.16, 1.15, 0.16, mat(0x9aa3ad, { metalness: .5 }), x, 0.57, LINE_Z + 6, 6));
+      });
+      const s = sign(8.6, 1.2, [
+        { t: '🛂 출국심사 · 出境审查  IMMIGRATION', c: '#eaf6ff', s: .38 },
+        { t: '여권 · 탑승권을 보여 주세요 · 请出示护照和登机牌', c: '#ffd9a0', s: .2 },
+      ], { bg: '#12314f', borderColor: '#8fd0ff' });
+      s.position.set(284, 4.4, LINE_Z - 0.6);
+      g.add(s);
+      /* 안내 발판 */
+      const p = sign(3.4, 0.7, [{ t: '🛂 여기서 심사 · 按这里盖章', c: '#fff6e6', s: .38 }],
+        { bg: 'rgba(18,49,79,.92)', borderColor: '#ffd9a0' });
+      p.position.set(284, 2.9, LINE_Z + 0.4);
+      g.add(p);
+    } catch (e) { err('imm:' + e.message); }
+  }
+  V16.buildImmigration = buildImmigration;
+
+  function passed() { return V16.store.data.immigration > 0; }
+  V16.immPassed = passed;
+  V16.resetImmigration = function () { V16.store.data.immigration = 0; V16.store.save(); };
+
+  /* 심사 통과 전에는 게이트 구역으로 못 들어간다 */
+  function gateWatch() {
+    try {
+      buildImmigration();
+      if (passed() || typeof Player === 'undefined') return;
+      const p = Player.pos;
+      if (p.z > LINE_Z + 0.6 && p.z < 109 && p.x > A.x0 && p.x < A.x1) {
+        V16.tele(284, LINE_Z - 1.6, 0);
+        V16.say('🛂 출국심사를 먼저 받아 주세요', '심사대를 눌러 여권·탑승권을 보여 주세요 · 请先出示护照', 2600);
+      }
+    } catch (e) {}
+  }
+  setInterval(gateWatch, 400);
+
+  /* 심사 모달 — 심사관 대화 + 도장 */
+  let immStep = 0, immPurpose = '';
+  function openImmigration() {
+    if (passed()) {
+      const el0 = V16.modal('v16ImmModal', '🛂 출국심사 · 出境审查', '이미 심사를 마쳤어요 · 已盖章');
+      V16.bodyOf(el0).innerHTML = `
+        <div class="v16-phrase"><span class="tx"><b>您的出境手续已经办好了。</b>
+          <small>nín de chūjìng shǒuxù yǐjīng bànhǎo le.</small><em>출국 수속은 이미 완료됐어요.</em></span>
+          <button type="button" data-say="您的出境手续已经办好了。">🔊</button></div>
+        <div class="v16-note">12번 게이트로 가서 <b>탑승</b>을 누르면 보딩브리지로 걸어 들어가요.</div>`;
+      V16.bodyOf(el0).querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => V16.tts(b.dataset.say); });
+      V16.open(el0);
+      return;
+    }
+    immStep = 0; immPurpose = '';
+    renderImm();
+  }
+  V16.openImmigration = openImmigration;
+
+  function renderImm() {
+    const el = V16.modal('v16ImmModal', '🛂 출국심사 · 出境审查', '심사관과 중국어로 대화해 보세요 · 순서대로 통과');
+    const b = V16.bodyOf(el);
+    const PASS = `
+      <div class="v16-total"><span>✅ 출국 심사 통과!<br><small style="color:#8a7a63">도장이 찍혔어요 · 盖章完成</small></span>
+        <button class="v12-btn primary" id="v16ImmGo" type="button" style="min-width:120px">🛂 게이트로 이동</button></div>`;
+    if (immStep === 0) {
+      b.innerHTML = `
+        <div class="v16-phrase"><span class="tx"><b>您好，请出示您的护照和登机牌。</b>
+          <small>nín hǎo, qǐng chūshì nín de hùzhào hé dēngjīpái.</small><em>안녕하세요, 여권과 탑승권을 보여 주세요.</em></span>
+          <button type="button" data-say="您好，请出示您的护照和登机牌。">🔊</button></div>
+        <div class="v16-row">
+          <button class="v12-btn primary" id="v16ImmNext" type="button">🪪 여권·탑승권 건네기</button>
+          <button class="v12-btn" id="v16ImmHear" type="button">🔊 다시 듣기</button>
+        </div>
+        <div class="v16-note">심사관: 김민수 · 12번 게이트 · MU 5012 上海</div>`;
+      const n = b.querySelector('#v16ImmNext');
+      if (n) n.onclick = () => { immStep = 1; renderImm(); };
+      const h = b.querySelector('#v16ImmHear');
+      if (h) h.onclick = () => V16.tts('您好，请出示您的护照和登机牌。');
+      b.querySelectorAll('[data-say]').forEach((x) => { x.onclick = () => V16.tts(x.dataset.say); });
+    } else if (immStep === 1) {
+      b.innerHTML = `
+        <div class="v16-phrase"><span class="tx"><b>您这次去上海做什么？</b>
+          <small>nín zhè cì qù Shànghǎi zuò shénme?</small><em>이번에 상하이에는 무슨 일로 가시나요?</em></span>
+          <button type="button" data-say="您这次去上海做什么？">🔊</button></div>
+        <div class="v16-grid">
+          <button class="v16-card" data-p="관광"><b>관광</b><small>去旅游 · qù lǚyóu</small></button>
+          <button class="v16-card" data-p="출장"><b>출장</b><small>去出差 · qù chūchāi</small></button>
+          <button class="v16-card" data-p="유학"><b>유학</b><small>去留学 · qù liúxué</small></button>
+          <button class="v16-card" data-p="친구 방문"><b>친구 방문</b><small>去看朋友 · qù kàn péngyou</small></button>
+        </div>`;
+      b.querySelectorAll('[data-say]').forEach((x) => { x.onclick = () => V16.tts(x.dataset.say); });
+      b.querySelectorAll('[data-p]').forEach((btn) => {
+        btn.onclick = () => {
+          immPurpose = btn.dataset.p;
+          V16.tts(immPurpose === '관광' ? '我去旅游。' : immPurpose === '출장' ? '我去出差。' : immPurpose === '유학' ? '我去留学。' : '我去看朋友。');
+          immStep = 2; renderImm();
+        };
+      });
+    } else if (immStep === 2) {
+      b.innerHTML = `
+        <div class="v16-phrase"><span class="tx"><b>好的，${immPurpose === '관광' ? '旅游啊' : immPurpose === '출장' ? '出差啊' : immPurpose === '유학' ? '留学啊' : '看朋友啊'}，祝您旅途愉快！</b>
+          <small>hǎo de, zhù nín lǚtú yúkuài!</small><em>네, 즐거운 여행 되세요!</em></span>
+          <button type="button" data-say="祝您旅途愉快！">🔊</button></div>
+        <div class="v16-phrase"><span class="tx"><b>请在这里按一下指纹。</b>
+          <small>qǐng zài zhèlǐ àn yíxià zhǐwén.</small><em>여기에 지문을 눌러 주세요.</em></span>
+          <button type="button" data-say="请在这里按一下指纹。">🔊</button></div>
+        ${PASS}`;
+      b.querySelectorAll('[data-say]').forEach((x) => { x.onclick = () => V16.tts(x.dataset.say); });
+      const go = b.querySelector('#v16ImmGo');
+      if (go) go.onclick = () => {
+        V16.store.data.immigration = 1;
+        V16.store.data.immPurpose = immPurpose;
+        V16.store.save();
+        V16.close(el);
+        V16.say('🛂 출국심사 통과 · 盖章完成', '탑승권에 도장! 12번 게이트로 가세요', 3000);
+        V16.tts('谢谢，祝您旅途愉快！');
+        V16.gold(10); V16.xp(20);
+        (V16._immLamps || []).forEach((l) => { try { l.material.color.setHex(0x4dffa8); l.material.emissive.setHex(0x4dffa8); } catch (e) {} });
+        try { if (window.FX) FX.petals(10, 0x8fd0ff); } catch (e) {}
+      };
+    }
+    V16.open(el);
+  }
+
+  /* ---------------- 2) 보딩브리지 실제 탑승 ---------------- */
+  const WALK = { on: false, pts: [], i: 0, done: null, speed: 2.1 };
+  V16.walkState = WALK;
+  function walkIn(done) {
+    try {
+      buildImmigration();
+      V16.buildAirport && V16.buildAirport();
+    } catch (e) {}
+    WALK.pts = [[290, 108.6], [290, 118], [290, 129.2]];
+    WALK.i = 0; WALK.on = true; WALK.done = done || null; WALK.started = performance.now();
+    V16.say('🚶 보딩브리지로 이동', '비행기로 걸어 들어갑니다 · 走登机桥', 2400);
+    V16.tts('欢迎登机，请往这边走。');
+    try { walkStep(); } catch (e) {}
+  }
+  V16.walkIn = walkIn;
+
+  function walkStep() {
+    try {
+      if (typeof Player === 'undefined') return;
+      const tp = WALK.pts[WALK.i];
+      if (!tp) {
+        WALK.on = false;
+        try { Player.walkTarget = null; } catch (e) {}
+        const cb = WALK.done; WALK.done = null;
+        if (cb) { try { cb(); } catch (e) {} }
+        return;
+      }
+      Player.walkTarget = new THREE.Vector3(tp[0], 0, tp[1]);
+      WALK.at = performance.now();
+    } catch (e) { WALK.on = false; }
+  }
+
+  function walkTick() {
+    if (!WALK.on || typeof Player === 'undefined') return;
+    try {
+      const moved = Math.hypot(Player.pos.x - (WALK.lastX || 0), Player.pos.z - (WALK.lastZ || 0));
+      WALK.lastX = Player.pos.x; WALK.lastZ = Player.pos.z;
+      const idle = performance.now() - (WALK.at || 0);
+      if (!Player.walkTarget) { WALK.i++; walkStep(); return; }
+      /* 3.5초 넘게 못 움직이면 다음 지점으로 */
+      if (idle > 3500) {
+        const tp = WALK.pts[WALK.i];
+        if (tp && V16.tele) V16.tele(tp[0], tp[1], 0);
+        WALK.i++; walkStep();
+      }
+    } catch (e) { WALK.on = false; }
+  }
+
+  /* ---------------- 3) ☁️ 구름 위 비행 장면 ---------------- */
+  const SKY = { x: 290, y: 168, z: 300 };
+  let skyBuilt = false, skyGroup = null, flightPlane = null, clouds = [];
+  function cloudPuff(size, col) {
+    const g = new THREE.Group();
+    const m = basic(col || 0xffffff, { transparent: true, opacity: 0.92 });
+    for (let i = 0; i < 5; i++) {
+      const s = new THREE.Mesh(new THREE.SphereGeometry(size * (0.55 + Math.random() * 0.6), 7, 6), m);
+      s.position.set((Math.random() - 0.5) * size * 0.7, (Math.random() - 0.5) * size * 0.28, (Math.random() - 0.5) * size * 0.7);
+      g.add(s);
+    }
+    return g;
+  }
+  function buildSky() {
+    if (skyBuilt) return;
+    skyBuilt = true;
+    try {
+      skyGroup = new THREE.Group();
+      skyGroup.name = 'v16sky';
+      scene.add(skyGroup);
+      /* 비행기 (저폴리) */
+      const P = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 1.9, 24, 14, 1, false), mat(0xf2f6fa, { roughness: .35, metalness: .2 }));
+      body.rotation.x = Math.PI / 2;
+      P.add(body);
+      const nose = new THREE.Mesh(new THREE.SphereGeometry(1.9, 12, 10), mat(0xeef3f8, { roughness: .3 }));
+      nose.scale.set(1, 1, 1.5);
+      nose.position.z = 12;
+      P.add(nose);
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(1.9, 4, 12), mat(0xeef3f8));
+      tail.rotation.x = -Math.PI / 2;
+      tail.position.z = -13.5;
+      P.add(tail);
+      const fin = box(0.4, 4.6, 3.4, mat(0x2b6ab0), 0, 2.6, -12);
+      fin.rotation.x = 0.2;
+      P.add(fin);
+      [1, -1].forEach((s) => {
+        const wing = box(13, 0.32, 4.0, mat(0xe6ebef, { roughness: .45 }), s * 6.2, -0.2, 0.6);
+        wing.rotation.z = s * 0.05;
+        P.add(wing);
+        const eng = cyl(0.85, 0.85, 2.6, mat(0xcdd6dd, { metalness: .5 }), s * 6.2, -0.5, 1.2, 10);
+        eng.rotation.x = Math.PI / 2;
+        P.add(eng);
+      });
+      /* 창문 줄 */
+      [1, -1].forEach((s) => {
+        const st = box(0.04, 0.2, 18, basic(0x35506a), s * 1.88, 0.45, 0);
+        P.add(st);
+        const band = box(0.04, 0.5, 20, basic(0x2b6ab0), s * 1.9, -0.6, 0);
+        P.add(band);
+      });
+      P.position.set(SKY.x, SKY.y, SKY.z + 30);
+      skyGroup.add(P);
+      flightPlane = P;
+      /* 구름 */
+      clouds = [];
+      for (let i = 0; i < 34; i++) {
+        const c = cloudPuff(3.4 + Math.random() * 4.2, pick([0xffffff, 0xf6faff, 0xeaf4ff]));
+        c.position.set(
+          SKY.x + (Math.random() - 0.5) * 110,
+          SKY.y + (Math.random() - 0.5) * 34,
+          SKY.z - 90 + Math.random() * 170
+        );
+        skyGroup.add(c);
+        clouds.push({ o: c, z: c.position.z, sp: 12 + Math.random() * 16 });
+      }
+      /* 태양 광 */
+      const sun = new THREE.Mesh(new THREE.SphereGeometry(6, 12, 10), basic(0xfff3d0, { transparent: true, opacity: .85 }));
+      sun.position.set(SKY.x - 46, SKY.y + 22, SKY.z + 60);
+      skyGroup.add(sun);
+      skyGroup.visible = false;
+    } catch (e) { err('sky:' + e.message); }
+  }
+  V16.buildSky = buildSky;
+
+  const FLY = { on: false, t: 0, dur: 6800, cam0: null, dest: '', done: null };
+  V16.flyState = FLY;
+
+  function hookCamera() {
+    try {
+      if (typeof window.updateCamera !== 'function' || window.updateCamera.__v16fly) return;
+      const prev = window.updateCamera;
+      const fn = function (dt) {
+        if (FLY.on) {
+          try {
+            const p = flightPlane ? flightPlane.position : { x: SKY.x, y: SKY.y, z: SKY.z };
+            const k = Math.min(1, FLY.t / 900);
+            camera.position.lerp(new THREE.Vector3(p.x + 10, p.y + 4.5, p.z - 26), 0.12);
+            camera.lookAt(p.x, p.y - 0.5, p.z);
+            if (camera.fov !== 55) { camera.fov = 55; camera.updateProjectionMatrix(); }
+            return;
+          } catch (e) {}
+        }
+        return prev.call(this, dt);
+      };
+      fn.__v16fly = true;
+      window.updateCamera = fn;
+    } catch (e) { err('flycam:' + e.message); }
+  }
+  setTimeout(hookCamera, 2600);
+  setInterval(hookCamera, 5000);
+
+  function veilText(txt, sub) {
+    let el = document.getElementById('v16FlyHud');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'v16FlyHud';
+      el.innerHTML = '<div class="fh-t"></div><div class="fh-s"></div><div class="fh-bar"><i></i></div>';
+      document.body.appendChild(el);
+    }
+    el.querySelector('.fh-t').textContent = txt;
+    el.querySelector('.fh-s').textContent = sub;
+    el.classList.add('show');
+    return el;
+  }
+
+  function flyScene(destId, done) {
+    buildSky();
+    if (!skyGroup) { if (done) done(); return; }
+    hookCamera();
+    const d = (V16.DEST || {})[destId] || { name: '상하이', hz: '上海', flight: 'MU 5012' };
+    FLY.on = true; FLY.t = 0; FLY.t0 = performance.now(); FLY.dest = destId; FLY.done = done || null;
+    skyGroup.visible = true;
+    if (flightPlane) { flightPlane.position.set(SKY.x, SKY.y, SKY.z + 34); flightPlane.rotation.set(0, 0, 0); }
+    veilText('✈️ ' + d.flight + ' · 인천 → ' + d.name, '구름 위를 날고 있어요 · 飞行中');
+    V16.tts('飞机就要起飞了，请系好安全带。');
+    setTimeout(function () { V16.tts('各位乘客，我们正在飞往' + (d.hz || '上海') + '的途中。'); }, 3200);
+  }
+  V16.flyScene = flyScene;
+
+  function flyTick(dt, t) {
+    /* 걷기 */
+    walkTick();
+    if (!FLY.on) return;
+    FLY.t = performance.now() - (FLY.t0 || performance.now());
+    try {
+      const k = Math.min(1, FLY.t / FLY.dur);
+      if (flightPlane) {
+        /* 이륙 → 순항 */
+        const climb = Math.min(1, k * 2.2);
+        flightPlane.position.z = (SKY.z + 34) - k * 46;
+        flightPlane.position.y = SKY.y + Math.sin(k * Math.PI * 0.8) * 6 + climb * 2;
+        flightPlane.rotation.x = -0.18 * Math.max(0, 0.5 - k) * 2;
+        flightPlane.rotation.z = Math.sin(t * 0.0012) * 0.08;
+      }
+      clouds.forEach((c) => {
+        if (!c.o) return;
+        c.o.position.z += c.sp * Math.min(0.1, Math.max(0.008, dt));
+        if (c.o.position.z > SKY.z + 90) {
+          c.o.position.z = SKY.z - 70;
+          c.o.position.x = SKY.x + (Math.random() - 0.5) * 90;
+          c.o.position.y = SKY.y + (Math.random() - 0.5) * 26;
+        }
+      });
+      /* 카메라: Cam.lock 로 비행기를 추적 (다른 카메라 훅보다 확실) */
+      try {
+        const pp = flightPlane ? flightPlane.position : { x: SKY.x, y: SKY.y, z: SKY.z };
+        const want = { x: pp.x + 17, y: pp.y + 7.5, z: pp.z - 44 };
+        if (!Cam.lock || !Cam.lock.__v16) {
+          Cam.lock = { pos: new THREE.Vector3(want.x, want.y, want.z), look: new THREE.Vector3(pp.x, pp.y, pp.z) };
+          Cam.lock.__v16 = true;
+        } else {
+          Cam.lock.pos.x += (want.x - Cam.lock.pos.x) * 0.12;
+          Cam.lock.pos.y += (want.y - Cam.lock.pos.y) * 0.12;
+          Cam.lock.pos.z += (want.z - Cam.lock.pos.z) * 0.12;
+          Cam.lock.look.set(pp.x, pp.y, pp.z);
+        }
+        camera.position.copy(Cam.lock.pos);
+        camera.lookAt(Cam.lock.look);
+        if (camera.fov !== 55) { camera.fov = 55; camera.updateProjectionMatrix(); }
+      } catch (e) {}
+      const bar = document.querySelector('#v16FlyHud .fh-bar i');
+      if (bar) bar.style.width = Math.round(Math.min(100, k * 100)) + '%';
+      if (bar) bar.parentNode.style.display = 'block';
+      if (FLY.t >= FLY.dur) {
+        FLY.on = false;
+        skyGroup.visible = false;
+        try { if (Cam.lock && Cam.lock.__v16) Cam.lock = null; } catch (e) {}
+        try { if (camera.fov !== 62) { camera.fov = 62; camera.updateProjectionMatrix(); } } catch (e) {}
+        const hud = document.getElementById('v16FlyHud');
+        if (hud) hud.classList.remove('show');
+        const cb = FLY.done; FLY.done = null;
+        if (cb) { try { cb(); } catch (e) {} }
+      }
+    } catch (e) { FLY.on = false; }
+  }
+  if (V16.addTick) V16.addTick(flyTick);
+  else {
+    const prev = V14.extraTick;
+    V14.extraTick = function (dt, t) { if (prev) { try { prev(dt, t); } catch (e) {} } flyTick(dt, t); };
+  }
+
+  /* 비행 HUD 스타일 */
+  try {
+    if (!document.getElementById('v16flycss')) {
+      const st = document.createElement('style');
+      st.id = 'v16flycss';
+      st.textContent = `
+        #v16FlyHud{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom));
+          z-index:150;display:none;flex-direction:column;align-items:center;gap:5px;padding:11px 16px;border-radius:18px;
+          background:rgba(12,26,46,.82);color:#eaf6ff;backdrop-filter:blur(6px);max-width:88vw;text-align:center}
+        #v16FlyHud.show{display:flex}
+        #v16FlyHud .fh-t{font-size:12.5px;font-weight:900;letter-spacing:.02em}
+        #v16FlyHud .fh-s{font-size:10.5px;opacity:.85}
+        #v16FlyHud .fh-bar{display:none;width:180px;height:5px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden;margin-top:3px}
+        #v16FlyHud .fh-bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#8fd0ff,#9ff0a8)}
+      `;
+      document.head.appendChild(st);
+    }
+  } catch (e) {}
+
+  V16.travelInfo = function () {
+    return { imm: !!passed(), walk: WALK.on, flying: FLY.on, sky: !!skyBuilt, purpose: V16.store.data.immPurpose || '' };
+  };
+})();
+/* =====================================================================
+   v16 PDF — 📚 새 교재 PDF 7종 (캠퍼스 「수업 자료」에 등록 + 바로 보기/다운로드)
+   ---------------------------------------------------------------------
+   · 이미 있던 교재(HSK 5·6급 회화, 시사 전자책 60쪽, 기초회화 22단원)는 중복이라 제외
+   · 파일은 deploy/ghpages/pdfs/<영문이름>.pdf 로 올라간다
+   ===================================================================== */
+(function () {
+  const V16 = window.V16;
+  if (!V16 || V16.pdfReady) return;
+  V16.pdfReady = true;
+  const err = V16.err;
+  const BOOKS = (V16.PDFBOOKS = [{"slug": "biz-situation", "ic": "💼", "title": "비즈니스 회화 · 상황별 실전", "cn": "商务中文会话 · 场景实战", "desc": "방문 목적·제품 소개·협상·계약까지 상황별 대화와 어휘 확장.", "pages": 50, "kb": 224, "file": "pdfs/biz-situation.pdf", "phrases": ["说明来访目的", "실전 대화 | 中文对话", "A: 请问您这次来主要是为了什么项目？", "B: 我们想了解贵公司的新产品，并讨论一下代理合作的可能性。", "A: 没问题。我们可以先介绍产品，再具体谈合作条件。", "B: 好的。我们也准备了市场数据，供贵公司参考。"], "ok": true}, {"slug": "ginseng", "ic": "🌿", "title": "정관장 · 홍삼 실무 중국어", "cn": "高丽参实务中文", "desc": "중국 주재원 실무 — 홍삼 제품명·규제·유통·상담 표현.", "pages": 50, "kb": 1641, "file": "pdfs/ginseng.pdf", "phrases": ["红参制品 hóngshēn zhìpǐn 홍삼 제품", "01  我们主要围绕高丽参及其深加工产品开展业务。", "02  红参是人参经过清洗、蒸制和干燥等工序加工而成的产品。", "03  在介绍产品时，应以产品标签和适用法规中的名称为准。", "红参浓缩液 hóngshēn nóngsuōyè 홍삼 농축액", "红参饮品 hóngshēn yǐnpǐn 홍삼 음료"], "ok": true}, {"slug": "hsk4-field", "ic": "🧭", "title": "HSK 4급 현지 실전 회화", "cn": "HSK4级 当地实战会话", "desc": "숫자·가격·위치·정중한 거절까지, 현지에서 바로 쓰는 회화.", "pages": 30, "kb": 4202, "file": "pdfs/hsk4-field.pdf", "phrases": ["100 一百 yì bǎi 200은 两百 liǎng bǎi", "120 一百二(十) yì bǎi èr 끝의 十은 생략", "128 一百二十八 yì bǎi èrshíbā 십 단위는 생략 불가", "12元 十二块 shí'èr kuài 구어에서 元→块", "0.5元 五毛 wǔ máo 1/10은 毛", "지금 대화를 정중히 접는 말. 回头再说도 같다."], "ok": true}, {"slug": "marketing", "ic": "💄", "title": "뷰티 · 마케팅 실무 회화", "cn": "美妆与市场营销", "desc": "제품 소개·라이브커머스·교환/환불 응대 표현.", "pages": 30, "kb": 156, "file": "pdfs/marketing.pdf", "phrases": ["消费者需求", "品牌知名度", "这款精华质地轻薄，使用后不会有明显的黏腻感。", "产品配方中包含多种保湿成分，具体信息请参考包装说明。", "如果您比较在意肤感，可以先试用，再决定是否购买。", "微信公众号"], "ok": true}, {"slug": "derma", "ic": "🩺", "title": "피부과 상담 회화", "cn": "皮肤科咨询", "desc": "피부 타입·증상·시술 설명과 상담 표현.", "pages": 31, "kb": 1214, "file": "pdfs/derma.pdf", "phrases": ["건성 피부 干性皮肤 gānxìng pífū", "지성 피부 油性皮肤 yóuxìng pífū", "복합성 피부 混合性皮肤 hùnhéxìng pífū", "민감성 피부 敏感性皮肤 mǐngǎnxìng pífū", "유분 과다 油脂分泌过多 yóuzhī fēnmì guòduō", "피부톤이 칙칙하다 肤色暗沉 fūsè ànchén"], "ok": true}, {"slug": "zaochun", "ic": "🌸", "title": "《早春晴朗》 50장면 비즈니스 회화", "cn": "早春晴朗 50场景", "desc": "드라마 분위기로 배우는 면접·회의·보고 장면 회화 54p.", "pages": 54, "kb": 15504, "file": "pdfs/zaochun.pdf", "phrases": ["甲  请你先简单介绍一下自己。", "乙  您好，我叫林晓，之前有相关行业的工作经验。", "甲  你为什么想应聘这个职位？", "乙  我觉得这个岗位很适合我的专业背景。", "甲  你认为自己最大的优势是什么？", "乙  我学习能力比较强，也很重视团队合作。"], "ok": true}, {"slug": "basic-wb", "ic": "📗", "title": "기초회화 종합워크북", "cn": "基础会话综合练习册", "desc": "인사·자기소개·일상 표현을 61쪽 워크북으로 반복 연습.", "pages": 61, "kb": 534, "file": "pdfs/basic-wb.pdf", "phrases": ["你好 / 您好", "我来自韩国。", "认识你很高兴。", "请多关照。", "请问，您怎么称呼？", "您是做什么工作的？"], "ok": true}]);
+
+  function openBook(slug) {
+    const b = BOOKS.filter(function (x) { return x.slug === slug; })[0];
+    if (!b) return;
+    const el = V16.modal('v16PdfModal', b.ic + ' ' + b.title, (b.cn || '') + ' · ' + b.pages + '쪽 · ' + Math.round(b.kb / 1024 * 10) / 10 + 'MB');
+    const body = V16.bodyOf(el);
+    body.innerHTML =
+      '<div class="v16-total"><span><b>' + b.title + '</b><br><small style="color:#8a7a63">' + b.desc + '</small></span>' +
+      '<span style="font-size:22px">' + b.ic + '</span></div>' +
+      '<div class="v16-row">' +
+      '  <button class="v12-btn primary" id="v16PdfOpen" type="button">📄 PDF 바로 보기</button>' +
+      '  <a class="v12-btn" id="v16PdfDown" href="' + b.file + '" download style="text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">⬇️ 다운로드</a>' +
+      '</div>' +
+      (b.phrases && b.phrases.length ? '<div class="v16-sec">🎧 핵심 표현 미리보기 — 눌러서 듣기</div>' +
+        b.phrases.map(function (p, i) {
+          const txt = String(p).replace(/[A-Za-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜüńňǹ\s'\-\/\.,:;()]+/g, ' ').trim();
+          return '<div class="v16-phrase"><span class="tx"><b>' + p + '</b></span>' +
+            '<button type="button" data-pdf="' + i + '">🔊</button></div>';
+        }).join('') : '') +
+      '<div class="v16-note">PDF는 새 창에서 열립니다. 아이폰은 <b>Safari</b>에서 가장 잘 보여요. 파일은 캠퍼스 서버(pdfs/)에 함께 올라가 있어요.</div>';
+    body.querySelectorAll('[data-pdf]').forEach(function (btn) {
+      btn.onclick = function () {
+        const i = Number(btn.dataset.pdf);
+        const p = b.phrases[i] || '';
+        V16.tts(p);
+        V16.say('🔊 교재 표현', p.slice(0, 40), 2200);
+      };
+    });
+    const op = body.querySelector('#v16PdfOpen');
+    if (op) op.onclick = function () {
+      try { window.open(b.file, '_blank'); } catch (e) { err('pdfopen:' + e.message); }
+    };
+    V16.open(el);
+    V16.store.bump('pdf');
+  }
+  V16.openPdfBook = openBook;
+
+  /* 수업 자료에 등록 */
+  let tries = 0;
+  const timer = setInterval(function () {
+    tries++;
+    try {
+      if (window.V15 && typeof V15.addBook === 'function' && V15.renderBooks) {
+        BOOKS.forEach(function (b) {
+          if (b.__added) return;
+          b.__added = true;
+          V15.addBook({
+            ic: b.ic,
+            t: b.title,
+            s: b.pages + '쪽 PDF · ' + (b.cn || '') + ' · 바로 보기',
+            tag: 'PDF',
+            go: function () { openBook(b.slug); },
+          });
+        });
+        clearInterval(timer);
+      }
+    } catch (e) { err('pdfreg:' + e.message); }
+    if (tries > 40) clearInterval(timer);
+  }, 700);
 })();
 /* =====================================================================
    v16 BOOT — 등록 · 존 이름 · 메뉴 버튼 · 진단
