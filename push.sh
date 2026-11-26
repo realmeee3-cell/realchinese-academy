@@ -17,7 +17,10 @@ if ! git rev-parse --git-dir >/dev/null 2>&1; then
 fi
 git remote set-url origin "$URL" 2>/dev/null || git remote add origin "$URL" 2>/dev/null || true
 
-git add index.html news.json 2>/dev/null || git add index.html
+# 교재 PDF는 서버에 올리지 않는다 (다운로드 방지) — 추적 중이면 삭제로 반영
+git rm -r --cached pdfs >/dev/null 2>&1 || true
+rm -rf pdfs 2>/dev/null || true
+git add index.html news.json reels.json 2>/dev/null || git add index.html
 $GIT commit -q -m "$MSG" 2>/dev/null || true
 
 # 원격 이력이 있으면 그 위로 rebase 해서 fast-forward 로 올린다
@@ -25,16 +28,16 @@ git fetch -q origin main 2>/dev/null || true
 if git rev-parse --verify -q origin/main >/dev/null; then
   if ! git merge-base --is-ancestor origin/main HEAD 2>/dev/null; then
     git reset --soft origin/main
-    git add index.html news.json 2>/dev/null || git add index.html
+    git rm -r --cached pdfs >/dev/null 2>&1 || true
+    git add index.html news.json reels.json 2>/dev/null || git add index.html
     $GIT commit -q -m "$MSG" 2>/dev/null || true
   fi
 fi
 git branch -M main 2>/dev/null || true
-# 저장소에 남은 옛 자격증명이 403 을 내는 경우가 있어, gh 로그인 토큰(우선) 또는 GH_TOKEN 으로 다시 설정한다
-TOK="$(gh auth token 2>/dev/null || true)"
-[ -z "$TOK" ] && TOK="$GH_TOKEN"
-if [ -n "$TOK" ]; then
-  git config credential.helper "!f() { echo username=x-access-token; echo \"password=$TOK\"; }; f"
+# 자격증명은 실행 환경이 주입하는 GitHub 연결을 그대로 쓴다.
+# (GH_TOKEN·gh auth token 을 credential.helper 로 덮어쓰면 403 이 나는 경우가 있었다)
+if [ -n "$GH_TOKEN" ] && [ -z "$SKIP_GH_TOKEN" ]; then
+  echo "note: GH_TOKEN 이 설정되어 있으면 403 이 날 수 있어요 — 'env -u GH_TOKEN' 로 실행하세요" >&2
 fi
 git push -u origin main
 
