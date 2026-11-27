@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer" />
 <link rel="preconnect" href="https://translate.google.com" crossorigin />
 <link rel="preconnect" href="https://translate.googleapis.com" crossorigin />
-<meta name="app-build" content="2026-11-27-v16.6-autonomous-creators-architect-designer-chef-dj-creator" />
+<meta name="app-build" content="2026-11-28-v16.7-cloud-strawberry-popup-today-memes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <title>리얼통번역 중국어 학원 · 3D 캠퍼스</title>
 <style>
@@ -48068,9 +48068,24 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     { ic: '🛰️', hz: '遥感四十九号', py: 'yáogǎn sìshíjiǔ hào', ko: '야오간 49호 01조 위성 — 창정 2호정으로 681번째 발사.' },
     { ic: '🎄', hz: '圣诞快闪店', py: 'shèngdàn kuàishǎn diàn', ko: '크리스마스 팝업 — 성수동 연말 시즌 한정 스토어.' },
     { ic: '🎨', hz: '酸蘸儿', py: 'suān zhànr', ko: '지난(济南)에서 탕후루를 부르는 이름. 톈진은 糖堆儿.' },
+    /* v16.7 — 2026-11-28 기준 샤오홍슈·더우인 최신 밈 */
+    { ic: '🍓', hz: '云朵草莓', py: 'yúnduǒ cǎoméi', ko: '구름딸기 — 성수 연무장길 한정 팝업(11/25~29). 딸기식혜·딸기육포·구름컵과 딸기 굿즈.' },
+    { ic: '🧘', hz: '纯过日子', py: 'chún guò rìzi', ko: '순하게 현생 살기 — 대단한 목표 대신 밥·잠·저축 같은 생활 기본을 챙기는 2026년 샤오홍슈 인기 태도.' },
+    { ic: '💧', hz: '喝大水', py: 'hē dàshuǐ', ko: '물 많이 마시기 — 1.5~2L 큰 물병을 들고 다니며 마시는 ‘대수(大水) 이론’. “弱者喝饮料，强者喝大水”.' },
+    { ic: '🔥', hz: '续火花', py: 'xù huǒhuā', ko: '불꽃 이어가기 — 더우인 메시지 연속 기록을 끊기지 않게 매일 한마디 보내는 것. 11/28 더우인 토픽 1위.' },
+    { ic: '🔋', hz: '低精力', py: 'dī jīnglì', ko: '저에너지 — 에너지가 바닥난 상태를 인정하고 무리하지 않는 요즘 세태. 11/28 더우인 토픽 4위.' },
   ];
+  /* v16.7 — 오늘의 화제는 그날의 최신 밈에서 먼저 고른다 */
+  const HOT_TREND = {
+    '2026-11-28': ['续火花', '云朵草莓', '喝大水', '低精力', '纯过日子'],
+  };
   function todayTrend(offset) {
     const t = today();
+    const pref = HOT_TREND[t.key];
+    if (pref && pref.length) {
+      const mine = TRENDS.filter((x) => pref.indexOf(x.hz) >= 0);
+      if (mine.length) return mine[Math.abs(offset || 0) % mine.length];
+    }
     return TRENDS[(hash(t.key) + (offset || 0)) % TRENDS.length];
   }
 
@@ -48200,19 +48215,62 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (/백화점|百货/.test(z)) return 'dept';
     return '';
   }
+  function poolKey(name) {
+    if (!name) return 'generic';
+    return NAMEMAP[name] || (/^성수/.test(name) ? 'seongsu' : (zoneKey() || 'generic'));
+  }
   function poolOf(name) {
-    if (!name) return P.generic;
-    const k = NAMEMAP[name] || (/^성수/.test(name) ? 'seongsu' : zoneKey());
-    return P[k] || P.generic;
+    return P[poolKey(name)] || P.generic;
   }
 
-  /* 오늘의 3줄 — 날짜 시드로 뽑는다 (같은 날엔 같은 3줄, 날이 바뀌면 다른 3줄) */
+  /* ---------------- 오늘의 새 대사 (날짜별 고정) ----------------
+     날짜 키로만 쓰는 최신 유행어 세트. 이 날짜에는 역할별로 이사가 먼저 나온다.
+     내일이 되면 HOT 에 새 날짜를 넣지 않는 한 원래 풀(date hash)로 돌아간다. */
+  const HOT = {
+    '2026-11-28': {
+      student: [
+        { hz: '这周我只想“纯过日子”：自己做饭、早睡、不内耗。', py: 'zhè zhōu wǒ zhǐ xiǎng “chún guò rìzi”: zìjǐ zuò fàn, zǎo shuì, bù nèihào.', ko: '이번 주는 그냥 “순하게 현생 살기”만 하고 싶어요. 직접 밥 해 먹고, 일찍 자고, 속 끓이지 않고요.' },
+        { hz: '我今天也是“低精力”，先“喝大水”再说。', py: 'wǒ jīntiān yě shì “dī jīnglì”, xiān “hē dàshuǐ” zài shuō.', ko: '저도 오늘 “저에너지”라서, 일단 물부터 많이 마시고 볼게요.' },
+        { hz: '你跟我“续火花”吧，每天发一句中文就行。', py: 'nǐ gēn wǒ “xù huǒhuā” ba, měitiān fā yí jù zhōngwén jiù xíng.', ko: '저랑 “불꽃 이어가기” 해요. 매일 중국어 한 문장만 보내면 돼요.' },
+      ],
+      seongsu: [
+        { hz: '圣水这家云朵草莓只开到二十九号，快去打卡！', py: 'Shèngshuǐ zhè jiā yúnduǒ cǎoméi zhǐ kāi dào èrshíjiǔ hào, kuài qù dǎkǎ!', ko: '성수 이 구름딸기 팝업은 29일까지만 해요, 얼른 인증샷 찍으러 가요!' },
+        { hz: '云朵杯要拍照打卡才算来过，限定款更抢手。', py: 'yúnduǒ bēi yào pāizhào dǎkǎ cái suàn láiguo, xiàndìng kuǎn gèng qiǎngshǒu.', ko: '구름컵은 사진을 찍어야 온 것 같고, 한정판은 더 인기예요.' },
+        { hz: '周末人多，我们“纯过日子”地慢慢逛吧。', py: 'zhōumò rén duō, wǒmen “chún guò rìzi” de mànmàn guàng ba.', ko: '주말엔 사람이 많으니 “순하게 현생”처럼 천천히 둘러봐요.' },
+      ],
+      gangnam: [
+        { hz: '年底了，我决定“纯过日子”，不买没用的。', py: 'niándǐ le, wǒ juédìng “chún guò rìzi”, bù mǎi méi yòng de.', ko: '연말이라 “순하게 현생 살기”로 정했어요. 쓸데없는 건 안 사요.' },
+        { hz: '加班到十点，我已经彻底“低精力”了。', py: 'jiābān dào shí diǎn, wǒ yǐjīng chèdǐ “dī jīnglì” le.', ko: '10시까지 야근했더니 완전히 “저에너지”가 됐어요.' },
+      ],
+      teacher: [
+        { hz: '学中文也要“纯过日子”：每天十分钟，比周末三小时管用。', py: 'xué zhōngwén yě yào “chún guò rìzi”: měitiān shí fēnzhōng, bǐ zhōumò sān xiǎoshí guǎnyòng.', ko: '중국어도 “순하게 현생 살기”예요. 매일 10분이 주말 세 시간보다 나아요.' },
+        { hz: '每天跟我说一句，我们就“续火花”成功。', py: 'měitiān gēn wǒ shuō yí jù, wǒmen jiù “xù huǒhuā” chénggōng.', ko: '매일 저에게 한 문장만 말하면 “불꽃 이어가기” 성공이에요.' },
+      ],
+      cafe: [
+        { hz: '奶茶换“大水”了，省钱又健康。', py: 'nǎichá huàn “dàshuǐ” le, shěng qián yòu jiànkāng.', ko: '밀크티 대신 “큰 물”로 바꿨어요. 돈도 아끼고 건강도 챙기고요.' },
+        { hz: '今天有草莓云朵拿铁，限定款哦。', py: 'jīntiān yǒu cǎoméi yúnduǒ nátiě, xiàndìng kuǎn o.', ko: '오늘은 딸기 구름 라테가 있어요, 한정판이에요.' },
+      ],
+    },
+  };
+
+  /* 오늘의 3줄 — 날짜 시드로 뽑는다 (같은 날엔 같은 3줄, 날이 바뀌면 다른 3줄)
+     HOT 에 오늘 날짜 세트가 있으면 그 두 줄을 먼저 쓰고 한 줄은 풀에서 채운다. */
   function dayLines(name, n) {
     const pool = poolOf(name);
     const t = today();
     const cnt = Math.min(n || 3, pool.length);
     const start = hash(name + '|' + t.key) % pool.length;
+    const hot = (HOT[t.key] && HOT[t.key][poolKey(name)]) || null;
     const out = [];
+    if (hot && hot.length) {
+      for (let i = 0; i < Math.min(2, cnt, hot.length); i++) out.push(hot[i]);
+      for (let i = 0, k = 0; out.length < cnt && i < pool.length; i++, k++) {
+        const l = pool[(start + k) % pool.length];
+        if (out.indexOf(l) < 0 && hot.indexOf(l) < 0) out.push(l);
+      }
+      while (out.length < cnt) out.push(pool[(start + out.length) % pool.length]);
+      return out;
+    }
     for (let i = 0; i < cnt; i++) out.push(pool[(start + i) % pool.length]);
     return out;
   }
@@ -48277,7 +48335,14 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       CLICK[av.name] = (CLICK[av.name] || 0) + 1;
       origOpen(av);                                   /* 모달 열기 + render */
       if (!list.length) return;
-      this.idx = (hash(av.name + '|' + t.key) + CLICK[av.name]) % list.length;
+      /* v16.7 — 오늘 새로 넣은 대사(HOT·날짜 풀)가 먼저 보이게: 뒤에 붙은 오늘 줄부터 시작 */
+      const baseLen = baseOf(av.name).length;
+      const dayCnt = list.length - baseLen;
+      if (dayCnt > 0) {
+        this.idx = (baseLen + (hash(av.name + '|' + t.key) + CLICK[av.name] - 1) % dayCnt) % list.length;
+      } else {
+        this.idx = (hash(av.name + '|' + t.key) + CLICK[av.name]) % list.length;
+      }
       this.render(true);                              /* 열 때마다 다른 줄부터 */
       whoNow(av.name);
     };
@@ -49982,9 +50047,10 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
       /* 기둥에 다는 등롱 */
       sp(g, 0.15, 0xd8463a, 0, 2.25, 1.1, { e: 0xd8463a });
       cy(g, 0.015, 0.015, 0.35, 0x3a2a1a, 0, 2.5, 1.1, 5);
-      /* 현판과 안내판 */
-      plaque(g, 2.0, 0.5, '八角凉亭', '#8a2620', '#ffe9bd', 0, 2.36, 2.88, 0, '중국풍 정자 · PAVILION');
-      [-0.75, 0.75].forEach(function (sx) { cy(g, 0.012, 0.012, 0.34, 0xd8b06a, sx, 2.76, 2.88, 5, { m: .6 }); });
+      /* 현판 — 처마 밑에 바짝 매달아 난간·도리와 겹치지 않게 (v16.7 조정) */
+      bx(g, 1.96, 0.54, 0.06, 0x5e1a16, 0, 2.62, 2.868);
+      plaque(g, 1.9, 0.46, '八角凉亭', '#8a2620', '#ffe9bd', 0, 2.62, 2.902, 0, '중국풍 정자 · PAVILION');
+      [-0.7, 0.7].forEach(function (sx) { cy(g, 0.014, 0.014, 0.12, 0xd8b06a, sx, 2.84, 2.885, 5, { m: .6 }); });
     } else if (b.id === 'tea') {
       bx(g, 3.6, 0.18, 3.0, 0x9a7a52, 0, 0.09, 0);
       bx(g, 2.9, 0.95, 0.55, 0x7d5a38, 0, 0.56, -0.95);
@@ -50774,6 +50840,13 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     while ((D.creator.i || 0) < CREATE.length) publishCard(Date.now());
     save(); paintAll(); saveSims();
   };
+  /* v16.7 — 다른 모듈(성수 구름딸기 팝업 등)이 포만감·에너지를 채울 수 있게 공개 */
+  M.feed = function (food, energy) {
+    D.me.food = clamp((D.me.food === undefined ? 66 : D.me.food) + (food || 0), 0, 100);
+    D.me.energy = clamp((D.me.energy === undefined ? 72 : D.me.energy) + (energy || 0), 0, 100);
+    save();
+    return { food: Math.round(D.me.food), energy: Math.round(D.me.energy) };
+  };
   M.state = function () {
     return {
       arch: { i: D.arch.i, prog: Math.round(D.arch.prog), done: D.arch.done.slice(), pct: Math.round(ratio(D.arch, ARCH) * 100) },
@@ -50800,6 +50873,299 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
 
   setTimeout(boot, 2600);
 })();
+
+/* ===== V167-CLOUD-START ===== */
+/* =====================================================================
+   v16.7 CLOUD — 🍓 성수 구름딸기 한정 팝업 (2026.11.25 ~ 11.29)
+   ---------------------------------------------------------------------
+   · 성수 연무장길 실제 팝업 '고령구름딸기'를 모티브로 한 3D 부스
+   · 草莓云朵杯 · 草莓甜米露 · 限定款 · 拍照打卡 · 集章抽奖 실전 표현
+   · 하루 한 번 소소한 골드 + 포만감/에너지 보너스 (비용 0원 · 기기 저장)
+   ===================================================================== */
+(function () {
+  const V14 = window.V14, V12 = window.V12, V15 = window.V15;
+  if (!V14 || !V12) return;
+  const M = window.V167 = window.V167 || { errors: [], version: '16.7' };
+  const E = (m) => { try { if (M.errors.length < 120) M.errors.push(String(m).slice(0, 180)); } catch (e) {} };
+  const KEY = 'rtb_v167_cloud_v1';
+  const FROM = 20261125, TO = 20261129;         /* 실제 팝업 기간 */
+
+  function dkey() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function num() { const d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+  const live = () => num() >= FROM && num() <= TO;
+  function load() {
+    try {
+      const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (o && o.d === dkey()) { o.got = o.got || {}; o.fed = o.fed || {}; return o; }
+    } catch (e) {}
+    return { d: dkey(), got: {}, fed: {}, bonus: 0, visits: 0 };
+  }
+  function store(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+
+  /* ---------------- 표현 카드 (실제 팝업 메뉴 기반) ---------------- */
+  const MENU = [
+    { id: 'cup', ic: '🍓', name: '草莓云朵杯 · 딸기구름컵',
+      hz: '来一杯草莓云朵杯，草莓多放一点！', py: 'lái yì bēi cǎoméi yúnduǒ bēi, cǎoméi duō fàng yìdiǎn!',
+      ko: '딸기구름컵 하나 주세요, 딸기 많이 올려 주세요!',
+      tip: '云朵杯 = 구름처럼 크림을 얹은 컵디저트. 限定款(한정판)은 그날 다 팔리면 끝이에요.',
+      food: 14, energy: 8 },
+    { id: 'sikhye', ic: '🥤', name: '草莓甜米露 · 딸기식혜',
+      hz: '一杯草莓甜米露，少冰。', py: 'yì bēi cǎoméi tián mǐlù, shǎo bīng.',
+      ko: '딸기식혜 한 잔, 얼음은 조금만 주세요.',
+      tip: '한국 식혜는 중국에서 甜米露/米酒로 소개돼요. 少冰(얼음 적게)·去冰(얼음 빼기)는 카페 필수 표현.',
+      food: 10, energy: 10 },
+    { id: 'jerky', ic: '🍬', name: '草莓肉脯 · 딸기육포',
+      hz: '这个草莓肉脯是限定款吗？可以试吃吗？', py: 'zhège cǎoméi ròufǔ shì xiàndìng kuǎn ma? kěyǐ shìchī ma?',
+      ko: '이 딸기육포는 한정판인가요? 시식해 볼 수 있어요?',
+      tip: '肉脯 ròufǔ = 육포, 限定款 = 한정판, 试吃 = 시식. 팝업에선 이 세 마디면 충분해요.',
+      food: 6, energy: 2 },
+    { id: 'queue', ic: '🕒', name: '排队·预约 · 웨이팅·사전예약',
+      hz: '现在要排多久？我预约了三点的。', py: 'xiànzài yào pái duō jiǔ? wǒ yùyuē le sān diǎn de.',
+      ko: '지금 얼마나 기다려야 해요? 저는 3시로 예약했어요.',
+      tip: '11/27~28 사전예약자에게 딸기 한 컵과 인형 키링을 줘요. 预约(예약)·取号(번호표) 표현을 같이 익혀요.',
+      food: 0, energy: 0 },
+    { id: 'photo', ic: '📸', name: '拍照打卡 · 인증샷',
+      hz: '这里拍照打卡超好看，帮我拍一张好吗？', py: 'zhèlǐ pāizhào dǎkǎ chāo hǎokàn, bāng wǒ pāi yì zhāng hǎo ma?',
+      ko: '여기 인증샷 찍기 정말 예뻐요. 한 장 찍어 줄래요?',
+      tip: '打卡 dǎkǎ = 방문 인증. 스토리 인증하면 쇼핑백을 준대요 — 可以发到小红书上吗?',
+      food: 0, energy: 2 },
+    { id: 'lucky', ic: '🎟️', name: '集章抽奖 · 스탬프·럭키드로우',
+      hz: '集满印章可以抽奖吗？', py: 'jí mǎn yìnzhāng kěyǐ chōujiǎng ma?',
+      ko: '도장을 다 모으면 추첨에 참여할 수 있어요?',
+      tip: '集章=스탬프 모으기, 抽奖=추첨. 오늘만 하는 혜택은 今天限定 이라고 해요.',
+      food: 0, energy: 0 },
+    { id: 'meme', ic: '💧', name: '오늘의 밈 · 喝大水·续火花',
+      hz: '天冷多喝大水，我们明天再续火花！', py: 'tiān lěng duō hē dàshuǐ, wǒmen míngtiān zài xù huǒhuā!',
+      ko: '추우니까 물 많이 마셔요, 우리 내일 또 불꽃 이어가요!',
+      tip: '喝大水(큰 물 마시기)·续火花(연속 대화 불꽃 이어가기)는 2026년 11월 더우인 인기 표현이에요.',
+      food: 0, energy: 4 },
+  ];
+
+  /* ---------------- 보상 ---------------- */
+  function award(it) {
+    const st = load();
+    let gold = 0, bonus = 0, fed = null;
+    if (!st.got[it.id]) { st.got[it.id] = 1; gold = 3; }
+    const cnt = Object.keys(st.got).length;
+    if (cnt >= 5 && !st.bonus) { st.bonus = 1; bonus = 10; }
+    if ((it.food || it.energy) && !st.fed[it.id]) {
+      st.fed[it.id] = 1;
+      try { if (window.V166 && V166.feed) fed = V166.feed(it.food || 0, it.energy || 0); } catch (e) { E('feed:' + e.message); }
+    }
+    store(st);
+    if (gold) { try { Gold.add(gold); } catch (e) {} try { Level.add(12, 'shop'); } catch (e) {} }
+    if (bonus) { try { Gold.add(bonus); } catch (e) {} }
+    return { gold: gold + bonus, bonus: bonus, fed: fed, cnt: cnt };
+  }
+
+  /* ---------------- 3D 부스 ---------------- */
+  const PX = -54.8, PZ = -33.6;          /* 성수역 광장 (연무장길 북쪽) */
+  const B = { built: false, group: null };
+  function build() {
+    if (B.built) return;
+    const g = V14.G3 && V14.G3.seongsu;
+    if (!g) return;
+    B.built = true;
+    try {
+      const { std, basic, box, cyl, board } = V14;
+      V15.inSpace('seongsu', function () {
+        const root = new THREE.Group();
+        root.name = 'v167cloud';
+        root.position.set(PX, 0, PZ);
+        root.rotation.y = Math.PI;              /* 간판은 연무장길·광장(-z) 쪽을 본다 */
+        g.add(root);
+        B.group = root;
+        const pink = 0xe97a90, deep = 0xc8323a, cream = 0xfff4ee, white = 0xfdfaf4, wood = 0xa9794f, gold = 0xd8ab4b;
+        const M2 = (c, r) => std(c, { roughness: r === undefined ? 0.82 : r });
+        /* 매트 */
+        root.add(cyl(2.5, 2.5, 0.04, M2(0xf3ddd8, 0.95), 0, 0.02, 0.55, 30));
+        /* 카운터 */
+        root.add(box(3.4, 1.0, 0.86, M2(0xf9e3dc), 0, 0.5, 0.42));
+        root.add(box(3.56, 0.1, 1.02, M2(pink, 0.7), 0, 1.05, 0.44));
+        for (let i = 0; i < 7; i++) {
+          root.add(box(0.46, 0.94, 0.05, M2(i % 2 ? pink : cream, 0.86), -1.38 + i * 0.46, 0.49, 0.86));
+        }
+        /* 뒤 기둥 · 메뉴판 */
+        [-1.66, 1.66].forEach((x) => root.add(cyl(0.06, 0.06, 2.78, M2(white, 0.8), x, 1.39, -0.5, 8)));
+        root.add(box(3.4, 0.1, 0.14, M2(wood, 0.85), 0, 2.72, -0.5));
+        const mb = board(2.95, 1.5, [
+          { t: '🍓 云朵草莓 · 草莓云朵杯', c: '#fff4ee', s: .3 },
+          { t: '限定款 · 今天只卖到今天', c: '#ffd9df', s: .17 },
+          { t: '云朵杯 6,000 · 甜米露 5,000', c: '#ffe9bd', s: .17 },
+        ], { bg: '#c8323a' });
+        mb.position.set(0, 1.92, -0.42);
+        root.add(mb);
+        /* 앞 카운터 위 진열 */
+        root.add(box(1.3, 0.5, 0.5, new THREE.MeshStandardMaterial({ color: 0xdfeef7, transparent: true, opacity: .34, roughness: .1 }), -1.02, 1.35, 0.44));
+        [-0.55, -0.06, 0.43].forEach((x, i) => {
+          root.add(cyl(0.1, 0.125, 0.22, M2(white, 0.6), x, 1.21, 0.46, 12));
+          root.add(cyl(0.128, 0.128, 0.05, M2(i === 1 ? pink : cream, 0.7), x, 1.34, 0.46, 12));
+          const cs = new THREE.Mesh(new THREE.SphereGeometry(0.105, 10, 7), M2(0xfff7f2, 0.95));
+          cs.scale.set(1, .72, 1); cs.position.set(x, 1.4, 0.46); root.add(cs);
+          for (let k = 0; k < 3; k++) {
+            const b2 = new THREE.Mesh(new THREE.SphereGeometry(0.042, 7, 5), M2(0xd8303a, 0.35));
+            b2.position.set(x - 0.05 + k * 0.05, 1.46, 0.46 + (k % 2 ? 0.03 : -0.03));
+            root.add(b2);
+          }
+        });
+        for (let i = 0; i < 4; i++) {
+          const bx2 = 0.98 + (i % 2) * 0.17, bz2 = 0.28 + Math.floor(i / 2) * 0.2;
+          root.add(cyl(0.072, 0.072, 0.24, M2(0xf2a7b6, 0.45), bx2, 1.17, bz2, 10));
+          root.add(cyl(0.028, 0.028, 0.06, M2(white, 0.6), bx2, 1.32, bz2, 8));
+        }
+        const tag = board(1.28, 0.36, [{ t: '限定款 · 云朵杯 6,000', c: '#8f2a22', s: .19 }], { bg: '#fff4ee', border: false });
+        tag.position.set(0.98, 1.56, 0.66);
+        root.add(tag);
+        /* 차양 — 줄무늬 + 물결 끝단 */
+        root.add(box(3.9, 0.09, 1.95, M2(deep, 0.75), 0, 2.86, 0.5));
+        for (let i = 0; i < 9; i++) {
+          root.add(box(0.42, 0.1, 1.95, M2(i % 2 ? cream : deep, 0.75), -1.68 + i * 0.42, 2.86, 0.5));
+        }
+        for (let i = 0; i < 9; i++) {
+          root.add(box(0.4, 0.2, 0.06, M2(i % 2 ? cream : deep, 0.8), -1.68 + i * 0.42, 2.74, 1.46));
+        }
+        /* 앞 기둥 2개 (차양 지지) */
+        [-1.72, 1.72].forEach((x) => root.add(cyl(0.05, 0.05, 1.8, M2(white, 0.8), x, 1.9, 1.4, 8)));
+        /* 포토 프레임 (拍照打卡) — 부스 오른쪽 */
+        [-2.1, -3.5].forEach((x) => root.add(box(0.09, 2.3, 0.09, M2(pink, 0.8), x, 1.15, 1.2)));
+        root.add(box(1.58, 0.09, 0.09, M2(pink, 0.8), -2.8, 2.3, 1.2));
+        const ph = board(1.45, 0.4, [{ t: '📸 拍照打卡 HERE', c: '#8f2a22', s: .21 }], { bg: '#fff4ee', border: false });
+        ph.position.set(-2.8, 2.53, 1.2);
+        root.add(ph);
+        /* 대기 줄 안내 */
+        [[2.4, 1.5], [2.4, 0.1]].forEach(([x, z]) => {
+          root.add(cyl(0.045, 0.045, 0.92, M2(0xb9b2a6, 0.5), x, 0.46, z, 8));
+          root.add(cyl(0.07, 0.07, 0.05, M2(gold, 0.4), x, 0.94, z, 10));
+        });
+        root.add(box(0.035, 0.035, 1.4, M2(0x8f2a22, 0.9), 2.4, 0.86, 0.8));
+        /* 딸기 풍선 */
+        for (let i = 0; i < 3; i++) {
+          const bal = new THREE.Mesh(new THREE.SphereGeometry(0.125, 10, 8), M2(i === 1 ? pink : deep, 0.5));
+          bal.position.set(-1.5 + i * 0.03, 2.5 + i * 0.14, 1.36 - i * 0.1);
+          root.add(bal);
+          root.add(cyl(0.005, 0.005, 0.42, M2(white, 0.9), bal.position.x, bal.position.y - 0.26, bal.position.z, 4));
+        }
+        /* 누르면 열리는 판 */
+        const hit = new THREE.Mesh(new THREE.BoxGeometry(4.9, 3.0, 3.0),
+          new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+        hit.position.set(-0.4, 1.5, 0.6);
+        root.add(hit);
+        V12.hit(hit, 'v167:cloud');
+        V14.addSolid(PX - 3.7, PX + 2.7, PZ - 0.9, PZ + 1.6, 'v167cloud');
+        /* 팝업 스태프 */
+        try {
+          V14.makeCrowd({ x: PX + 2.9, z: PZ + 0.9, name: '성수유나', yaw: Math.PI * 0.92, shirt: 0xe97a90, pants: 0x2f2b26, skin: 0xf2cfae, hair: 0x241d19, bag: false });
+        } catch (e) {}
+      });
+    } catch (e) { E('build:' + e.message); }
+  }
+
+  /* ---------------- 모달 ---------------- */
+  const CSS = [
+    '.v167-wrap{display:flex;flex-direction:column;gap:8px}',
+    '.v167-hero{border-radius:14px;padding:10px 12px;background:linear-gradient(150deg,#fff1f3,#ffe3e8);border:1px solid rgba(200,50,58,.22)}',
+    '.v167-hero b{display:block;font-size:13px;color:#8f2a22}',
+    '.v167-hero small{display:block;font-size:10.5px;color:#8a6a63;margin-top:3px;line-height:1.5}',
+    '.v167-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}',
+    '@media (max-width:410px){.v167-grid{grid-template-columns:1fr}}',
+    '.v167-b{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:56px;padding:9px 11px;border-radius:13px;background:#fffdf9;border:1px solid rgba(200,50,58,.28);text-align:left}',
+    '.v167-b b{font-size:12.5px;color:#40261f;line-height:1.3}',
+    '.v167-b small{font-size:10.5px;color:#a08078;line-height:1.35}',
+    '.v167-b.done{background:#fdf3f4;border-color:rgba(200,50,58,.5)}',
+    '.v167-out{display:none;border-radius:13px;padding:9px 11px;background:#fff8f0;border:1px solid rgba(216,171,75,.5);font-size:12px;line-height:1.55;color:#5c4a3c}',
+    '.v167-out b{display:block;font-size:14px;color:#2f2a23;margin-bottom:2px}',
+    '.v167-out small{display:block;color:#8a7a63;font-size:10.5px}',
+    '.v167-tip{font-size:10.5px;color:#9a8d79;line-height:1.5}',
+    '.v167-stamp{font-size:11px;color:#8f2a22;font-weight:700}',
+  ].join('\n');
+
+  function css() {
+    if (document.getElementById('v167css')) return;
+    const st = document.createElement('style');
+    st.id = 'v167css';
+    st.textContent = CSS;
+    document.head.appendChild(st);
+  }
+
+  function open() {
+    if (!window.V16 || !V16.modal) return;
+    css();
+    const el = V16.modal('v167Cloud', '🍓 성수 구름딸기 팝업', '云朵草莓 · 연무장길 한정 팝업 · 2026.11.25–29');
+    const body = V16.bodyOf(el);
+    if (!body) return;
+    const s = load();
+    s.visits = (s.visits || 0) + 1;
+    store(s);
+    const cnt = Object.keys(s.got).length;
+    body.innerHTML =
+      '<div class="v167-wrap">' +
+      '<div class="v167-hero"><b>' + (live() ? '오늘 열려 있어요 · 营业中' : '팝업 기간이 지났어요 · 已结束') + '</b>' +
+      '<small>성동구 연무장길 5-9 · 12:00–19:00 (15–16시 브레이크) · 딸기육포·딸기식혜·단백질 딸기젤리·딸기 굿즈<br>11/27~28 사전예약자에게 딸기 1컵 + 인형 키링 증정</small></div>' +
+      '<div class="v167-stamp">🍓 스탬프 ' + cnt + '/7 · ' + (s.bonus ? '럭키드로우 완료 ✅' : '5개 모으면 럭키드로우 +10G') + '</div>' +
+      '<div class="v167-out" id="v167Out"></div>' +
+      '<div class="v167-grid">' + MENU.map((it) =>
+        '<button class="v167-b' + (s.got[it.id] ? ' done' : '') + '" data-v167="' + it.id + '"><b>' + it.ic + ' ' + it.name + (s.got[it.id] ? ' ✅' : '') + '</b><small>' + it.hz + '</small></button>'
+      ).join('') + '</div>' +
+      '<div class="v167-tip">누르면 중국어로 읽어 줘요 · 하루 한 번 골드 보상 · 음식은 포만감·에너지로 들어가요.</div>' +
+      '</div>';
+    const out = body.querySelector('#v167Out');
+    body.querySelectorAll('[data-v167]').forEach((b) => {
+      b.onclick = () => {
+        const it = MENU.filter((x) => x.id === b.getAttribute('data-v167'))[0];
+        if (!it) return;
+        const r = award(it);
+        if (out) {
+          out.style.display = 'block';
+          out.innerHTML = '<b>' + it.hz + '</b><small>' + it.py + '</small>' + it.ko +
+            '<br><span style="color:#8a7a63">' + it.tip + '</span>' +
+            (r.gold ? '<br><b style="color:#7a5a12">+' + r.gold + ' G' + (r.bonus ? ' (럭키드로우 +10 포함)' : '') + '</b>' : '') +
+            (r.fed ? '<br><span style="color:#3f6b4a">🍜 포만감 ' + r.fed.food + ' · ⚡ 에너지 ' + r.fed.energy + '</span>' : '');
+        }
+        try { speak(it.hz, null, { who: '성수유나' }); } catch (e) {}
+        try { if (V12.say) V12.say('🍓 云朵草莓', it.ko, 2800); } catch (e) {}
+        const st2 = load();
+        const grid = body.querySelector('.v167-grid');
+        if (grid) {
+          grid.querySelectorAll('[data-v167]').forEach((bb) => {
+            const id = bb.getAttribute('data-v167');
+            if (st2.got[id]) {
+              bb.classList.add('done');
+              const bb2 = bb.querySelector('b');
+              if (bb2 && bb2.textContent.indexOf('✅') < 0) bb2.textContent = bb2.textContent + ' ✅';
+            }
+          });
+        }
+        const stamp = body.querySelector('.v167-stamp');
+        if (stamp) stamp.textContent = '🍓 스탬프 ' + Object.keys(st2.got).length + '/7 · ' + (st2.bonus ? '럭키드로우 완료 ✅' : '5개 모으면 럭키드로우 +10G');
+      };
+    });
+    V16.open(el);
+  }
+
+  V12.tapHandlers['v167:cloud'] = function () { try { open(); } catch (e) { E('open:' + e.message); } };
+
+  /* ---------------- 부팅 ---------------- */
+  function boot() { try { build(); } catch (e) { E('boot:' + e.message); } }
+  setTimeout(boot, 2800);
+  setInterval(function () { try { if (!B.built) build(); } catch (e) {} }, 2500);
+  try {
+    const prev = V14.onSeongsu;
+    V14.onSeongsu = function () { try { if (prev) prev(); } catch (e) {} try { build(); } catch (e) {} };
+  } catch (e) {}
+
+  M.info = function () {
+    const s = load();
+    return { built: B.built, live: live(), date: dkey(), got: s.got, bonus: s.bonus, visits: s.visits, pos: [PX, PZ], errors: M.errors.slice(0, 6) };
+  };
+  M.open = open;
+  M.menu = MENU;
+  M.build = build;
+  M.reset = function () { try { localStorage.removeItem(KEY); } catch (e) {} };
+})();
+/* ===== V167-CLOUD-END ===== */
 
 </script>
 <!--V166-END-->
