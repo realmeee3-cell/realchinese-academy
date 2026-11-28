@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer" />
 <link rel="preconnect" href="https://translate.google.com" crossorigin />
 <link rel="preconnect" href="https://translate.googleapis.com" crossorigin />
-<meta name="app-build" content="2026-11-28-v16.7-cloud-strawberry-popup-today-memes" />
+<meta name="app-build" content="2026-11-28-v16.8-autovillage-freewill-bubbles" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <title>리얼통번역 중국어 학원 · 3D 캠퍼스</title>
 <style>
@@ -51169,5 +51169,1786 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
 
 </script>
 <!--V166-END-->
+<!--V168-START-->
+<script id="v168script">
+/* =====================================================================
+   v16.8 AUTOVILLAGE — 🏗️ 도현의 주기적 자동 신축 + 💬 자유의지 말풍선 대화
+   ---------------------------------------------------------------------
+   · 창작 마을 외곽에 4~5분마다 새 건물을 스스로 짓는다 (오프라인 2시간당 1채)
+   · 한옥 서재·만두 가게·버블티·서점·극장·대나무 쉼터·야시장·서예·판다·등불 누각 등
+     14종 3D 건물을 골고루 지어 올린다 (공사 펜스·골조·진행률% → 완공 간판·등불)
+   · 완공된 건물을 누르면 그 건물 테마의 중국어 표현 + 코인/경험치 보상
+   · 자유의지 NPC(도현·세아·연우·민재·서연)가 마을을 돌아다니다 마주치면
+     서로 마주 보고 머리 위 3D 말풍선으로 3턴 대화를 주고받는다
+   · 대화 요약은 「학원에서 있었던 일」 일지에 남는다
+   · 유료 API 0원 — 전부 이 브라우저에서 계산/저장
+   ===================================================================== */
+(function () {
+  const V16 = window.V16, V15 = window.V15, V14 = window.V14, V12 = window.V12;
+  if (!V16 || !V15 || !V14 || !V12) return;
+  if (window.V168 && window.V168.ready) return;
+  const THREE = window.THREE;
+  const M = (window.V168 = { ready: false, errors: [], version: '16.8' });
+  const E = function (m) {
+    try { if (M.errors.length < 200) M.errors.push(String(m).slice(0, 180)); } catch (e) {}
+    try { console.warn('[v168]', m); } catch (e) {}
+  };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const josa = function (w, pair) {
+    const t = String(w || '');
+    const c = t.charCodeAt(t.length - 1);
+    if (!(c >= 0xac00 && c <= 0xd7a3)) return pair[1];
+    return ((c - 0xac00) % 28) ? pair[0] : pair[1];
+  };
+  const waGwa = (w) => w + josa(w, ['과', '와']);
+  const iGa = (w) => w + josa(w, ['이', '가']);
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const KEY = 'rtb_v168_village_v1';
+
+  /* =================================================================
+     0) 공용 3D 헬퍼 (지오메트리·재질 재사용 → 모바일 드로우콜 절약)
+     ================================================================= */
+  const GC = {}, MC = {};
+  function geoBox(w, h, d) {
+    const k = 'b' + w.toFixed(2) + ',' + h.toFixed(2) + ',' + d.toFixed(2);
+    return GC[k] || (GC[k] = new THREE.BoxGeometry(w, h, d));
+  }
+  function geoCyl(rt, rb, h, s) {
+    const k = 'c' + rt.toFixed(2) + ',' + rb.toFixed(2) + ',' + h.toFixed(2) + ',' + s;
+    return GC[k] || (GC[k] = new THREE.CylinderGeometry(rt, rb, h, s));
+  }
+  function geoCone(r, h, s) {
+    const k = 'n' + r.toFixed(2) + ',' + h.toFixed(2) + ',' + s;
+    return GC[k] || (GC[k] = new THREE.ConeGeometry(r, h, s));
+  }
+  function geoSph(r, w, h) {
+    const k = 's' + r.toFixed(2) + ',' + w + ',' + h;
+    return GC[k] || (GC[k] = new THREE.SphereGeometry(r, w, h));
+  }
+  function mat(c, r, m, e) {
+    const k = 'm' + c + ',' + (r || 0) + ',' + (m || 0) + ',' + (e || 0);
+    if (MC[k]) return MC[k];
+    const o = { color: c, roughness: r === undefined ? .86 : r, metalness: m || 0 };
+    if (e) { o.emissive = e; o.emissiveIntensity = 1; }
+    return (MC[k] = new THREE.MeshStandardMaterial(o));
+  }
+  function bx(g, w, h, d, c, x, y, z, ry, o) {
+    const m = new THREE.Mesh(geoBox(w, h, d), mat(c, o && o.r, o && o.m, o && o.e));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (ry) m.rotation.y = ry;
+    if (o && o.rx) m.rotation.x = o.rx;
+    if (o && o.rz) m.rotation.z = o.rz;
+    g.add(m); return m;
+  }
+  function cy(g, rt, rb, h, c, x, y, z, s, o) {
+    const m = new THREE.Mesh(geoCyl(rt, rb, h, s || 10), mat(c, o && o.r, o && o.m, o && o.e));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (o && o.rx) m.rotation.x = o.rx;
+    if (o && o.rz) m.rotation.z = o.rz;
+    g.add(m); return m;
+  }
+  function cn(g, r, h, c, x, y, z, s, o) {
+    const m = new THREE.Mesh(geoCone(r, h, s || 10), mat(c, o && o.r, o && o.m, o && o.e));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (o && o.rx) m.rotation.x = o.rx;
+    if (o && o.ry) m.rotation.y = o.ry;
+    if (o && o.rz) m.rotation.z = o.rz;
+    g.add(m); return m;
+  }
+  function sp(g, r, c, x, y, z, o) {
+    const m = new THREE.Mesh(geoSph(r, 10, 8), mat(c, o && o.r, o && o.m, o && o.e));
+    m.position.set(x || 0, y || 0, z || 0);
+    if (o && o.sy) m.scale.y = o.sy;
+    g.add(m); return m;
+  }
+  /* 현판 — 캔버스에 직접 그려 어느 조명에서도 또렷하게 */
+  function plaque(g, w, h, hz, ko, x, y, z, bg, fg) {
+    try {
+      const W = 512, H = Math.max(96, Math.round(512 * h / w));
+      const tx = V15.tex(W, H, function (c) {
+        c.fillStyle = bg || '#7a1f1a'; c.fillRect(0, 0, W, H);
+        c.strokeStyle = 'rgba(216,176,106,.9)';
+        c.lineWidth = Math.max(4, H * 0.05);
+        c.strokeRect(H * 0.07, H * 0.07, W - H * 0.14, H - H * 0.14);
+        c.fillStyle = fg || '#ffe9bd';
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.font = '800 ' + Math.round(H * (ko ? 0.42 : 0.55)) + 'px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+        c.fillText(hz, W / 2, ko ? H * 0.37 : H * 0.52);
+        if (ko) {
+          c.font = '700 ' + Math.round(H * 0.23) + 'px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+          c.fillStyle = 'rgba(255,235,190,.86)';
+          c.fillText(ko, W / 2, H * 0.73);
+        }
+      });
+      const mtl = new THREE.MeshBasicMaterial({ map: tx, transparent: true, side: THREE.DoubleSide });
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mtl);
+      pl.position.set(x, y, z);
+      g.add(pl); return pl;
+    } catch (e) { E('plaque:' + e.message); return null; }
+  }
+
+  /* =================================================================
+     1) 건물 템플릿 14종
+     ================================================================= */
+  const TPL = [
+    { id: 'hanok', ko: '한옥 서재', hz: '韩屋书屋', w: 5.2, d: 4.2, wall: 0xf3e7cf, roof: 0x333a44, accent: 0x9a2f26, roofType: 'hip',
+      learn: [
+        { hz: '这座韩屋书屋很安静，适合看书。', py: 'zhè zuò hánwū shūwū hěn ānjìng, shìhé kànshū.', ko: '이 한옥 서재는 조용해서 책 읽기 좋아요.' },
+        { hz: '请问这里有中文小说吗？', py: 'qǐngwèn zhèlǐ yǒu Zhōngwén xiǎoshuō ma?', ko: '여기 중국어 소설이 있나요?' }] },
+    { id: 'dumpling', ko: '만두 가게', hz: '饺子铺', w: 4.4, d: 3.6, wall: 0xfaf2e2, roof: 0x8a3a2a, accent: 0xd8a33a, roofType: 'awning',
+      learn: [
+        { hz: '老板，来十个猪肉饺子。', py: 'lǎobǎn, lái shí ge zhūròu jiǎozi.', ko: '사장님, 돼지고기 만두 열 개 주세요.' },
+        { hz: '可以打包吗？我要带走。', py: 'kěyǐ dǎbāo ma? wǒ yào dàizǒu.', ko: '포장돼요? 가져갈게요.' }] },
+    { id: 'boba', ko: '버블티 하우스', hz: '珍珠奶茶屋', w: 4.2, d: 3.4, wall: 0xf7dfe4, roof: 0xd8788f, accent: 0x7a4a2a, roofType: 'awning',
+      learn: [
+        { hz: '一杯珍珠奶茶，少糖，谢谢。', py: 'yì bēi zhēnzhū nǎichá, shǎo táng, xièxie.', ko: '버블티 한 잔, 당도 낮게 부탁해요.' },
+        { hz: '珍珠要不要多一点？', py: 'zhēnzhū yào bú yào duō yìdiǎn?', ko: '타피오카 펄 더 넣어 드릴까요?' }] },
+    { id: 'book', ko: '중국어 서점', hz: '中文书店', w: 4.8, d: 3.8, wall: 0x6b4a32, roof: 0x3a2f28, accent: 0xd8b06a, roofType: 'flat',
+      learn: [
+        { hz: '我想找一本简单的中文书。', py: 'wǒ xiǎng zhǎo yì běn jiǎndān de Zhōngwén shū.', ko: '쉬운 중국어 책을 찾고 있어요.' },
+        { hz: '这本书有拼音吗？', py: 'zhè běn shū yǒu pīnyīn ma?', ko: '이 책에 병음이 있나요?' }] },
+    { id: 'theater', ko: '미니 극장', hz: '小剧场', w: 5.0, d: 4.0, wall: 0xf2e6d0, roof: 0x7a1f1a, accent: 0xe8c33a, roofType: 'gable',
+      learn: [
+        { hz: '今晚的演出还有票吗？', py: 'jīnwǎn de yǎnchū hái yǒu piào ma?', ko: '오늘 밤 공연 표 아직 있나요?' },
+        { hz: '这个座位看得很清楚。', py: 'zhège zuòwèi kàn de hěn qīngchu.', ko: '이 자리에서 잘 보여요.' }] },
+    { id: 'bamboo', ko: '대나무 쉼터', hz: '竹休息处', w: 4.6, d: 4.2, wall: 0xcfe0b8, roof: 0x8a7a45, accent: 0x4f7a3a, roofType: 'cone',
+      learn: [
+        { hz: '我们在这儿坐一会儿吧。', py: 'wǒmen zài zhèr zuò yíhuìr ba.', ko: '우리 여기서 잠깐 앉아요.' },
+        { hz: '这里风很凉快。', py: 'zhèlǐ fēng hěn liángkuai.', ko: '여기 바람이 시원해요.' }] },
+    { id: 'night', ko: '야시장 노점', hz: '夜市小吃', w: 4.4, d: 3.2, wall: 0xc0452a, roof: 0x8a2f26, accent: 0xf2c14e, roofType: 'awning',
+      learn: [
+        { hz: '这个怎么卖？给我来一份。', py: 'zhège zěnme mài? gěi wǒ lái yí fèn.', ko: '이거 얼마예요? 하나 주세요.' },
+        { hz: '有点辣，但是很好吃。', py: 'yǒudiǎn là, dànshì hěn hǎochī.', ko: '조금 맵지만 아주 맛있어요.' }] },
+    { id: 'calli', ko: '서예 공방', hz: '书法工坊', w: 4.6, d: 3.8, wall: 0xf7f2e6, roof: 0x4a4a50, accent: 0x2f2a24, roofType: 'hip',
+      learn: [
+        { hz: '我想写一个“福”字。', py: 'wǒ xiǎng xiě yí ge “fú” zì.', ko: '복(福) 자를 써 보고 싶어요.' },
+        { hz: '毛笔要这样拿。', py: 'máobǐ yào zhèyàng ná.', ko: '붓은 이렇게 잡아요.' }] },
+    { id: 'panda', ko: '판다 카페', hz: '熊猫咖啡', w: 4.6, d: 3.6, wall: 0xfdfaf4, roof: 0x2f3a3f, accent: 0x22262a, roofType: 'flat',
+      learn: [
+        { hz: '我要一杯熊猫拿铁。', py: 'wǒ yào yì bēi xióngmāo nátiě.', ko: '판다 라떼 한 잔 주세요.' },
+        { hz: '这里可以带宠物吗？', py: 'zhèlǐ kěyǐ dài chǒngwù ma?', ko: '여기 반려동물 데려와도 돼요?' }] },
+    { id: 'lantern', ko: '등불 누각', hz: '灯楼', w: 4.2, d: 4.2, wall: 0x8a2620, roof: 0x323942, accent: 0xf2b134, roofType: 'pagoda',
+      learn: [
+        { hz: '晚上的灯楼太漂亮了。', py: 'wǎnshang de dēnglóu tài piàoliang le.', ko: '밤에 등불 누각이 정말 예뻐요.' },
+        { hz: '我们在这里拍张照吧。', py: 'wǒmen zài zhèlǐ pāi zhāng zhào ba.', ko: '우리 여기서 사진 한 장 찍어요.' }] },
+    { id: 'tea', ko: '다방', hz: '茶室', w: 4.6, d: 4.0, wall: 0xf0e6d2, roof: 0x5a4030, accent: 0x2f6b4f, roofType: 'cone',
+      learn: [
+        { hz: '请给我一壶茉莉花茶。', py: 'qǐng gěi wǒ yì hú mòlìhuā chá.', ko: '자스민차 한 주전자 주세요.' },
+        { hz: '茶有点烫，慢慢喝。', py: 'chá yǒudiǎn tàng, mànman hē.', ko: '차가 뜨거우니 천천히 드세요.' }] },
+    { id: 'tanghulu', ko: '탕후루 노점', hz: '糖葫芦摊', w: 3.6, d: 3.0, wall: 0xc8323a, roof: 0x8a1f26, accent: 0xf2c14e, roofType: 'awning',
+      learn: [
+        { hz: '来两串糖葫芦！', py: 'lái liǎng chuàn tánghúlu!', ko: '탕후루 두 꼬치 주세요!' },
+        { hz: '是山楂的吗？酸不酸？', py: 'shì shānzhā de ma? suān bu suān?', ko: '산사로 만든 거예요? 많이 신가요?' }] },
+    { id: 'majiang', ko: '마작방', hz: '麻将馆', w: 4.4, d: 3.6, wall: 0xd8cbb4, roof: 0x2f3a44, accent: 0x2f6b4f, roofType: 'flat',
+      learn: [
+        { hz: '我们四个人正好一桌。', py: 'wǒmen sì ge rén zhènghǎo yì zhuō.', ko: '우리 네 명이 딱 한 판이에요.' },
+        { hz: '麻将里“碰”怎么说？', py: 'májiàng lǐ “pèng” zěnme shuō?', ko: '마작에서 “펑”은 뭐라고 해요?' }] },
+    { id: 'flower', ko: '꽃과자점', hz: '花饼铺', w: 4.4, d: 3.6, wall: 0xf7ece8, roof: 0xc86a7a, accent: 0x5f8a4a, roofType: 'awning',
+      learn: [
+        { hz: '这个花饼好香啊。', py: 'zhège huābǐng hǎo xiāng a.', ko: '이 꽃과자 정말 향기로워요.' },
+        { hz: '可以试吃一个吗？', py: 'kěyǐ shìchī yí ge ma?', ko: '하나 맛봐도 될까요?' }] },
+  ];
+  const TPLMAP = {};
+  TPL.forEach(function (t) { TPLMAP[t.id] = t; });
+
+  /* =================================================================
+     2) 부지 — 창작 마을 외곽 격자·링 슬롯 (겹치지 않는 16칸)
+     ================================================================= */
+  const SLOTS = [
+    { x: -40, z: 86.6 }, { x: -31, z: 86.6 }, { x: -13, z: 86.6 }, { x: -5, z: 87.2 },
+    { x: -50.6, z: 60 }, { x: -50.6, z: 70 }, { x: -50.6, z: 80 },
+    { x: -38, z: 47.4 }, { x: -28, z: 47.4 }, { x: -18, z: 47.4 }, { x: -8, z: 47.4 },
+    { x: 1.6, z: 58 }, { x: 1.6, z: 68 },
+    { x: -56.4, z: 48 }, { x: -56.4, z: 88 }, { x: -45, z: 43.6 },
+  ].map(function (s, i) {
+    return { i: i, x: s.x, z: s.z, ry: Math.atan2(-25 - s.x, 69 - s.z) };
+  });
+  function slotFree(sl) {
+    try {
+      const list = V14.solids || [];
+      for (let i = 0; i < list.length; i++) {
+        const q = list[i];
+        if (q.tag && String(q.tag).indexOf('v168') === 0) continue;
+        if (sl.x + 2.6 > q.x0 && sl.x - 2.6 < q.x1 && sl.z + 2.6 > q.z0 && sl.z - 2.6 < q.z1) return false;
+      }
+    } catch (e) {}
+    return true;
+  }
+
+  /* =================================================================
+     3) 저장 · 진행 (온라인 4.5분 · 오프라인 2시간 · 복귀 시 최대 4채)
+     ================================================================= */
+  const BUILD_MS = 270000;          /* 4분 30초 */
+  const OFF_MS = 2 * 3600 * 1000;   /* 오프라인 2시간당 1채 */
+  const OFF_CAP = 4;                /* 한 번에 최대 4채 */
+  const D = (M.data = { v: 1, lastSeen: 0, seeded: 0, seq: 0, total: 0, lots: [], log: [], convos: [], lastConvoAt: 0 });
+
+  function save() {
+    try {
+      D.lastSeen = Date.now();
+      D.lots = (D.lots || []).slice(-SLOTS.length);
+      D.log = (D.log || []).slice(0, 12);
+      D.convos = (D.convos || []).slice(0, 8);
+      localStorage.setItem(KEY, JSON.stringify(D));
+    } catch (e) { E('save:' + e.message); }
+  }
+  function load() {
+    try {
+      const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!o || typeof o !== 'object') return false;
+      D.v = o.v || 1;
+      D.lastSeen = Number(o.lastSeen) || 0;
+      D.seeded = Number(o.seeded) || 0;
+      D.seq = Number(o.seq) || 0;
+      D.total = Number(o.total) || 0;
+      D.lastConvoAt = Number(o.lastConvoAt) || 0;
+      if (Array.isArray(o.lots)) {
+        D.lots = o.lots.filter(function (l) { return l && SLOTOK(l.slot) && TPLMAP[l.tpl]; }).map(function (l) {
+          return { i: Number(l.i) || 0, slot: Number(l.slot) || 0, tpl: l.tpl, start: Number(l.start) || 0, done: Number(l.done) || 0, seed: Number(l.seed) || 0, seen: Number(l.seen) || 0 };
+        });
+      }
+      if (Array.isArray(o.log)) D.log = o.log.slice(0, 12);
+      if (Array.isArray(o.convos)) D.convos = o.convos.slice(0, 8);
+      D.total = Math.max(D.total || 0, D.lots.filter(function (l) { return !!l.done; }).length);
+      return true;
+    } catch (e) { E('load:' + e.message); return false; }
+  }
+  function SLOTOK(i) { return typeof i === 'number' && i >= 0 && i < SLOTS.length; }
+  function active() {
+    for (let i = 0; i < D.lots.length; i++) if (!D.lots[i].done) return D.lots[i];
+    return null;
+  }
+  function doneLots() { return D.lots.filter(function (l) { return !!l.done; }); }
+  function tplOf(l) { return TPLMAP[l.tpl] || TPL[0]; }
+
+  function nextSlot() {
+    const used = {};
+    D.lots.forEach(function (l) { used[l.slot] = 1; });
+    for (let i = 0; i < SLOTS.length; i++) if (!used[i] && slotFree(SLOTS[i])) return i;
+    /* 자리가 다 찼으면 가장 오래된 건물을 재개발한다 */
+    let old = null;
+    D.lots.forEach(function (l) { if (l.done && (!old || l.done < old.done)) old = l; });
+    if (old) {
+      removeLot(old);
+      return old.slot;
+    }
+    return 0;
+  }
+  function removeLot(l) {
+    try {
+      const g = GROUPS[l.i];
+      if (g) { scene.remove(g); delete GROUPS[l.i]; }
+      const h = HITS[l.i];
+      if (h) { try { scene.remove(h); } catch (e) {} delete HITS[l.i]; }
+    } catch (e) {}
+    D.lots = D.lots.filter(function (x) { return x !== l; });
+  }
+  function startLot(at) {
+    const slot = nextSlot();
+    const n = D.seq || 0;
+    const t = TPL[(n * 5 + slot * 3) % TPL.length];
+    const lot = { i: (n + 1), slot: slot, tpl: t.id, start: at, done: 0, seed: Math.floor(Math.random() * 99991), seen: 0 };
+    D.seq = n + 1;
+    D.lots.push(lot);
+    save();
+    return lot;
+  }
+  function completeLot(lot, at) {
+    lot.done = at || Date.now();
+    const t = tplOf(lot);
+    D.total = Math.max((D.total || 0) + 1, doneLots().length);
+    D.log.unshift({ t: lot.done, tpl: t.id, ko: t.ko, hz: t.hz, slot: lot.slot });
+    D.log = D.log.slice(0, 12);
+    pushJournal({
+      t: lot.done, ic: '🏗️', kind: 'build', who: '도현',
+      txt: '[자동 신축] 도현이 창작 마을 외곽에 ' + t.ko + '(' + t.hz + ')을(를) 또 지었어요! 누적 ' + (D.total || doneLots().length) + '채 · 평판 +6',
+    });
+    try { if (V16.gold) V16.gold(12); } catch (e) {}
+    try { if (V16.xp) V16.xp(20); } catch (e) {}
+    try { if (V16.simsData) V16.simsData.rep = clamp((V16.simsData.rep || 0) + 6, 0, 99999); } catch (e) {}
+    try { if (window.toast) toast('🏗️ ' + t.ko + ' 완공! 창작 마을 외곽 · 누적 ' + (D.total || doneLots().length) + '채', 3200); } catch (e) {}
+    try { toastSay(t.ko + ' 완공! 恭喜完工！', t.hz); } catch (e) {}
+    paintLot(lot);
+    save();
+  }
+  function pushJournal(ev) {
+    try {
+      const j = V16.simsData && V16.simsData.journal;
+      if (Array.isArray(j)) { j.unshift(ev); if (j.length > 60) j.length = 60; }
+    } catch (e) {}
+    try { if (V16.sims && V16.sims.save) V16.sims.save(); } catch (e) {}
+  }
+  function toastSay(ko, hz) {
+    try { if (V16.say) V16.say('🏗️ 도현 건축가', ko + ' ' + hz, 3600); } catch (e) {}
+  }
+
+  /* 시간 경과 반영 — 온라인은 한 채씩, 오프라인은 2시간당 1채(최대 4채) */
+  function advanceTo(now, offline) {
+    const startFrom = D.lastSeen || (now - 1);
+    let t = startFrom;
+    let guard = 0;
+    let made = 0;
+    while (t < now && guard++ < 40) {
+      const a = active();
+      if (a) {
+        if (now >= a.start + BUILD_MS) {
+          const at = a.start + BUILD_MS;
+          completeLot(a, at);
+          t = at;
+          made++;
+          if (offline && made >= OFF_CAP) { t = now; break; }
+        } else {
+          t = now;
+          break;
+        }
+      } else {
+        /* 오프라인: 2시간이 지나야 다음 착공 */
+        const ready = offline ? (t + OFF_MS) : t;
+        if (ready > now) { t = now; break; }
+        const lot = startLot(ready);
+        if (offline) {
+          /* 착공 시각을 2시간 전으로 당겨 바로 완공까지 */
+          lot.start = ready;
+          save();
+        }
+        t = ready;
+      }
+    }
+    return made;
+  }
+
+  function seed() {
+    if (D.seeded) return;
+    const now = Date.now();
+    D.seeded = now;
+    D.lastSeen = now;
+    /* 처음 열어도 마을이 살아 있게: 2채 완공 + 1채 공사 중 38% */
+    [['hanok', 1, now - 5 * 3600e3], ['dumpling', 0, now - 2.2 * 3600e3]].forEach(function (row) {
+      const t = TPLMAP[row[0]];
+      if (!t) return;
+      D.seq = (D.seq || 0) + 1;
+      D.lots.push({ i: D.seq, slot: row[1], tpl: t.id, start: row[2] - BUILD_MS, done: row[2], seed: 1, seen: 0 });
+      D.log.unshift({ t: row[2], tpl: t.id, ko: t.ko, hz: t.hz, slot: row[1] });
+    });
+    D.seq = (D.seq || 0) + 1;
+    D.lots.push({ i: D.seq, slot: 2, tpl: 'boba', start: now - Math.round(BUILD_MS * 0.38), done: 0, seed: 2, seen: 0 });
+    D.total = D.lots.filter(function (l) { return !!l.done; }).length;
+    save();
+  }
+
+  /* =================================================================
+     4) 3D — 부지·공사·완공 건물 그리기
+     ================================================================= */
+  const GROUPS = {}, HITS = {};
+  let builtScene = false;
+
+  function pad(g, w, d, c) {
+    cy(g, w / 2 + 0.35, w / 2 + 0.35, 0.1, c || 0xcfc7b2, 0, 0.05, 0, 22, { r: 1 });
+  }
+  function fence(g, t) {
+    const w = t.w + 1.1, d = t.d + 1.1;
+    for (let i = 0; i <= 3; i++) {
+      const x = -w / 2 + (w * i) / 3;
+      cy(g, 0.05, 0.05, 1.0, 0xd8a33a, x, 0.5, -d / 2, 5);
+      cy(g, 0.05, 0.05, 1.0, 0xd8a33a, x, 0.5, d / 2, 5);
+    }
+    for (let i = 0; i <= 3; i++) {
+      const z = -d / 2 + (d * i) / 3;
+      cy(g, 0.05, 0.05, 1.0, 0xd8a33a, -w / 2, 0.5, z, 5);
+      cy(g, 0.05, 0.05, 1.0, 0xd8a33a, w / 2, 0.5, z, 5);
+    }
+    [0.52, 0.86].forEach(function (y) {
+      bx(g, w, 0.05, 0.05, 0xd8a33a, 0, y, -d / 2);
+      bx(g, w, 0.05, 0.05, 0xd8a33a, 0, y, d / 2);
+      bx(g, 0.05, 0.05, d, 0xd8a33a, -w / 2, y, 0);
+      bx(g, 0.05, 0.05, d, 0xd8a33a, w / 2, y, 0);
+    });
+    bx(g, 0.7, 0.22, 0.5, 0x9a8a72, -w / 2 + 0.7, 0.14, d / 2 - 0.4, 0.3);
+  }
+  /* 진행률 간판 — 캔버스 하나를 계속 다시 그린다 (텍스처 누수 없음) */
+  function progressSign(g, t, pct, label) {
+    try {
+      const W = 512, H = 224;
+      const cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      const c = cv.getContext('2d');
+      const draw = function (p) {
+        c.clearRect(0, 0, W, H);
+        c.fillStyle = '#ffe9b8';
+        c.fillRect(0, 0, W, H);
+        c.strokeStyle = '#d8a33a'; c.lineWidth = 8; c.strokeRect(4, 4, W - 8, H - 8);
+        c.fillStyle = '#3a2a12'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.font = '800 46px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+        c.fillText(label || '🏗️ 공사 중 · 施工中', W / 2, 52);
+        c.font = '800 40px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+        c.fillStyle = '#8a5a18';
+        c.fillText(Math.round(p * 100) + '% · ' + t.hz, W / 2, 108);
+        c.fillStyle = 'rgba(94,80,62,.22)'; c.fillRect(48, 150, W - 96, 26);
+        c.fillStyle = '#c8692a'; c.fillRect(48, 150, (W - 96) * clamp(p, 0, 1), 26);
+      };
+      draw(pct);
+      const tex = new THREE.CanvasTexture(cv);
+      try { tex.colorSpace = THREE.SRGBColorSpace; } catch (e) {}
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide }));
+      mesh.position.set(0, 1.62, t.d / 2 + 0.62);
+      g.add(mesh);
+      cy(g, 0.04, 0.04, 1.15, 0x8a5a3a, -0.9, 0.6, t.d / 2 + 0.6, 5);
+      cy(g, 0.04, 0.04, 1.15, 0x8a5a3a, 0.9, 0.6, t.d / 2 + 0.6, 5);
+      if (g.userData) g.userData.sign = { mesh: mesh, draw: draw, tex: tex };
+      return { mesh: mesh, draw: draw, tex: tex };
+    } catch (e) { E('sign:' + e.message); return null; }
+  }
+
+  function drawSite(g, t, pct) {
+    pad(g, t.w, t.d, 0xb8a98c);
+    fence(g, t);
+    /* 골조 · 비계 */
+    if (pct > 0.12) {
+      const n = 4;
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2 + Math.PI / 4;
+        cy(g, 0.07, 0.09, 2.1 + pct * 0.9, 0x9aa0a6, Math.cos(a) * t.w * 0.34, (2.1 + pct * 0.9) / 2, Math.sin(a) * t.d * 0.34, 5);
+      }
+      bx(g, t.w * 0.72, 0.09, 0.1, 0x8a5a3a, 0, 2.05 + pct * 0.85, 0);
+      bx(g, 0.1, 0.09, t.d * 0.72, 0x8a5a3a, 0, 2.05 + pct * 0.85, 0);
+    }
+    /* 벽체가 올라오기 시작 */
+    if (pct > 0.4) {
+      const h = Math.min(1, (pct - 0.4) / 0.45) * 1.9;
+      bx(g, t.w * 0.82, h, t.d * 0.78, t.wall, 0, h / 2, 0);
+    }
+    if (pct > 0.72) {
+      const r = 1 + (pct - 0.72) * 3;
+      bx(g, t.w * 0.9, 0.12, t.d * 0.86, t.roof, 0, 2.05, 0);
+    }
+    progressSign(g, t, pct, pct > 0.75 ? '🏗️ 거의 다 됐어요' : '🏗️ 공사 중 · 施工中');
+    if (g.userData) g.userData.bucket = Math.floor(pct * 20);
+  }
+
+  function roofBuild(g, t, y, w, d) {
+    const rt = t.roofType;
+    if (rt === 'hip' || rt === 'pagoda') {
+      cn(g, Math.max(w, d) * 0.62, rt === 'pagoda' ? 0.8 : 1.05, t.roof, 0, y + (rt === 'pagoda' ? 0.4 : 0.52), 0, 4, { ry: Math.PI / 4 });
+      if (rt === 'pagoda') {
+        cn(g, Math.max(w, d) * 0.44, 0.8, t.roof, 0, y + 1.15, 0, 4, { ry: Math.PI / 4 });
+        cn(g, Math.max(w, d) * 0.26, 0.7, t.roof, 0, y + 1.78, 0, 4, { ry: Math.PI / 4 });
+        sp(g, 0.12, t.accent, 0, y + 2.2, 0, { e: t.accent });
+      } else {
+        bx(g, 0.16, 0.16, 0.16, 0xd8b06a, 0, y + 1.1, 0, 0, { m: .4 });
+      }
+    } else if (rt === 'gable') {
+      [-1, 1].forEach(function (s) {
+        const b = bx(g, w * 0.62, 0.12, d * 1.02, t.roof, s * w * 0.185, y + 0.42, 0, 0, { rz: s * 0.5 });
+        b.rotation.z = s * 0.5;
+      });
+      bx(g, 0.18, 0.14, d * 1.04, t.accent, 0, y + 0.86, 0);
+    } else if (rt === 'awning') {
+      bx(g, w * 1.02, 0.1, d * 0.9, t.roof, 0, y + 0.35, d * 0.06, 0, { rx: 0.12 });
+      for (let i = 0; i < 6; i++) {
+        bx(g, w / 6, 0.08, d * 0.9, i % 2 ? 0xfff4e0 : t.roof, -w / 2 + w / 12 + i * (w / 6), y + 0.38, d * 0.06, 0, { rx: 0.12 });
+      }
+    } else if (rt === 'cone') {
+      cn(g, Math.max(w, d) * 0.78, 1.2, t.roof, 0, y + 0.55, 0, 10);
+      sp(g, 0.12, t.accent, 0, y + 1.2, 0, { e: t.accent });
+    } else {
+      bx(g, w * 0.96, 0.16, d * 0.96, t.roof, 0, y + 0.06, 0);
+      bx(g, w * 0.99, 0.1, d * 0.99, t.accent, 0, y + 0.16, 0);
+    }
+  }
+
+  function drawDone(g, t) {
+    pad(g, t.w, t.d, 0xd8cfb8);
+    const w = t.w * 0.86, d = t.d * 0.82;
+    const H = 2.0;
+    bx(g, w, H, d, t.wall, 0, H / 2 + 0.12, 0);
+    bx(g, w + 0.05, 0.14, d + 0.05, t.accent, 0, 0.15, 0);
+    /* 문 · 창문 */
+    bx(g, 0.72, 1.4, 0.07, 0x5a4030, 0, 0.82, d / 2 + 0.02);
+    [-1, 1].forEach(function (s) {
+      bx(g, 0.6, 0.55, 0.06, 0xa8d8e8, s * w * 0.3, 1.5, d / 2 + 0.03, 0, { e: 0x7fb8d0, r: .35 });
+    });
+    roofBuild(g, t, H + 0.1, w, d);
+    plaque(g, 1.9, 0.5, t.hz, t.ko, 0, H + 0.02, d / 2 + 0.05, '#7a1f1a', '#ffe9bd');
+    /* 등불 */
+    [-1, 1].forEach(function (s) {
+      sp(g, 0.12, 0xd8463a, s * (w / 2 + 0.06), 1.9, d / 2 + 0.1, { e: 0xd8463a });
+      cy(g, 0.012, 0.012, 0.22, 0x3a2a1a, s * (w / 2 + 0.06), 2.06, d / 2 + 0.1, 4);
+    });
+    /* 템플릿별 장식 */
+    try { drawProp(g, t, w, d, H); } catch (e) { E('prop:' + t.id + ':' + e.message); }
+  }
+
+  function drawProp(g, t, w, d, H) {
+    const front = d / 2;
+    if (t.id === 'dumpling') {
+      bx(g, 1.5, 0.55, 0.6, 0xc8a06a, -w * 0.28, 0.5, front + 0.42);
+      for (let i = 0; i < 3; i++) {
+        cy(g, 0.26, 0.28, 0.18, 0xe8d8b8, -w * 0.28, 0.86 + i * 0.19, front + 0.42, 12);
+        cy(g, 0.28, 0.28, 0.05, 0xd8c8a8, -w * 0.28, 0.96 + i * 0.19, front + 0.42, 12);
+      }
+      sp(g, 0.18, 0xfff4e8, -w * 0.28, 1.5, front + 0.42, { r: 1 });
+    } else if (t.id === 'boba') {
+      cy(g, 0.3, 0.26, 0.85, 0xf4dce4, -w * 0.3, 0.62, front + 0.45, 14, { r: .5 });
+      cy(g, 0.32, 0.32, 0.06, 0xd8788f, -w * 0.3, 1.06, front + 0.45, 14);
+      cy(g, 0.03, 0.03, 0.45, 0xf2efe6, -w * 0.3 + 0.08, 1.25, front + 0.45, 6, { rx: 0.2 });
+      bx(g, 1.1, 0.35, 0.45, 0xd8a33a, w * 0.24, 0.32, front + 0.5);
+    } else if (t.id === 'book') {
+      for (let r = 0; r < 2; r++) {
+        bx(g, 1.5, 0.06, 0.32, 0x3a2f28, -w * 0.28, 0.6 + r * 0.55, front + 0.32);
+        for (let i = 0; i < 5; i++) {
+          bx(g, 0.09, 0.36, 0.24, [0x8a3a30, 0x2f5b86, 0x4f6a4c, 0xc9a26a, 0x6a3a6a][i % 5], -w * 0.28 - 0.6 + i * 0.16, 0.82 + r * 0.55, front + 0.32);
+        }
+      }
+    } else if (t.id === 'theater') {
+      bx(g, w * 0.7, 1.0, 0.08, 0x8a1f26, 0, 2.55, front + 0.06);
+      for (let i = 0; i < 5; i++) sp(g, 0.06, 0xffe9b0, -w * 0.28 + i * w * 0.14, 3.0, front + 0.1, { e: 0xffe9b0 });
+      bx(g, 1.1, 0.7, 0.06, 0xf7f1e0, -w * 0.3, 1.35, front + 0.05);
+      bx(g, 1.1, 0.7, 0.06, 0xf7f1e0, w * 0.3, 1.35, front + 0.05);
+    } else if (t.id === 'bamboo') {
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
+        cy(g, 0.06, 0.07, 2.4, 0x6f8a3a, Math.cos(a) * w * 0.42, 1.2, Math.sin(a) * d * 0.42, 6);
+      }
+      bx(g, 1.4, 0.1, 0.4, 0x8a5a3a, 0, 0.5, 0);
+      [-0.6, 0.6].forEach(function (x) { bx(g, 0.08, 0.5, 0.36, 0x6b4428, x, 0.25, 0); });
+      for (let i = 0; i < 3; i++) cy(g, 0.025, 0.03, 1.9, 0x4f7a3a, w * 0.55 + i * 0.16, 1.0, -d * 0.35, 5, { rz: 0.06 * i });
+    } else if (t.id === 'night') {
+      bx(g, 1.6, 0.55, 0.5, 0x8a5a3a, 0, 0.5, front + 0.36);
+      for (let i = 0; i < 4; i++) sp(g, 0.1, [0xd8463a, 0xf2b134, 0x6f8a3a, 0xd8c8a8][i], -0.6 + i * 0.4, 0.88, front + 0.36, { e: 0xd8463a });
+      for (let i = 0; i < 3; i++) {
+        sp(g, 0.13, 0xd8463a, -w * 0.4 + i * w * 0.4, 2.35, front + 0.2, { e: 0xd8463a });
+        cy(g, 0.012, 0.012, 0.2, 0x3a2a1a, -w * 0.4 + i * w * 0.4, 2.5, front + 0.2, 4);
+      }
+    } else if (t.id === 'calli') {
+      for (let i = 0; i < 3; i++) {
+        bx(g, 0.34, 0.95, 0.03, 0xf7f2e6, -0.55 + i * 0.55, 1.55, front + 0.08);
+        bx(g, 0.36, 0.05, 0.05, 0x3a2f28, -0.55 + i * 0.55, 2.05, front + 0.09);
+        bx(g, 0.2, 0.18, 0.01, 0x2f2a24, -0.55 + i * 0.55, 1.55, front + 0.1);
+      }
+      bx(g, 1.1, 0.14, 0.6, 0x4a3a2a, w * 0.28, 0.62, front + 0.4);
+      sp(g, 0.16, 0x2f2a24, w * 0.28, 0.74, front + 0.4, { sy: .5 });
+    } else if (t.id === 'panda') {
+      /* 판다 얼굴 간판 */
+      sp(g, 0.5, 0xfdfaf4, -w * 0.3, 2.15, front + 0.12, { sy: .95 });
+      sp(g, 0.17, 0x22262a, -w * 0.3 - 0.33, 2.5, front + 0.1);
+      sp(g, 0.17, 0x22262a, -w * 0.3 + 0.33, 2.5, front + 0.1);
+      sp(g, 0.07, 0x22262a, -w * 0.3 - 0.15, 2.2, front + 0.3);
+      sp(g, 0.07, 0x22262a, -w * 0.3 + 0.15, 2.2, front + 0.3);
+      bx(g, 0.9, 0.35, 0.5, 0x2f3a3f, w * 0.26, 0.34, front + 0.5);
+    } else if (t.id === 'lantern') {
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2;
+        sp(g, 0.17, 0xf2b134, Math.cos(a) * 1.5, 1.5, Math.sin(a) * 1.5, { e: 0xf2b134 });
+      }
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2 + 0.4;
+        sp(g, 0.14, 0xd8463a, Math.cos(a) * 0.9, 2.6, Math.sin(a) * 0.9, { e: 0xd8463a });
+      }
+      try {
+        const pl = new THREE.PointLight(0xffb066, 0.55, 9, 2);
+        pl.position.set(0, 2.0, 0); g.add(pl);
+      } catch (e) {}
+    } else if (t.id === 'tea') {
+      cy(g, 0.55, 0.55, 0.12, 0x8a5a3a, w * 0.28, 0.55, front + 0.6, 12);
+      cy(g, 0.06, 0.06, 0.45, 0x6b4428, w * 0.28, 0.3, front + 0.6, 6);
+      cy(g, 0.9, 0.9, 0.06, 0xf7f1e0, w * 0.28, 1.55, front + 0.6, 12, { rz: 0.05 });
+      cy(g, 0.03, 0.03, 0.7, 0x6b4428, w * 0.28, 1.2, front + 0.6, 5);
+    } else if (t.id === 'tanghulu') {
+      bx(g, 1.3, 0.7, 0.55, 0xc8323a, 0, 0.55, front + 0.4);
+      for (let i = 0; i < 4; i++) {
+        const sx = -0.5 + (i % 2) * 0.5, sz = front + 0.4 + Math.floor(i / 2) * 0.14;
+        cy(g, 0.012, 0.012, 0.55, 0xd8c8a8, sx, 1.15, sz, 4);
+        for (let k = 0; k < 3; k++) sp(g, 0.075, 0xc8303a, sx, 1.0 + k * 0.13, sz, { r: .35 });
+      }
+    } else if (t.id === 'majiang') {
+      bx(g, 1.0, 0.1, 1.0, 0x2f6b4f, 0, 0.62, front + 0.45);
+      bx(g, 0.1, 0.5, 0.1, 0x5a4030, 0, 0.32, front + 0.45);
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        bx(g, 0.12, 0.06, 0.08, 0xf7f1e0, Math.cos(a) * 0.55, 0.7, front + 0.45 + Math.sin(a) * 0.55);
+      }
+    } else if (t.id === 'flower') {
+      [-1, 1].forEach(function (s) {
+        cy(g, 0.06, 0.08, 1.5, 0x6b4a32, s * (w * 0.55), 0.75, front + 0.35, 6);
+        sp(g, 0.45, 0xe8a0b8, s * (w * 0.55), 1.65, front + 0.35);
+        sp(g, 0.32, 0xf7c8d8, s * (w * 0.55) + 0.25, 1.9, front + 0.35);
+      });
+      bx(g, 0.9, 0.4, 0.45, 0xf7ece8, -w * 0.25, 0.36, front + 0.42);
+    } else if (t.id === 'hanok') {
+      [-1, 1].forEach(function (s) {
+        cy(g, 0.09, 0.1, 2.0, 0x9a2f26, s * (w * 0.38), 1.1, front + 0.06, 7);
+      });
+      bx(g, w * 0.9, 0.12, 0.3, 0x8a6a45, 0, 0.3, front + 0.3);
+    }
+  }
+
+  function paintLot(lot) {
+    if (!THREE || typeof scene === 'undefined') return;
+    const t = tplOf(lot);
+    const sl = SLOTS[lot.slot] || SLOTS[0];
+    let g = GROUPS[lot.i];
+    if (!g) {
+      g = new THREE.Group();
+      g.name = 'v168:' + lot.i;
+      g.position.set(sl.x, 0, sl.z);
+      g.rotation.y = sl.ry;
+      scene.add(g);
+      GROUPS[lot.i] = g;
+    }
+    while (g.children.length) { const c = g.children.pop(); try { g.remove(c); } catch (e) {} }
+    if (lot.done) drawDone(g, t);
+    else {
+      const p = clamp((Date.now() - lot.start) / BUILD_MS, 0, 1);
+      drawSite(g, t, p);
+    }
+    /* 누르면 열리는 판 */
+    let h = HITS[lot.i];
+    if (!h) {
+      h = new THREE.Mesh(new THREE.BoxGeometry(t.w + 1.2, 3.0, t.d + 1.2),
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+      h.position.set(sl.x, 1.5, sl.z);
+      h.rotation.y = sl.ry;
+      h.userData.v168 = lot.i;
+      scene.add(h);
+      HITS[lot.i] = h;
+      try {
+        V12.hit(h, 'v168:lot:' + lot.i);
+        V12.tapHandlers['v168:lot:' + lot.i] = function () { openLot(lot.i); };
+      } catch (e) { E('hit:' + e.message); }
+    }
+  }
+  function repaintProgress() {
+    const a = active();
+    if (!a) return;
+    const g = GROUPS[a.i];
+    if (!g) return;
+    const p = clamp((Date.now() - a.start) / BUILD_MS, 0, 1);
+    const sign = g.userData && g.userData.sign;
+    if (sign && sign.draw) {
+      /* 간판의 진행률만 다시 그린다 — 건물 전체 재생성 금지 (모바일 부하) */
+      sign.draw(p);
+      if (sign.tex) sign.tex.needsUpdate = true;
+      return;
+    }
+    /* 골조 단계가 바뀌는 5% 지점에서만 다시 그린다 */
+    const bucket = Math.floor(p * 20);
+    if (g.userData && g.userData.bucket === bucket) return;
+    if (g.userData) g.userData.bucket = bucket;
+    paintLot(a);
+  }
+
+  function buildAll() {
+    if (!THREE || typeof scene === 'undefined') return false;
+    const ok = D.lots.every(function (l) { return SLOTOK(l.slot); });
+    if (!ok) return false;
+    D.lots.forEach(function (l) { try { paintLot(l); } catch (e) { E('paint:' + e.message); } });
+    builtScene = true;
+    try {
+      if (!M.__zone) {
+        M.__zone = 1;
+        if (V16.addZone) {
+          V16.addZone({ x0: -60, x1: 3, z0: 40, z1: 92 }, '자동 신축 마을 · 自建村');
+          if (V16.installZone) V16.installZone();
+        }
+      }
+    } catch (e) {}
+    return true;
+  }
+
+  /* 보행 충돌용 — 새 건물 자리도 막는다 */
+  const solidMark = {};
+  function markSolids() {
+    D.lots.forEach(function (l) {
+      const t = tplOf(l);
+      const sl = SLOTS[l.slot]; if (!sl) return;
+      const k = 'v168:' + l.slot;
+      if (solidMark[k]) return;
+      solidMark[k] = 1;
+      try { V14.addSolid(sl.x - t.w / 2 - 0.2, sl.x + t.w / 2 + 0.2, sl.z - t.d / 2 - 0.2, sl.z + t.d / 2 + 0.2, k); } catch (e) {}
+    });
+  }
+
+  /* =================================================================
+     5) 완공 건물 학습 모달 + 보상
+     ================================================================= */
+  function openLot(i) {
+    const lot = D.lots.filter(function (l) { return l.i === i; })[0];
+    if (!lot) return;
+    const t = tplOf(lot);
+    if (!lot.done) {
+      const p = Math.round(clamp((Date.now() - lot.start) / BUILD_MS, 0, 1) * 100);
+      try { if (window.toast) toast('🏗️ ' + t.ko + ' 공사 중 · ' + p + '% (도현이 짓는 중)', 2400); } catch (e) {}
+      return;
+    }
+    try {
+      const el = V16.modal('v168LotModal', '📖 ' + t.ko + ' · ' + t.hz, '도현이 지은 자동 신축 건물 · 누적 ' + doneLots().length + '채');
+      const body = V16.bodyOf(el);
+      const L = pick(t.learn);
+      body.innerHTML =
+        '<div class="v166-phrase"><b>' + L.hz + '</b><small>' + L.py + '</small><em>' + L.ko + '</em></div>' +
+        '<div class="v16-note">' + t.ko + ' · ' + t.hz + '<br>📍 창작 마을 외곽 · ' + new Date(lot.done).toLocaleString('ko-KR') + ' 완공</div>' +
+        '<div class="v16-row"><button class="v12-btn" id="v168Say">🔊 듣기</button><button class="v12-btn" id="v168Go2">📍 앞으로 이동</button><button class="v12-btn" id="v168Reward">🪙 보상 받기</button></div>';
+      V16.open(el);
+      const b1 = body.querySelector('#v168Say');
+      if (b1) b1.onclick = function () { try { if (typeof speak === 'function') speak(L.hz); } catch (e) {} };
+      const b2 = body.querySelector('#v168Go2');
+      if (b2) b2.onclick = function () { warpTo(lot); try { V16.close(el); } catch (e) {} };
+      const b3 = body.querySelector('#v168Reward');
+      if (b3) {
+        if (Date.now() - (lot.seen || 0) < 6 * 3600e3) { b3.disabled = true; b3.textContent = '✅ 오늘 보상 완료'; }
+        b3.onclick = function () {
+          const now = Date.now();
+          if (now - (lot.seen || 0) < 6 * 3600e3) { try { toast('이미 보상을 받았어요 · 6시간 뒤 다시', 2200); } catch (e) {} return; }
+          lot.seen = now; save();
+          try { if (V16.gold) V16.gold(18); } catch (e) {}
+          try { if (V16.xp) V16.xp(15); } catch (e) {}
+          try { if (V16.simsData) V16.simsData.rep = clamp((V16.simsData.rep || 0) + 4, 0, 99999); } catch (e) {}
+          pushJournal({ t: now, ic: '📖', kind: 'build', who: '도현', txt: '[건축 학습] ' + t.ko + '에서 “' + L.hz + '” 배우기 — 코인 +18 · 평판 +4' });
+          try { if (typeof speak === 'function') speak(L.hz); } catch (e) {}
+          try { toast('🪙 코인 +18 · XP +15 · 평판 +4', 2600); } catch (e) {}
+          b3.disabled = true; b3.textContent = '✅ 보상 완료';
+        };
+      }
+    } catch (e) { E('openLot:' + e.message); }
+  }
+  function warpTo(lot) {
+    try {
+      const t = tplOf(lot), sl = SLOTS[lot.slot];
+      const dx = Math.sin(sl.ry), dz = Math.cos(sl.ry);
+      V16.tele(sl.x + dx * (t.d / 2 + 2.6), sl.z + dz * (t.d / 2 + 2.6));
+      try { if (window.toast) toast('📍 ' + t.ko + ' 앞으로 이동했어요', 2200); } catch (e) {}
+    } catch (e) { E('warp:' + e.message); }
+  }
+
+  /* =================================================================
+     6) 말풍선 (중국어 + 한국어, 모바일에서도 또렷하게)
+     ================================================================= */
+  const BUB = {};
+  function makeBubbleText(hz, ko, accent, who) {
+    const W = 480;
+    const cv = document.createElement('canvas');
+    const c = cv.getContext('2d');
+    const padX = 26, padY = 22;
+    const nameH = who ? 34 : 0;
+    const zhFont = '800 54px "Noto Sans CJK KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+    const koFont = '700 34px "Noto Sans CJK KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+    const wrap = function (text, font, maxW) {
+      c.font = font;
+      const out = [];
+      let line = '';
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (c.measureText(line + ch).width > maxW && line) { out.push(line); line = ch; }
+        else line += ch;
+      }
+      if (line) out.push(line);
+      /* 줄 첫머리에 쉼표·마침표가 오지 않게 */
+      for (let i = 1; i < out.length; i++) {
+        while (out[i] && '，。！？、,.!?'.indexOf(out[i][0]) >= 0) {
+          out[i - 1] += out[i][0];
+          out[i] = out[i].slice(1);
+        }
+      }
+      return out.slice(0, 3);
+    };
+    const zh = wrap(String(hz).slice(0, 34), zhFont, W - padX * 2 - 20);
+    const koL = ko ? wrap(String(ko).slice(0, 44), koFont, W - padX * 2) : [];
+    const lh = 62, kl = 42;
+    const H = padY * 2 + nameH + zh.length * lh + (koL.length ? 10 + koL.length * kl : 0) + 30;
+    cv.width = W; cv.height = H;
+    c.clearRect(0, 0, W, H);
+    const r = 26, bodyH = H - 26;
+    const rect = function (x, y, w, h) {
+      c.beginPath();
+      c.moveTo(x + r, y);
+      c.arcTo(x + w, y, x + w, y + h, r);
+      c.arcTo(x + w, y + h, x, y + h, r);
+      c.arcTo(x, y + h, x, y, r);
+      c.arcTo(x, y, x + w, y, r);
+      c.closePath();
+    };
+    c.shadowColor = 'rgba(40,28,16,.28)';
+    c.shadowBlur = 14; c.shadowOffsetY = 5;
+    rect(3, 3, W - 6, bodyH - 6);
+    c.fillStyle = '#fffdf7'; c.fill();
+    c.shadowColor = 'transparent';
+    c.lineWidth = 7;
+    c.strokeStyle = accent || '#8a5a2a';
+    c.stroke();
+    /* 꼬리 */
+    c.beginPath();
+    c.moveTo(W / 2 - 20, bodyH - 4);
+    c.lineTo(W / 2, H - 2);
+    c.lineTo(W / 2 + 20, bodyH - 4);
+    c.closePath();
+    c.fillStyle = '#fffdf7'; c.fill();
+    c.strokeStyle = accent || '#8a5a2a'; c.lineWidth = 7;
+    c.beginPath();
+    c.moveTo(W / 2 - 20, bodyH - 3); c.lineTo(W / 2, H - 3); c.lineTo(W / 2 + 20, bodyH - 3);
+    c.stroke();
+    if (who) {
+      c.textAlign = 'left'; c.textBaseline = 'top';
+      c.fillStyle = accent || '#8a5a2a';
+      c.font = '800 27px "Noto Sans CJK KR","Apple SD Gothic Neo",sans-serif';
+      c.fillText(String(who).slice(0, 8), padX + 4, padY - 2);
+    }
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillStyle = '#241d18';
+    c.font = zhFont;
+    const top = padY + nameH;
+    zh.forEach(function (line, i) { c.fillText(line, W / 2, top + i * lh); });
+    if (koL.length) {
+      c.fillStyle = '#6b5b46';
+      c.font = koFont;
+      koL.forEach(function (line, i) { c.fillText(line, W / 2, top + zh.length * lh + 10 + i * kl); });
+    }
+    return { canvas: cv, W: W, H: H, ratio: H / W };
+  }
+  function showBubble(root, hz, ko, accent, ms, who) {
+    try {
+      if (!root) return null;
+      const rk = root.uuid || ('r' + Math.random());
+      const rec = BUB[rk] || (BUB[rk] = {});
+      rec.root = root;
+      if (rec.mesh) killBubbleMesh(rec);
+      const t = makeBubbleText(hz, ko, accent, who);
+      const tex = new THREE.CanvasTexture(t.canvas);
+      try { tex.colorSpace = THREE.SRGBColorSpace; } catch (e) {}
+      try { if (renderer && renderer.capabilities) tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); } catch (e) {}
+      const bw = 1.7, bh = bw * t.ratio;
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
+      mesh.renderOrder = 20;
+      mesh.userData.bh = bh;
+      scene.add(mesh);
+      rec.mesh = mesh; rec.until = performance.now() + (ms || 4200);
+      placeBubble(rec);
+      return mesh;
+    } catch (e) { E('bubble:' + e.message); return null; }
+  }
+  function placeBubble(rec) {
+    try {
+      const m = rec.mesh, root = rec.root;
+      if (!m || !root) return;
+      const bh = m.userData.bh || 0.8;
+      const px = root.position.x, pz = root.position.z;
+      m.position.set(px, 1.7 + bh / 2, pz);
+      m.rotation.set(0, Math.atan2(camera.position.x - px, camera.position.z - pz), 0);
+      const d = Math.hypot(camera.position.x - px, camera.position.z - pz);
+      /* 화면에서 읽히는 크기로 거리 보정 — 모바일은 더 크게 */
+      const k = (typeof innerWidth !== 'undefined' && innerWidth < 700) ? 0.10 : 0.235;
+      const s = clamp(d * k, .45, 3.2);
+      m.scale.set(s, s, 1);
+    } catch (e) {}
+  }
+  function killBubbleMesh(rec) {
+    try {
+      const m = rec.mesh;
+      if (!m) return;
+      try { scene.remove(m); } catch (e) {}
+      try { if (m.material && m.material.map) m.material.map.dispose(); } catch (e) {}
+      try { if (m.material) m.material.dispose(); } catch (e) {}
+      try { m.geometry.dispose(); } catch (e) {}
+      rec.mesh = null;
+    } catch (e) {}
+  }
+  function hideBubble(root) {
+    try {
+      Object.keys(BUB).forEach(function (k) {
+        const rec = BUB[k];
+        if (rec && rec.root === root && rec.mesh) killBubbleMesh(rec);
+      });
+    } catch (e) {}
+  }
+  function tickBubbles() {
+    const now = performance.now();
+    Object.keys(BUB).forEach(function (k) {
+      const rec = BUB[k];
+      if (!rec || !rec.mesh) return;
+      placeBubble(rec);
+      if (now > rec.until) killBubbleMesh(rec);
+    });
+  }
+  const TMPV = new THREE.Vector3();
+
+  /* =================================================================
+     7) 자유의지 NPC — 창작 마을 산책 + 3턴 말풍선 대화
+     ================================================================= */
+  const CREW = {
+    '도현': { role: 'arch', ko: '건축가', hz: '建筑师', color: '#8a5a2a', home: [-31, 74] },
+    '세아': { role: 'fash', ko: '패션 디자이너', hz: '设计师', color: '#b04a72', home: [-14, 67] },
+    '연우': { role: 'chef', ko: '셰프', hz: '主厨', color: '#b0702a', home: [-21, 79.2] },
+    '민재': { role: 'music', ko: '작곡가', hz: '作曲家', color: '#5a5aa0', home: [-32, 66] },
+    '서연': { role: 'creator', ko: '크리에이터', hz: '博主', color: '#2f7a6a', home: [-38, 72] },
+  };
+  const MEMES = [
+    { hz: '续火花', ko: '불꽃 이어가기', q: '今天也续火花了吗？', qk: '오늘도 불꽃 이어갔어요?', a: '当然，每天都发一句。', ak: '당연하죠, 매일 한마디 보내요.' },
+    { hz: '云朵草莓', ko: '구름딸기 팝업', q: '你去圣水的云朵草莓了吗？', qk: '성수 구름딸기 팝업 갔어요?', a: '还没去，听说要排很久。', ak: '아직요, 줄이 길다던데요.' },
+    { hz: '喝大水', ko: '물 많이 마시기', q: '今天喝大水了吗？', qk: '오늘 물 많이 마셨어요?', a: '喝了，两大瓶。', ak: '네, 큰 물병 두 개나요.' },
+    { hz: '低精力', ko: '저에너지', q: '今天有点低精力啊。', qk: '오늘 좀 저에너지네요.', a: '嗯，早点回家休息吧。', ak: '그래요, 일찍 들어가 쉬어요.' },
+    { hz: '纯过日子', ko: '순하게 현생 살기', q: '最近就纯过日子，挺好的。', qk: '요즘 그냥 순하게 살아요, 좋네요.', a: '对，先把生活过好。', ak: '맞아요, 생활부터 잘 챙겨요.' },
+    { hz: '洋葱式穿搭', ko: '양파식 겹쳐입기', q: '今天穿了几层？', qk: '오늘 몇 겹 입었어요?', a: '三层，洋葱式穿搭。', ak: '세 겹요, 양파식으로요.' },
+    { hz: '哈尔滨大雪人', ko: '하얼빈 눈사람', q: '哈尔滨的大雪人看了吗？', qk: '하얼빈 큰 눈사람 봤어요?', a: '看了，有十九米高呢。', ak: '봤어요, 19미터나 된대요.' },
+  ];
+  const DLG = [
+    { pair: ['arch', 'fash'], lines: [
+      { hz: '你看那边新盖的{k}，屋顶是我调的弧度。', ko: '저기 새로 지은 {kK} 봐, 지붕 곡선은 내가 잡았어.' },
+      { hz: '比照片好看多了，灯一亮更美。', ko: '사진보다 훨씬 예뻐, 불 켜지면 더 좋겠다.' },
+      { hz: '晚上你来做第一位客人吧。', ko: '저녁에 네가 첫 손님이 되어 줘.' }] },
+    { pair: ['creator', 'arch'], lines: [
+      { hz: '又盖了一栋？太厉害了吧！', ko: '또 한 채 지었어요? 정말 대단해요!' },
+      { hz: '慢慢来，一栋一栋地盖就好。', ko: '천천히, 한 채씩 지으면 돼.' },
+      { hz: '我能拍下来发到小红书吗？', ko: '이거 찍어서 샤오홍슈에 올려도 돼요?' }] },
+    { pair: ['chef', 'music'], lines: [
+      { hz: '新菜单试过了吗？味道怎么样？', ko: '새 메뉴 먹어 봤어요? 맛이 어때요?' },
+      { hz: '很好吃，配这首曲子刚刚好。', ko: '맛있어요, 이 곡이랑 딱 어울려요.' },
+      { hz: '那我给它起名叫《晚饭》。', ko: '그럼 제목을 《저녁》이라고 지을게요.' }] },
+    { pair: ['fash', 'creator'], lines: [
+      { hz: '今天这套衣服很适合拍视频。', ko: '오늘 이 옷 영상 찍기 딱 좋아요.' },
+      { hz: '那我们现在就拍一条？', ko: '그럼 지금 한 편 찍어요?' },
+      { hz: '好，你站到灯楼前面去。', ko: '좋아요, 등불 누각 앞에 서 봐요.' }] },
+    { pair: ['arch', 'chef'], lines: [
+      { hz: '工人们说想吃点热的。', ko: '인부들이 따뜻한 게 먹고 싶대요.' },
+      { hz: '我煮一锅饺子送过去。', ko: '제가 만두 한 솥 끓여서 보낼게요.' },
+      { hz: '谢谢，他们一定很高兴。', ko: '고마워요, 다들 좋아하겠어요.' }] },
+    { pair: ['fash', 'chef'], lines: [
+      { hz: '这次快闪要不要加点甜品？', ko: '이번 팝업에 디저트도 넣을까요?' },
+      { hz: '我来做抹茶蛋糕，颜色很配。', ko: '제가 말차 케이크를 만들게요, 색이 잘 어울려요.' },
+      { hz: '那就这么说定了。', ko: '그럼 그렇게 정했어요.' }] },
+    { pair: ['music', 'creator'], lines: [
+      { hz: '新曲子写完了，要听吗？', ko: '새 곡 다 썼어요, 들어 볼래요?' },
+      { hz: '要！我想用它做背景音乐。', ko: '네! 배경음악으로 쓰고 싶어요.' },
+      { hz: '那我把完整版发给你。', ko: '그럼 완성본을 보내 줄게요.' }] },
+    { pair: ['arch', 'music'], lines: [
+      { hz: '这栋楼的木头声音很好听。', ko: '이 건물 나무 소리가 참 좋네요.' },
+      { hz: '我把它录下来做节奏。', ko: '그 소리를 녹음해서 리듬으로 쓸게요.' },
+      { hz: '哈哈，那它就是会唱歌的建筑。', ko: '하하, 그럼 노래하는 건물이네요.' }] },
+    { pair: ['chef', 'creator'], lines: [
+      { hz: '今晚吃什么好呢？', ko: '오늘 저녁은 뭐가 좋을까요?' },
+      { hz: '夜市那家麻辣烫怎么样？', ko: '야시장 마라탕 어때요?' },
+      { hz: '走，顺便拍个吃播。', ko: '가요, 겸사겸사 먹방도 찍고요.' }] },
+    { pair: ['fash', 'music'], lines: [
+      { hz: '走秀的音乐做好了吗？', ko: '런웨이 음악 다 만들었어요?' },
+      { hz: '快了，还差最后八秒。', ko: '거의요, 마지막 8초만 남았어요.' },
+      { hz: '期待，一定很帅。', ko: '기대돼요, 분명 멋질 거예요.' }] },
+    { pair: ['arch', 'fash'], lines: [
+      { hz: '这面墙刷成朱红色怎么样？', ko: '이 벽을 주홍색으로 칠하면 어때요?' },
+      { hz: '太好了，和我的新外套一样。', ko: '좋아요, 제 새 외투랑 같은 색이에요.' },
+      { hz: '那就听设计师的。', ko: '그럼 디자이너 말대로 하죠.' }] },
+    { pair: [], meme: 1, lines: [
+      { hz: '{mQ}', ko: '{mQK}' },
+      { hz: '{mA}', ko: '{mAK}' },
+      { hz: '好，那我们一起去吧。', ko: '좋아요, 그럼 같이 가요.' }] },
+    { pair: [], lines: [
+      { hz: '今天风有点大，多穿一件。', ko: '오늘 바람이 부는데, 한 겹 더 입어요.' },
+      { hz: '我穿了“洋葱式穿搭”。', ko: '저는 양파식으로 겹쳐 입었어요.' },
+      { hz: '聪明，冷了脱一层就行。', ko: '똑똑하네요, 추우면 한 겹 벗으면 되죠.' }] },
+    { pair: [], lines: [
+      { hz: '这句中文怎么读？', ko: '이 중국어 문장 어떻게 읽어요?' },
+      { hz: '你慢慢说，我帮你听。', ko: '천천히 말해 봐요, 들어 줄게요.' },
+      { hz: '谢谢你，我再练一遍。', ko: '고마워요, 한 번 더 연습할게요.' }] },
+    { pair: [], lines: [
+      { hz: '这栋楼晚上亮灯一定很美。', ko: '이 건물 밤에 불 켜지면 정말 예쁠 거예요.' },
+      { hz: '那我们等天黑再来一趟。', ko: '그럼 어두워지면 다시 와요.' },
+      { hz: '好，我带上相机。', ko: '좋아요, 카메라 챙길게요.' }] },
+  ];
+  const ROAM = {};
+  let roamBuilt = false;
+
+  function findCrowd(name) {
+    const list = (V14.crowd || []);
+    for (let i = 0; i < list.length; i++) if (list[i] && list[i].name === name && list[i].root) return list[i];
+    return null;
+  }
+  function face(n, x, z) {
+    if (!n || !n.root) return;
+    n.root.rotation.y = Math.atan2(x - n.root.position.x, z - n.root.position.z);
+  }
+  function insideSolid(x, z, m) {
+    const list = V14.solids || [];
+    for (let i = 0; i < list.length; i++) {
+      const q = list[i];
+      if (x > q.x0 - m && x < q.x1 + m && z > q.z0 - m && z < q.z1 + m) return true;
+    }
+    return false;
+  }
+  function pickTarget(n) {
+    for (let i = 0; i < 30; i++) {
+      const x = -42 + Math.random() * 34;
+      const z = 58 + Math.random() * 22;
+      if (insideSolid(x, z, 1.5)) continue;
+      if (Math.hypot(x - n.root.position.x, z - n.root.position.z) < 2.4) continue;
+      let far = true;
+      Object.keys(ROAM).forEach(function (k) {
+        const o = ROAM[k];
+        if (o !== n && o.root && Math.hypot(x - o.root.position.x, z - o.root.position.z) < 1.4) far = false;
+      });
+      if (!far) continue;
+      return { x: x, z: z };
+    }
+    const h = CREW[n.name] ? CREW[n.name].home : [-25, 70];
+    return { x: h[0] + (Math.random() - 0.5) * 3, z: h[1] + (Math.random() - 0.5) * 3 };
+  }
+  function buildRoamers() {
+    if (roamBuilt) return true;
+    let any = false;
+    Object.keys(CREW).forEach(function (name) {
+      let n = findCrowd(name);
+      if (!n) return;
+      any = true;
+      const c = CREW[name];
+      ROAM[name] = {
+        name: name, n: n, speed: 0.78 + Math.random() * 0.2,
+        target: null, wait: 1 + Math.random() * 5, talking: false, partner: null,
+        phase: Math.random() * 6.28,
+      };
+      /* 창작 마을로 불러 모은다 (도현은 이미 마을에 있음) */
+      if (name !== '도현') {
+        try {
+          n.root.position.set(c.home[0], 0, c.home[1]);
+          n.x = c.home[0]; n.z = c.home[1];
+          if (n.home) { n.home.x = c.home[0]; n.home.z = c.home[1]; }
+        } catch (e) {}
+      }
+      n.hidden = true;            /* crowdTick 의 경로 이동·자세 계산은 끄고 V168 이 직접 움직인다 */
+    });
+    roamBuilt = any;
+    return any;
+  }
+  function animateWalk(r, moving, dt) {
+    const n = r.n;
+    if (!n || !n.root) return;
+    if (moving) {
+      r.phase += dt * 7.6;
+      const sw = Math.sin(r.phase);
+      if (n.legs) {
+        n.legs[0].pivot.rotation.x = sw * 0.6;
+        n.legs[1].pivot.rotation.x = -sw * 0.6;
+        n.legs[0].knee.rotation.x = Math.max(0, -sw) * 0.5;
+        n.legs[1].knee.rotation.x = Math.max(0, sw) * 0.5;
+      }
+      if (n.body) n.body.position.y = Math.abs(Math.sin(r.phase)) * 0.06;
+    } else if (n.legs) {
+      n.legs[0].pivot.rotation.x *= 0.86;
+      n.legs[1].pivot.rotation.x *= 0.86;
+      n.legs[0].knee.rotation.x *= 0.86;
+      n.legs[1].knee.rotation.x *= 0.86;
+      if (n.body) n.body.position.y *= 0.8;
+    }
+  }
+  function updateRoam(dt) {
+    M.__roamTicks = (M.__roamTicks || 0) + 1;
+    if (M.__freeze) { Object.keys(ROAM).forEach(function (k) { animateWalk(ROAM[k], false, dt); }); return; }
+    const now = Date.now();
+    Object.keys(ROAM).forEach(function (k) {
+      const r = ROAM[k];
+      if (!r || !r.n || !r.n.root) return;
+      if (r.talking) return;
+      const rp = r.n.root.position;
+      if (!r.target) {
+        r.wait -= dt;
+        if (r.wait <= 0) { r.target = pickTarget(r.n); }
+        animateWalk(r, false, dt);
+        return;
+      }
+      const dx = r.target.x - rp.x, dz = r.target.z - rp.z;
+      const d = Math.hypot(dx, dz);
+      if (d < 0.35) {
+        r.target = null;
+        r.wait = 4 + Math.random() * 8;
+        animateWalk(r, false, dt);
+        return;
+      }
+      const sp = r.speed * dt;
+      rp.x += (dx / d) * sp;
+      rp.z += (dz / d) * sp;
+      r.n.root.rotation.y = Math.atan2(dx, dz);
+      animateWalk(r, true, dt);
+      r.n.x = rp.x; r.n.z = rp.z;
+    });
+    /* 마주치면 대화 시작 */
+    const names = Object.keys(ROAM);
+    for (let i = 0; i < names.length; i++) {
+      for (let j = i + 1; j < names.length; j++) {
+        const a = ROAM[names[i]], b = ROAM[names[j]];
+        if (!a || !b || a.talking || b.talking) continue;
+        const d = Math.hypot(a.n.root.position.x - b.n.root.position.x, a.n.root.position.z - b.n.root.position.z);
+        if (d < 2.7) { startTalk(a, b); return; }
+      }
+    }
+    /* 한동안 대화가 없으면 한 명이 다른 한 명에게 다가간다 */
+    if (now - (lastTalkAt || 0) > 22000 && now - (M.__meet || 0) > 15000) {
+      if (!anyTalking()) {
+        const a = ROAM[pick(names)], b = ROAM[pick(names)];
+        if (a && b && a !== b) {
+          b.target = { x: a.n.root.position.x + 1.1, z: a.n.root.position.z + 1.1 };
+          b.wait = 0;
+        }
+        M.__meet = now;
+      }
+    }
+  }
+  function anyTalking() {
+    return Object.keys(ROAM).some(function (k) { return ROAM[k] && ROAM[k].talking; });
+  }
+  let lastTalkAt = 0;
+  const TALK = [];
+
+  function startTalk(a, b) {
+    if (!a || !b || a.talking || b.talking) return;
+    a.talking = true; b.talking = true;
+    a.partner = b; b.partner = a;
+    a.target = null; b.target = null;
+    const A = a.n.root.position, B = b.n.root.position;
+    face(a.n, B.x, B.z); face(b.n, A.x, A.z);
+    const ra = CREW[a.name].role, rb = CREW[b.name].role;
+    const cands = DLG.filter(function (d) {
+      return d.pair.length === 0 || (d.pair.indexOf(ra) >= 0 && d.pair.indexOf(rb) >= 0 && d.pair.length === 2 && ra !== rb);
+    });
+    const dlg = pick(cands.length ? cands : DLG);
+    /* 대사 첫 줄을 말하는 역할이 앞에 오도록 두 사람의 순서를 맞춘다 */
+    if (dlg.pair.length === 2 && CREW[a.name].role !== dlg.pair[0] && CREW[b.name].role === dlg.pair[0]) {
+      const tmp = a; a = b; b = tmp;
+    }
+    const lastBuild = (D.log || [])[0] || { ko: '등불 누각', hz: '灯楼' };
+    const meme = pick(MEMES);
+    const fill = function (s) {
+      return String(s).replace(/\{kK\}/g, lastBuild.ko).replace(/\{k\}/g, lastBuild.hz)
+        .replace(/\{mQK\}/g, meme.qk).replace(/\{mQ\}/g, meme.q).replace(/\{mAK\}/g, meme.ak).replace(/\{mA\}/g, meme.a)
+        .replace(/\{mK\}/g, meme.ko).replace(/\{m\}/g, meme.hz);
+    };
+    const turns = dlg.lines.slice(0, 3).map(function (l, i) {
+      const who = i % 2 === 0 ? a : b;
+      return { who: who, hz: fill(l.hz), ko: fill(l.ko), n: who.n };
+    });
+    const sig = turns.map(function (t) { return t.who.name + ':' + t.hz; }).join('|');
+    const now = Date.now();
+    lastTalkAt = now;
+    M.__meet = 0;
+    D.lastConvoAt = now;
+    const convo = {
+      t: now, a: a.name, b: b.name, topic: dlg.pair.length ? 'build' : 'daily',
+      lines: turns.map(function (t) { return { who: t.who.name, hz: t.hz, ko: t.ko }; }),
+    };
+    (D.convos = D.convos || []).unshift(convo);
+    D.convos = D.convos.slice(0, 8);
+    pushJournal({
+      t: now, ic: '💬', kind: 'talk', who: a.name + '·' + b.name,
+      txt: '[창작 마을] ' + waGwa(a.name) + ' ' + iGa(b.name) + ' 3턴 대화 — “' + turns[0].hz + '” → “' + turns[1].hz + '” → “' + turns[2].hz + '”',
+      hz: turns.map(function (t) { return t.hz; }).join(' / '),
+      lines: convo.lines,
+    });
+    try { if (V16.simsData) V16.simsData.rep = clamp((V16.simsData.rep || 0) + 1, 0, 99999); } catch (e) {}
+    save();
+    /* 말풍선 3턴 */
+    const talk = { a: a, b: b, i: 0, turns: turns, nextAt: performance.now() + 500, endAt: 0 };
+    TALK.push(talk);
+    M.talkingNow = { a: a.name, b: b.name, lines: convo.lines };
+  }
+  function updateTalks() {
+    if (M.__freeze) return;
+    const now = performance.now();
+    for (let k = TALK.length - 1; k >= 0; k--) {
+      const t = TALK[k];
+      if (now >= t.nextAt && t.i < t.turns.length) {
+        const turn = t.turns[t.i];
+        const c = CREW[turn.who.name] || { color: '#8a5a2a' };
+        showBubble(turn.n.root, turn.hz, turn.ko, c.color, 4600, turn.who.name);
+        try { turn.n.head && (turn.n.head.rotation.y = 0); } catch (e) {}
+        t.i++;
+        t.nextAt = now + 3000;
+        if (t.i >= t.turns.length) t.endAt = now + 3600;
+      } else if (t.i >= t.turns.length && now >= t.endAt) {
+        hideBubble(t.a.n.root); hideBubble(t.b.n.root);
+        t.a.talking = false; t.b.talking = false;
+        t.a.partner = null; t.b.partner = null;
+        t.a.wait = 2 + Math.random() * 4; t.b.wait = 2 + Math.random() * 4;
+        t.a.target = null; t.b.target = null;
+        TALK.splice(k, 1);
+        if (!TALK.length) M.talkingNow = null;
+      }
+    }
+  }
+  function meet(x, y) {
+    if (!roamBuilt) buildRoamers();
+    const a = ROAM[x], b = ROAM[y];
+    if (!a || !b) return false;
+    try {
+      const t = a.n.root.position;
+      b.n.root.position.set(t.x + 1.5, 0, t.z + 0.6);
+      b.target = null;
+      face(a.n, b.n.root.position.x, b.n.root.position.z);
+      face(b.n, t.x, t.z);
+      startTalk(a, b);
+      return true;
+    } catch (e) { E('meet:' + e.message); return false; }
+  }
+
+  /* =================================================================
+     8) 학생(수강생) 자유의지 말풍선 — 일지의 새 수다를 3턴으로 재생
+     ================================================================= */
+  let lastJournalT = 0;
+  function watchJournal() {
+    try {
+      const j = V16.simsData && V16.simsData.journal;
+      if (!Array.isArray(j) || !j.length) return;
+      const ev = j[0];
+      if (!ev || ev.t === lastJournalT) return;
+      if (!lastJournalT) { lastJournalT = ev.t; return; }
+      lastJournalT = ev.t;
+      if (ev.kind !== 'talk' || !ev.lines || ev.lines.length < 2) return;
+      const names = ['수연', '해리', '보화', '예솔', '안우바리', '안소미'];
+      if (names.indexOf(ev.lines[0].who) < 0) return;
+      const avOf = function (nm) {
+        for (let i = 0; i < npcs.length; i++) {
+          const n = npcs[i];
+          if (n && n.avatar && n.avatar.name === nm && n.avatar.say && n.avatar.root) return n.avatar;
+        }
+        return null;
+      };
+      const A = avOf(ev.lines[0].who), B = avOf(ev.lines[1].who);
+      if (!A || !B) return;
+      const pA = (V16.sims && V16.sims.personOf) ? V16.sims.personOf(ev.lines[0].who) : null;
+      const pB = (V16.sims && V16.sims.personOf) ? V16.sims.personOf(ev.lines[1].who) : null;
+      const third = (pB && pB.line) ? pB.line : { hz: '我们一起加油吧。', ko: '우리 같이 힘내요.' };
+      const seq = [
+        { n: A, hz: ev.lines[0].hz, ko: ev.lines[0].ko },
+        { n: B, hz: ev.lines[1].hz, ko: ev.lines[1].ko },
+        { n: A, hz: third.hz, ko: third.ko },
+      ];
+      STUTALK.push({ i: 0, seq: seq, nextAt: performance.now() + 500, endAt: 0 });
+    } catch (e) { E('journal:' + e.message); }
+  }
+  const STUTALK = [];
+  function updateStuTalks() {
+    const now = performance.now();
+    for (let k = STUTALK.length - 1; k >= 0; k--) {
+      const t = STUTALK[k];
+      if (now >= t.nextAt && t.i < t.seq.length) {
+        const s = t.seq[t.i];
+        showBubble(s.n.root, s.hz, s.ko, '#6b7a4a', 3000, s.n.name);
+        t.i++;
+        t.nextAt = now + 2500;
+        if (t.i >= t.seq.length) t.endAt = now + 3200;
+      } else if (t.i >= t.seq.length && now >= t.endAt) {
+        t.seq.forEach(function (s) { hideBubble(s.n.root); });
+        STUTALK.splice(k, 1);
+      }
+    }
+  }
+  function stuMeet(x, y) {
+    try {
+      const avOf = function (nm) {
+        for (let i = 0; i < npcs.length; i++) {
+          const n = npcs[i];
+          if (n && n.avatar && n.avatar.name === nm && n.avatar.root) return n.avatar;
+        }
+        return null;
+      };
+      const A = avOf(x), B = avOf(y);
+      const p = V16.sims && V16.sims.personOf;
+      const third = (p && p(y) && p(y).line) ? p(y).line : { hz: '我们一起加油吧。', ko: '우리 같이 힘내요.' };
+      if (!A || !B) return false;
+      STUTALK.push({ i: 0, seq: [
+        { n: A, hz: '你今天复习了吗？', ko: '오늘 복습했어?' },
+        { n: B, hz: '复习了，背了三十个词。', ko: '했지, 단어 30개 외웠어.' },
+        { n: A, hz: third.hz, ko: third.ko },
+      ], nextAt: performance.now() + 400, endAt: 0 });
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* =================================================================
+     9) UI — 자율 창작 탭에 자동 신축 섹션
+     ================================================================= */
+  function css() {
+    if (document.getElementById('v168css')) return;
+    const st = document.createElement('style');
+    st.id = 'v168css';
+    st.textContent = [
+      '.v168-box{margin-top:8px;border-radius:14px;padding:9px 10px;background:linear-gradient(150deg,#f4f8ff,#e9eefb);border:1px solid rgba(72,110,180,.25)}',
+      '.v168-box .hd{display:flex;align-items:center;justify-content:space-between;gap:8px}',
+      '.v168-box .hd b{font-size:11.5px;color:#2f4a7a}',
+      '.v168-box .hd span{font-size:9px;font-weight:900;color:#5a6a8a}',
+      '.v168-box .now{margin-top:5px;font-size:10px;color:#4a5a7a;font-weight:700}',
+      '.v168-bar{height:6px;border-radius:99px;background:rgba(72,110,180,.16);overflow:hidden;margin-top:4px}',
+      '.v168-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#7fa6e8,#3a5a9a)}',
+      '.v168-list{display:flex;flex-direction:column;gap:4px;margin-top:6px}',
+      '.v168-item{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:10px;background:rgba(255,255,255,.8);border:1px solid rgba(72,110,180,.16)}',
+      '.v168-item .ic{font-size:13px;flex:0 0 auto}',
+      '.v168-item .tx{flex:1;min-width:0}',
+      '.v168-item b{display:block;font-size:10.5px;color:#2d2620;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.v168-item small{display:block;font-size:8.5px;color:#8a7a63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.v168-item button{flex:0 0 auto;font-size:9px;font-weight:800;padding:4px 6px;border-radius:8px;border:1px solid rgba(72,110,180,.3);background:#eef4ff;color:#2f4a7a}',
+      '.v168-note{margin-top:5px;font-size:8.5px;color:#7a86a0;line-height:1.45}',
+      '@media (max-width:380px){.v168-box .hd b{font-size:10.5px}.v168-item b{font-size:10px}}',
+    ].join('\n');
+    document.head.appendChild(st);
+  }
+  function minsLeft() {
+    const a = active();
+    if (!a) return 0;
+    return Math.max(0, Math.ceil((a.start + BUILD_MS - Date.now()) / 60000));
+  }
+  function sectionHTML() {
+    try {
+      css();
+      const a = active();
+      const done = doneLots().sort(function (x, y) { return y.done - x.done; });
+      const p = a ? clamp((Date.now() - a.start) / BUILD_MS, 0, 1) : 1;
+      const t = a ? tplOf(a) : null;
+      let h = '<div class="v168-box"><div class="hd"><b>🏗️ 도현의 자동 신축</b><span>누적 ' + (D.total || done.length) + '채 · 마을 ' + done.length + '채</span></div>';
+      if (a) {
+        h += '<div class="now">🔨 ' + t.ko + ' (' + t.hz + ') · ' + Math.round(p * 100) + '% · 약 ' + minsLeft() + '분 뒤 완공</div>' +
+          '<div class="v168-bar"><i style="width:' + Math.round(p * 100) + '%"></i></div>';
+      } else {
+        h += '<div class="now">새 부지를 고르는 중이에요…</div><div class="v168-bar"><i style="width:8%"></i></div>';
+      }
+      h += '<div class="v168-list">';
+      done.slice(0, 3).forEach(function (l) {
+        const tt = tplOf(l);
+        h += '<div class="v168-item"><span class="ic">🏯</span><div class="tx"><b>' + tt.ko + ' <span style="font-size:8.5px;color:#8a6a3a">' + tt.hz + '</span></b>' +
+          '<small>' + ago(l.done) + ' 완공 · 창작 마을 외곽</small></div>' +
+          '<button data-v168go="' + l.i + '">📍 가기</button><button data-v168learn="' + l.i + '">📖</button></div>';
+      });
+      if (!done.length) h += '<div class="v168-item"><span class="ic">🪧</span><div class="tx"><b>아직 지은 건물이 없어요</b><small>도현이 곧 첫 삽을 떠요</small></div></div>';
+      h += '</div><div class="v168-note">플레이 중 4~5분마다 한 채 · 자리를 비우면 2시간마다 1채(최대 4채) · 완공 건물을 누르면 중국어 표현과 보상</div></div>';
+      return h;
+    } catch (e) { E('section:' + e.message); return ''; }
+  }
+  function ago(t) {
+    const s = Math.max(0, (Date.now() - (t || 0)) / 1000);
+    if (s < 60) return '방금';
+    if (s < 3600) return Math.round(s / 60) + '분 전';
+    if (s < 86400) return Math.round(s / 3600) + '시간 전';
+    return Math.round(s / 86400) + '일 전';
+  }
+  function bindSection(root) {
+    if (!root) return;
+    root.querySelectorAll('[data-v168go]').forEach(function (b) {
+      b.onclick = function () {
+        const lot = D.lots.filter(function (l) { return l.i === Number(b.getAttribute('data-v168go')); })[0];
+        if (lot) warpTo(lot);
+      };
+    });
+    root.querySelectorAll('[data-v168learn]').forEach(function (b) {
+      b.onclick = function () { openLot(Number(b.getAttribute('data-v168learn'))); };
+    });
+  }
+  function hookPanel() {
+    try {
+      if (!window.V166 || !V166.panelHTML || V166.panelHTML.__v168) return;
+      const orig = V166.panelHTML;
+      const fn = function () {
+        const h = orig.apply(null, arguments);
+        try {
+          if (typeof h === 'string' && h.indexOf('data-v166tab="arch" class="on"') >= 0) return h + sectionHTML();
+        } catch (e) {}
+        return h;
+      };
+      fn.__v168 = true;
+      V166.panelHTML = fn;
+      const oldBind = V166.bindPanel;
+      if (oldBind && !oldBind.__v168) {
+        const bf = function (root) {
+          try { oldBind(root); } catch (e) {}
+          try { bindSection(root); } catch (e) {}
+        };
+        bf.__v168 = true;
+        V166.bindPanel = bf;
+      }
+    } catch (e) { E('hookPanel:' + e.message); }
+  }
+  /* 탭을 바꿔 다시 그려도(내부 panelHTML 직접 호출) 섹션이 사라지지 않게 */
+  function observePanel() {
+    try {
+      const body = document.getElementById('v163Body');
+      if (!body) { setTimeout(observePanel, 1600); return; }
+      const inject = function () {
+        try {
+          const onb = body.querySelector('[data-v166tab="arch"].on');
+          if (!onb || body.querySelector('.v168-box')) return;
+          const div = document.createElement('div');
+          div.innerHTML = sectionHTML();
+          while (div.firstChild) body.appendChild(div.firstChild);
+          bindSection(body);
+        } catch (e) {}
+      };
+      const mo = new MutationObserver(function () { inject(); });
+      mo.observe(body, { childList: true });
+      inject();
+    } catch (e) { E('observe:' + e.message); }
+  }
+
+  /* =================================================================
+     10) 부팅 · 주기 실행
+     ================================================================= */
+  let booted = false;
+  function boot() {
+    if (booted) return;
+    booted = true;
+    load();
+    seed();
+    /* 오프라인 경과 반영 */
+    try {
+      const gap = Date.now() - (D.lastSeen || Date.now());
+      if (gap > 5 * 60000) {
+        const made = advanceTo(Date.now(), true);
+        if (made) {
+          pushJournal({ t: Date.now(), ic: '🏗️', kind: 'build', who: '도현', txt: '[자동 신축] 자리를 비운 사이 ' + made + '채를 더 지었어요 (2시간당 1채)' });
+        }
+      }
+    } catch (e) { E('catch:' + e.message); }
+    /* 지금 공사 중인 게 없으면 바로 착공 */
+    try { if (!active()) { startLot(Date.now()); } } catch (e) {}
+    save();
+    try { hookPanel(); } catch (e) {}
+    try { observePanel(); } catch (e) {}
+    if (!buildAll()) {
+      let tries = 0;
+      const t = setInterval(function () {
+        tries++;
+        try { if (buildAll() || tries > 30) clearInterval(t); } catch (e) { if (tries > 30) clearInterval(t); }
+      }, 900);
+    }
+    try { markSolids(); } catch (e) {}
+    try { buildRoamers(); } catch (e) { E('roam:' + e.message); }
+    setInterval(function () { try { if (!buildRoamers()) return; } catch (e) {} }, 4000);
+    /* 학생 말풍선은 일지에서 새 수다를 감시 */
+    setTimeout(function () { try { const j = V16.simsData && V16.simsData.journal; if (j && j[0]) lastJournalT = j[0].t; } catch (e) {} }, 1500);
+    setInterval(function () { try { watchJournal(); } catch (e) {} }, 2000);
+    /* 5초마다 진행 */
+    setInterval(function () {
+      try {
+        if (document.hidden) return;
+        const a = active();
+        if (a && Date.now() >= a.start + BUILD_MS) {
+          completeLot(a, a.start + BUILD_MS);
+        } else if (a) {
+          repaintProgress();
+        }
+        if (!active()) startLot(Date.now());
+        /* 완공 건물 근처에서 도현이 한마디 */
+        save();
+      } catch (e) { E('tick:' + e.message); }
+    }, 5000);
+    setInterval(function () { try { if (document.getElementById('v163Body') && document.getElementById('v163SimsModal') && document.getElementById('v163SimsModal').classList.contains('show')) { const b = document.querySelector('[data-v166tab].on'); if (b && b.getAttribute('data-v166tab') === 'arch') { const body = document.getElementById('v163Body'); const sh = body.closest('.v163-sheet'); const sc = sh ? sh.scrollTop : 0; body.innerHTML = V166.panelHTML(); V166.bindPanel(body); if (sh) sh.scrollTop = sc; } } } catch (e) {} }, 9000);
+    document.addEventListener('visibilitychange', function () {
+      try { if (document.hidden) { D.lastSeen = Date.now(); save(); } else { advanceTo(Date.now(), true); } } catch (e) {}
+    });
+    window.addEventListener('pagehide', function () { save(); });
+    /* 매 프레임 — 산책 · 말풍선 · 빌보드 */
+    try {
+      const prev = V14.extraTick;
+      const hook = function (dt, t) {
+        try { if (prev) prev(dt, t); } catch (e) {}
+        try { updateRoam(dt); } catch (e) {}
+        try { updateTalks(); } catch (e) {}
+        try { updateStuTalks(); } catch (e) {}
+        try { tickBubbles(); } catch (e) {}
+      };
+      V14.extraTick = hook;
+    } catch (e) { E('tickhook:' + e.message); }
+    M.ready = true;
+    save();
+  }
+  setTimeout(boot, 3000);
+
+  /* =================================================================
+     11) 공개 API (테스트 · 진단)
+     ================================================================= */
+  M.slots = SLOTS;
+  M.tpl = TPL;
+  M.state = function () {
+    const a = active();
+    return {
+      version: M.version,
+      lots: D.lots.map(function (l) { return { i: l.i, slot: l.slot, tpl: l.tpl, ko: tplOf(l).ko, hz: tplOf(l).hz, done: l.done, pct: l.done ? 100 : Math.round(clamp((Date.now() - l.start) / BUILD_MS, 0, 1) * 100) }; }),
+      done: doneLots().length,
+      total: Math.max(D.total || 0, doneLots().length),
+      active: a ? { i: a.i, tpl: a.tpl, pct: Math.round(clamp((Date.now() - a.start) / BUILD_MS, 0, 1) * 100), leftSec: Math.max(0, Math.round((a.start + BUILD_MS - Date.now()) / 1000)) } : null,
+      roamers: Object.keys(ROAM).map(function (k) { const r = ROAM[k]; return { name: k, x: Math.round(r.n.root.position.x), z: Math.round(r.n.root.position.z), talking: r.talking }; }),
+      talking: M.talkingNow,
+      convos: (D.convos || []).length,
+      log: (D.log || []).slice(0, 5),
+      errors: M.errors.slice(0, 8),
+    };
+  };
+  M.boost = function (sec) {
+    const a = active();
+    if (!a) return null;
+    a.start -= (sec || 300) * 1000;
+    save();
+    if (Date.now() >= a.start + BUILD_MS) {
+      completeLot(a, Date.now());
+      if (!active()) startLot(Date.now());
+    }
+    return M.state();
+  };
+  M.simOffline = function (hours) {
+    const now = Date.now();
+    D.lastSeen = now - Math.max(0, hours || 0) * 3600e3;
+    /* 자리를 비우기 직전에 착공한 건물은 그 시점부터 짓고 있었다고 본다 */
+    try { const a = active(); if (a && a.start > D.lastSeen) a.start = D.lastSeen; } catch (e) {}
+    const made = advanceTo(now, true);
+    save();
+    return { made: made, state: M.state() };
+  };
+  M.meet = meet;
+  /* 테스트·캡처용 — 두 사람 말풍선을 동시에 띄운다 */
+  M.testFreeze = function () {
+    try {
+      M.__freeze = true;
+      TALK.forEach(function (t) { try { hideBubble(t.a.n.root); hideBubble(t.b.n.root); } catch (e) {} t.a.talking = false; t.b.talking = false; t.a.partner = null; t.b.partner = null; });
+      TALK.length = 0;
+      Object.keys(ROAM).forEach(function (k) { ROAM[k].talking = false; ROAM[k].wait = 99; ROAM[k].target = null; });
+      M.talkingNow = null;
+      return true;
+    } catch (e) { return false; }
+  };
+  M.testBubbles = function (aName, bName, hzA, koA, hzB, koB) {
+    try {
+      const a = ROAM[aName || '도현'], b = ROAM[bName || '세아'];
+      if (!a || !b) return false;
+      showBubble(a.n.root, hzA || '你看那边新盖的饺子铺，屋顶是我调的弧度。', koA || '저기 새로 지은 만두 가게 봐, 지붕 곡선은 내가 잡았어.', CREW[a.name].color, 60000, a.name);
+      showBubble(b.n.root, hzB || '比照片好看多了，灯一亮更美。', koB || '사진보다 훨씬 예뻐, 불 켜지면 더 좋겠다.', CREW[b.name].color, 60000, b.name);
+      return true;
+    } catch (e) { E('testBubbles:' + e.message); return false; }
+  };
+  M.testStage = function (aName, bName, x, z) {
+    try {
+      if (!roamBuilt) buildRoamers();
+      const a = ROAM[aName || '도현'], b = ROAM[bName || '세아'];
+      if (!a || !b) return null;
+      a.n.root.position.set(x, 0, z);
+      b.n.root.position.set(x + 2.2, 0, z + 0.3);
+      a.target = null; b.target = null; a.wait = 99; b.wait = 99;
+      face(a.n, b.n.root.position.x, b.n.root.position.z);
+      face(b.n, x, z);
+      startTalk(a, b);
+      if (THREE && typeof Cam !== 'undefined' && Cam) {
+        const md = (typeof innerWidth !== 'undefined' && innerWidth < 700) ? 10.5 : 4.8;
+        const cy2 = (typeof innerWidth !== 'undefined' && innerWidth < 700) ? 2.5 : 1.95;
+        const cx2 = x + 1.1;
+        Cam.lock = { pos: new THREE.Vector3(cx2, cy2, z - md), look: new THREE.Vector3(cx2, 1.7, z) };
+        try {
+          camera.position.set(cx2, cy2, z - md);
+          Cam.look.set(cx2, 1.7, z);
+          try { if (typeof playerAvatar !== 'undefined' && playerAvatar && playerAvatar.root) playerAvatar.root.visible = false; } catch (e) {}
+          ['#talkBar', '#cafeBar', '#ktvBar', '#bookBar'].forEach(function (sel) { const el = document.querySelector(sel); if (el) el.style.display = 'none'; });
+          if (!document.getElementById('v168shotcss')) {
+            const st = document.createElement('style'); st.id = 'v168shotcss';
+            st.textContent = '#feedFloat,#ktvBar,#cafeBar,#bookBar,#talkBar{display:none !important}';
+            document.head.appendChild(st);
+          }
+          Object.keys(ROAM).forEach(function (k) { if (k !== (aName || '도현') && k !== (bName || '세아')) { ROAM[k].n.root.visible = false; ROAM[k].n.root.position.set(x - 16, 0, z - 6); } });
+          camera.lookAt(Cam.look);
+        } catch (e) {}
+      }
+      return M.state().talking;
+    } catch (e) { E('stage:' + e.message); return null; }
+  };
+  M.testCam = function (px, py, pz, lx, ly, lz) {
+    try {
+      Cam.lock = { pos: new THREE.Vector3(px, py, pz), look: new THREE.Vector3(lx, ly, lz) };
+      camera.position.set(px, py, pz);
+      Cam.look.set(lx, ly, lz);
+      camera.lookAt(Cam.look);
+      return true;
+    } catch (e) { return false; }
+  };
+  M.testUnlock = function () { try { Cam.lock = null; return true; } catch (e) { return false; } };
+  M._roam = ROAM;
+  M.ensureRoam = function () { return buildRoamers(); };
+  M._talk = TALK;
+  M.step = function (dt) { updateRoam(dt || 0.05); updateTalks(); updateStuTalks(); };
+  M.hookInfo = function () { return { ticks: M.__roamTicks || 0, hook: String(V14.extraTick).slice(0, 80) }; };
+  M.stuMeet = stuMeet;
+  M.openLot = openLot;
+  M.repaint = function () { D.lots.forEach(paintLot); };
+})();
+</script>
+<!--V168-END-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--V169-START-->
+<script id="v169ktv">
+/* =====================================================================
+   v16.8 KTV-KO — 🇰🇷 노래방 한국어 곡 5종 (원곡 없는 학원 창작곡)
+   ---------------------------------------------------------------------
+   · 중국어 곡 목록에 '한국어' 카테고리를 더한다
+   · Web Audio 반주(멜로디·화음·베이스·드럼) + 박자에 맞춘 한국어 가사 하이라이트
+   · 가사마다 학원 테마 중국어 표현 한 줄 팁 (🇨🇳)
+   · 🔊 한국어 가사 버튼 → ko-KR TTS 로 현재 줄을 읽어 준다
+   · 외부 음원·유료 API 0원
+   ===================================================================== */
+(function () {
+  if (typeof KTV_SONGS === 'undefined' || typeof Ktv === 'undefined') return;
+  const SONGS = [{"id":"rtac","title":"리얼 학원가","artist":"한국어 · 학원 창작곡","key":"C","bpm":104,"beats":32.0,"melody":[{"b":0,"d":0.45,"m":60},{"b":0.5,"d":0.45,"m":64},{"b":1.0,"d":0.45,"m":67},{"b":1.5,"d":0.45,"m":64},{"b":2.0,"d":0.45,"m":60},{"b":2.5,"d":0.45,"m":67},{"b":3.0,"d":0.45,"m":64},{"b":3.5,"d":0.95,"m":72},{"b":4,"d":0.45,"m":69},{"b":4.5,"d":0.45,"m":72},{"b":5.0,"d":0.45,"m":76},{"b":5.5,"d":0.45,"m":72},{"b":6.0,"d":0.45,"m":69},{"b":6.5,"d":0.45,"m":76},{"b":7.0,"d":0.45,"m":72},{"b":7.5,"d":0.95,"m":81},{"b":8,"d":0.45,"m":65},{"b":8.5,"d":0.45,"m":69},{"b":9.0,"d":0.45,"m":72},{"b":9.5,"d":0.45,"m":69},{"b":10.0,"d":0.45,"m":65},{"b":10.5,"d":0.45,"m":72},{"b":11.0,"d":0.45,"m":69},{"b":11.5,"d":0.95,"m":77},{"b":12,"d":0.45,"m":67},{"b":12.5,"d":0.45,"m":71},{"b":13.0,"d":0.45,"m":74},{"b":13.5,"d":0.45,"m":71},{"b":14.0,"d":0.45,"m":67},{"b":14.5,"d":0.45,"m":74},{"b":15.0,"d":0.45,"m":71},{"b":15.5,"d":0.95,"m":79},{"b":16,"d":0.45,"m":60},{"b":16.5,"d":0.45,"m":64},{"b":17.0,"d":0.45,"m":67},{"b":17.5,"d":0.45,"m":64},{"b":18.0,"d":0.45,"m":60},{"b":18.5,"d":0.45,"m":67},{"b":19.0,"d":0.45,"m":64},{"b":19.5,"d":0.95,"m":72},{"b":20,"d":0.45,"m":69},{"b":20.5,"d":0.45,"m":72},{"b":21.0,"d":0.45,"m":76},{"b":21.5,"d":0.45,"m":72},{"b":22.0,"d":0.45,"m":69},{"b":22.5,"d":0.45,"m":76},{"b":23.0,"d":0.45,"m":72},{"b":23.5,"d":0.95,"m":81},{"b":24,"d":0.45,"m":62},{"b":24.5,"d":0.45,"m":65},{"b":25.0,"d":0.45,"m":69},{"b":25.5,"d":0.45,"m":65},{"b":26.0,"d":0.45,"m":62},{"b":26.5,"d":0.45,"m":69},{"b":27.0,"d":0.45,"m":65},{"b":27.5,"d":0.95,"m":74},{"b":28,"d":0.45,"m":67},{"b":28.5,"d":0.45,"m":71},{"b":29.0,"d":0.45,"m":74},{"b":29.5,"d":0.45,"m":71},{"b":30.0,"d":0.45,"m":67},{"b":30.5,"d":0.45,"m":74},{"b":31.0,"d":0.45,"m":71},{"b":31.5,"d":0.95,"m":79}],"chords":[{"n":"C","b":0,"d":4},{"n":"Am","b":4,"d":4},{"n":"F","b":8,"d":4},{"n":"G","b":12,"d":4},{"n":"C","b":16,"d":4},{"n":"Am","b":20,"d":4},{"n":"Dm","b":24,"d":4},{"n":"G","b":28,"d":4}],"lines":[{"b":0.0,"d":4.0,"hz":"아침 햇살 창가에 앉아","py":"","ko":"좋은 아침, 오늘도 같이 힘내요!","ctip":"早上好，今天也一起加油！","cko":"좋은 아침, 오늘도 같이 힘내요!"},{"b":4.0,"d":4.0,"hz":"오늘도 한 문장 외워 봐","py":"","ko":"오늘은 중국어 한 문장 배워요.","ctip":"今天我们学一句中文吧。","cko":"오늘은 중국어 한 문장 배워요."},{"b":8.0,"d":4.0,"hz":"발음이 조금 어려워도","py":"","ko":"발음이 조금 어려워도 괜찮아요.","ctip":"发音有点难，但没关系。","cko":"발음이 조금 어려워도 괜찮아요."},{"b":12.0,"d":4.0,"hz":"천천히 따라 하면 돼","py":"","ko":"천천히 하면 잘 말할 수 있어요.","ctip":"慢慢说，你会说得很好。","cko":"천천히 하면 잘 말할 수 있어요."},{"b":16.0,"d":4.0,"hz":"선생님 목소리 따라","py":"","ko":"한 번만 더 들려주세요.","ctip":"请再听一遍，好吗？","cko":"한 번만 더 들려주세요."},{"b":20.0,"d":4.0,"hz":"네 글자씩 또박또박","py":"","ko":"한 글자씩 또박또박 말해요.","ctip":"一个字一个字地说。","cko":"한 글자씩 또박또박 말해요."},{"b":24.0,"d":4.0,"hz":"웃으면서 인사해요","py":"","ko":"만나서 반가워요!","ctip":"很高兴认识你！","cko":"만나서 반가워요!"},{"b":28.0,"d":4.0,"hz":"우리 모두 함께 외쳐","py":"","ko":"힘내요, 우리 같이 노력해요!","ctip":"加油，我们一起努力！","cko":"힘내요, 우리 같이 노력해요!"}],"tip":"한국어 · 중국어 표현 팁","lang":"ko","ko":1},{"id":"seongsu","title":"성수 겨울 산책","artist":"한국어 · 겨울 창작곡","key":"F","bpm":92,"beats":32.0,"melody":[{"b":0,"d":0.45,"m":72},{"b":0.5,"d":0.45,"m":69},{"b":1.0,"d":0.45,"m":72},{"b":1.5,"d":0.45,"m":65},{"b":2.0,"d":0.45,"m":69},{"b":2.5,"d":0.45,"m":72},{"b":3.0,"d":0.45,"m":69},{"b":3.5,"d":0.95,"m":65},{"b":4,"d":0.45,"m":69},{"b":4.5,"d":0.45,"m":65},{"b":5.0,"d":0.45,"m":69},{"b":5.5,"d":0.45,"m":62},{"b":6.0,"d":0.45,"m":65},{"b":6.5,"d":0.45,"m":69},{"b":7.0,"d":0.45,"m":65},{"b":7.5,"d":0.95,"m":62},{"b":8,"d":0.45,"m":74},{"b":8.5,"d":0.45,"m":71},{"b":9.0,"d":0.45,"m":74},{"b":9.5,"d":0.45,"m":67},{"b":10.0,"d":0.45,"m":71},{"b":10.5,"d":0.45,"m":74},{"b":11.0,"d":0.45,"m":71},{"b":11.5,"d":0.95,"m":67},{"b":12,"d":0.45,"m":67},{"b":12.5,"d":0.45,"m":64},{"b":13.0,"d":0.45,"m":67},{"b":13.5,"d":0.45,"m":60},{"b":14.0,"d":0.45,"m":64},{"b":14.5,"d":0.45,"m":67},{"b":15.0,"d":0.45,"m":64},{"b":15.5,"d":0.95,"m":60},{"b":16,"d":0.45,"m":72},{"b":16.5,"d":0.45,"m":69},{"b":17.0,"d":0.45,"m":72},{"b":17.5,"d":0.45,"m":65},{"b":18.0,"d":0.45,"m":69},{"b":18.5,"d":0.45,"m":72},{"b":19.0,"d":0.45,"m":69},{"b":19.5,"d":0.95,"m":65},{"b":20,"d":0.45,"m":69},{"b":20.5,"d":0.45,"m":65},{"b":21.0,"d":0.45,"m":69},{"b":21.5,"d":0.45,"m":62},{"b":22.0,"d":0.45,"m":65},{"b":22.5,"d":0.45,"m":69},{"b":23.0,"d":0.45,"m":65},{"b":23.5,"d":0.95,"m":62},{"b":24,"d":0.45,"m":74},{"b":24.5,"d":0.45,"m":71},{"b":25.0,"d":0.45,"m":74},{"b":25.5,"d":0.45,"m":67},{"b":26.0,"d":0.45,"m":71},{"b":26.5,"d":0.45,"m":74},{"b":27.0,"d":0.45,"m":71},{"b":27.5,"d":0.95,"m":67},{"b":28,"d":0.45,"m":67},{"b":28.5,"d":0.45,"m":64},{"b":29.0,"d":0.45,"m":67},{"b":29.5,"d":0.45,"m":60},{"b":30.0,"d":0.45,"m":64},{"b":30.5,"d":0.45,"m":67},{"b":31.0,"d":0.45,"m":64},{"b":31.5,"d":0.95,"m":60}],"chords":[{"n":"F","b":0,"d":4},{"n":"Dm","b":4,"d":4},{"n":"G","b":8,"d":4},{"n":"C","b":12,"d":4},{"n":"F","b":16,"d":4},{"n":"Dm","b":20,"d":4},{"n":"G","b":24,"d":4},{"n":"C","b":28,"d":4}],"lines":[{"b":0.0,"d":4.0,"hz":"골목 끝에 불빛이 켜지면","py":"","ko":"이 골목은 밤에 예뻐요.","ctip":"这条巷子晚上很美。","cko":"이 골목은 밤에 예뻐요."},{"b":4.0,"d":4.0,"hz":"탕후루 노점 앞에 서서","py":"","ko":"탕후루 한 꼬치 주세요!","ctip":"来一串糖葫芦！","cko":"탕후루 한 꼬치 주세요!"},{"b":8.0,"d":4.0,"hz":"눈사람 앞에서 한 장","py":"","ko":"여기서 사진 찍어도 돼요?","ctip":"可以在这里拍照吗？","cko":"여기서 사진 찍어도 돼요?"},{"b":12.0,"d":4.0,"hz":"군고구마 손에 쥐고","py":"","ko":"군고구마가 손을 따뜻하게 해요.","ctip":"烤红薯让手暖和起来。","cko":"군고구마가 손을 따뜻하게 해요."},{"b":16.0,"d":4.0,"hz":"팝업 스토어 줄을 서서","py":"","ko":"얼마나 기다려야 해요?","ctip":"要等多久？","cko":"얼마나 기다려야 해요?"},{"b":20.0,"d":4.0,"hz":"친구에게 사진 보내며","py":"","ko":"이거 샤오홍슈에 올려도 돼요?","ctip":"这个可以发到小红书吗？","cko":"이거 샤오홍슈에 올려도 돼요?"},{"b":24.0,"d":4.0,"hz":"겨울 바람이 불어와도","py":"","ko":"바람이 세니 감기 조심하세요.","ctip":"风大，小心感冒。","cko":"바람이 세니 감기 조심하세요."},{"b":28.0,"d":4.0,"hz":"우리 둘은 웃고 있어","py":"","ko":"오늘 정말 즐거웠어요.","ctip":"今天真的很开心。","cko":"오늘 정말 즐거웠어요."}],"tip":"한국어 · 중국어 표현 팁","lang":"ko","ko":1},{"id":"hangang","title":"한강 야경","artist":"한국어 · 밤 창작곡","key":"G","bpm":84,"beats":32.0,"melody":[{"b":0,"d":0.45,"m":74},{"b":0.5,"d":0.45,"m":71},{"b":1.0,"d":0.45,"m":67},{"b":1.5,"d":0.45,"m":74},{"b":2.0,"d":0.45,"m":71},{"b":2.5,"d":0.45,"m":79},{"b":3.0,"d":0.45,"m":67},{"b":3.5,"d":0.95,"m":71},{"b":4,"d":0.45,"m":71},{"b":4.5,"d":0.45,"m":67},{"b":5.0,"d":0.45,"m":64},{"b":5.5,"d":0.45,"m":71},{"b":6.0,"d":0.45,"m":67},{"b":6.5,"d":0.45,"m":76},{"b":7.0,"d":0.45,"m":64},{"b":7.5,"d":0.95,"m":67},{"b":8,"d":0.45,"m":67},{"b":8.5,"d":0.45,"m":64},{"b":9.0,"d":0.45,"m":60},{"b":9.5,"d":0.45,"m":67},{"b":10.0,"d":0.45,"m":64},{"b":10.5,"d":0.45,"m":72},{"b":11.0,"d":0.45,"m":60},{"b":11.5,"d":0.95,"m":64},{"b":12,"d":0.45,"m":69},{"b":12.5,"d":0.45,"m":66},{"b":13.0,"d":0.45,"m":62},{"b":13.5,"d":0.45,"m":69},{"b":14.0,"d":0.45,"m":66},{"b":14.5,"d":0.45,"m":74},{"b":15.0,"d":0.45,"m":62},{"b":15.5,"d":0.95,"m":66},{"b":16,"d":0.45,"m":74},{"b":16.5,"d":0.45,"m":71},{"b":17.0,"d":0.45,"m":67},{"b":17.5,"d":0.45,"m":74},{"b":18.0,"d":0.45,"m":71},{"b":18.5,"d":0.45,"m":79},{"b":19.0,"d":0.45,"m":67},{"b":19.5,"d":0.95,"m":71},{"b":20,"d":0.45,"m":71},{"b":20.5,"d":0.45,"m":67},{"b":21.0,"d":0.45,"m":64},{"b":21.5,"d":0.45,"m":71},{"b":22.0,"d":0.45,"m":67},{"b":22.5,"d":0.45,"m":76},{"b":23.0,"d":0.45,"m":64},{"b":23.5,"d":0.95,"m":67},{"b":24,"d":0.45,"m":76},{"b":24.5,"d":0.45,"m":72},{"b":25.0,"d":0.45,"m":69},{"b":25.5,"d":0.45,"m":76},{"b":26.0,"d":0.45,"m":72},{"b":26.5,"d":0.45,"m":81},{"b":27.0,"d":0.45,"m":69},{"b":27.5,"d":0.95,"m":72},{"b":28,"d":0.45,"m":69},{"b":28.5,"d":0.45,"m":66},{"b":29.0,"d":0.45,"m":62},{"b":29.5,"d":0.45,"m":69},{"b":30.0,"d":0.45,"m":66},{"b":30.5,"d":0.45,"m":74},{"b":31.0,"d":0.45,"m":62},{"b":31.5,"d":0.95,"m":66}],"chords":[{"n":"G","b":0,"d":4},{"n":"Em","b":4,"d":4},{"n":"C","b":8,"d":4},{"n":"D","b":12,"d":4},{"n":"G","b":16,"d":4},{"n":"Em","b":20,"d":4},{"n":"Am","b":24,"d":4},{"n":"D","b":28,"d":4}],"lines":[{"b":0.0,"d":4.0,"hz":"다리 위로 바람이 불어","py":"","ko":"다리에서 보는 한강이 제일 예뻐요.","ctip":"从桥上看汉江最美。","cko":"다리에서 보는 한강이 제일 예뻐요."},{"b":4.0,"d":4.0,"hz":"물빛 위로 등불이 번져","py":"","ko":"강물에 불빛이 반짝여요.","ctip":"灯光在江面上闪烁。","cko":"강물에 불빛이 반짝여요."},{"b":8.0,"d":4.0,"hz":"자전거 바퀴 돌아가고","py":"","ko":"자전거를 빌릴 수 있어요?","ctip":"可以借自行车吗？","cko":"자전거를 빌릴 수 있어요?"},{"b":12.0,"d":4.0,"hz":"멀리 도시가 잠들어 가","py":"","ko":"도시의 밤이 정말 아름다워요.","ctip":"城市的夜晚真美。","cko":"도시의 밤이 정말 아름다워요."},{"b":16.0,"d":4.0,"hz":"따뜻한 차 한 잔 나누며","py":"","ko":"따뜻한 차 한 잔 할래요?","ctip":"要喝一杯热茶吗？","cko":"따뜻한 차 한 잔 할래요?"},{"b":20.0,"d":4.0,"hz":"오늘 하루 이야기해","py":"","ko":"오늘 하루 어땠어요?","ctip":"今天过得怎么样？","cko":"오늘 하루 어땠어요?"},{"b":24.0,"d":4.0,"hz":"내일 다시 만나자며","py":"","ko":"내일 또 만나요.","ctip":"明天再见。","cko":"내일 또 만나요."},{"b":28.0,"d":4.0,"hz":"손을 흔들어 인사해","py":"","ko":"안녕, 또 만나요!","ctip":"再见，下次见！","cko":"안녕, 또 만나요!"}],"tip":"한국어 · 중국어 표현 팁","lang":"ko","ko":1},{"id":"firststep","title":"중국어 첫걸음","artist":"한국어 · 학습 창작곡","key":"C","bpm":96,"beats":32.0,"melody":[{"b":0,"d":0.45,"m":67},{"b":0.5,"d":0.45,"m":60},{"b":1.0,"d":0.45,"m":64},{"b":1.5,"d":0.45,"m":67},{"b":2.0,"d":0.45,"m":64},{"b":2.5,"d":0.45,"m":60},{"b":3.0,"d":0.45,"m":67},{"b":3.5,"d":0.95,"m":64},{"b":4,"d":0.45,"m":74},{"b":4.5,"d":0.45,"m":67},{"b":5.0,"d":0.45,"m":71},{"b":5.5,"d":0.45,"m":74},{"b":6.0,"d":0.45,"m":71},{"b":6.5,"d":0.45,"m":67},{"b":7.0,"d":0.45,"m":74},{"b":7.5,"d":0.95,"m":71},{"b":8,"d":0.45,"m":76},{"b":8.5,"d":0.45,"m":69},{"b":9.0,"d":0.45,"m":72},{"b":9.5,"d":0.45,"m":76},{"b":10.0,"d":0.45,"m":72},{"b":10.5,"d":0.45,"m":69},{"b":11.0,"d":0.45,"m":76},{"b":11.5,"d":0.95,"m":72},{"b":12,"d":0.45,"m":72},{"b":12.5,"d":0.45,"m":65},{"b":13.0,"d":0.45,"m":69},{"b":13.5,"d":0.45,"m":72},{"b":14.0,"d":0.45,"m":69},{"b":14.5,"d":0.45,"m":65},{"b":15.0,"d":0.45,"m":72},{"b":15.5,"d":0.95,"m":69},{"b":16,"d":0.45,"m":67},{"b":16.5,"d":0.45,"m":60},{"b":17.0,"d":0.45,"m":64},{"b":17.5,"d":0.45,"m":67},{"b":18.0,"d":0.45,"m":64},{"b":18.5,"d":0.45,"m":60},{"b":19.0,"d":0.45,"m":67},{"b":19.5,"d":0.95,"m":64},{"b":20,"d":0.45,"m":74},{"b":20.5,"d":0.45,"m":67},{"b":21.0,"d":0.45,"m":71},{"b":21.5,"d":0.45,"m":74},{"b":22.0,"d":0.45,"m":71},{"b":22.5,"d":0.45,"m":67},{"b":23.0,"d":0.45,"m":74},{"b":23.5,"d":0.95,"m":71},{"b":24,"d":0.45,"m":72},{"b":24.5,"d":0.45,"m":65},{"b":25.0,"d":0.45,"m":69},{"b":25.5,"d":0.45,"m":72},{"b":26.0,"d":0.45,"m":69},{"b":26.5,"d":0.45,"m":65},{"b":27.0,"d":0.45,"m":72},{"b":27.5,"d":0.95,"m":69},{"b":28,"d":0.45,"m":74},{"b":28.5,"d":0.45,"m":67},{"b":29.0,"d":0.45,"m":71},{"b":29.5,"d":0.45,"m":74},{"b":30.0,"d":0.45,"m":71},{"b":30.5,"d":0.45,"m":67},{"b":31.0,"d":0.45,"m":74},{"b":31.5,"d":0.95,"m":71}],"chords":[{"n":"C","b":0,"d":4},{"n":"G","b":4,"d":4},{"n":"Am","b":8,"d":4},{"n":"F","b":12,"d":4},{"n":"C","b":16,"d":4},{"n":"G","b":20,"d":4},{"n":"F","b":24,"d":4},{"n":"G","b":28,"d":4}],"lines":[{"b":0.0,"d":4.0,"hz":"니하오 첫 인사를 배워","py":"","ko":"안녕하세요, 만나서 반가워요.","ctip":"你好，很高兴认识你。","cko":"안녕하세요, 만나서 반가워요."},{"b":4.0,"d":4.0,"hz":"성조 따라 손을 움직여","py":"","ko":"성조를 따라 해 보세요.","ctip":"请跟着声调说。","cko":"성조를 따라 해 보세요."},{"b":8.0,"d":4.0,"hz":"한자 한 자 뜻을 새겨","py":"","ko":"이 글자는 무슨 뜻이에요?","ctip":"这个字是什么意思？","cko":"이 글자는 무슨 뜻이에요?"},{"b":12.0,"d":4.0,"hz":"병음 위에 점을 찍어","py":"","ko":"병음으로 읽어 볼게요.","ctip":"我用拼音读一下。","cko":"병음으로 읽어 볼게요."},{"b":16.0,"d":4.0,"hz":"틀려도 크게 말해 봐","py":"","ko":"다시 한 번 말해 볼래요?","ctip":"要再说一遍吗？","cko":"다시 한 번 말해 볼래요?"},{"b":20.0,"d":4.0,"hz":"친구가 박수 쳐 줘","py":"","ko":"잘했어요, 대단해요!","ctip":"做得好，太厉害了！","cko":"잘했어요, 대단해요!"},{"b":24.0,"d":4.0,"hz":"매일 조금씩 앞으로","py":"","ko":"매일 조금씩 배워요.","ctip":"每天学一点。","cko":"매일 조금씩 배워요."},{"b":28.0,"d":4.0,"hz":"어느새 나도 말해","py":"","ko":"이제 중국어로 말할 수 있어요.","ctip":"现在我会说中文了。","cko":"이제 중국어로 말할 수 있어요."}],"tip":"한국어 · 중국어 표현 팁","lang":"ko","ko":1},{"id":"fighting","title":"오늘도 화이팅","artist":"한국어 · 응원 창작곡","key":"D","bpm":112,"beats":32.0,"melody":[{"b":0,"d":0.45,"m":62},{"b":0.5,"d":0.45,"m":69},{"b":1.0,"d":0.45,"m":66},{"b":1.5,"d":0.45,"m":74},{"b":2.0,"d":0.45,"m":62},{"b":2.5,"d":0.45,"m":66},{"b":3.0,"d":0.45,"m":69},{"b":3.5,"d":0.95,"m":66},{"b":4,"d":0.45,"m":69},{"b":4.5,"d":0.45,"m":76},{"b":5.0,"d":0.45,"m":73},{"b":5.5,"d":0.45,"m":81},{"b":6.0,"d":0.45,"m":69},{"b":6.5,"d":0.45,"m":73},{"b":7.0,"d":0.45,"m":76},{"b":7.5,"d":0.95,"m":73},{"b":8,"d":0.45,"m":71},{"b":8.5,"d":0.45,"m":78},{"b":9.0,"d":0.45,"m":74},{"b":9.5,"d":0.45,"m":83},{"b":10.0,"d":0.45,"m":71},{"b":10.5,"d":0.45,"m":74},{"b":11.0,"d":0.45,"m":78},{"b":11.5,"d":0.95,"m":74},{"b":12,"d":0.45,"m":67},{"b":12.5,"d":0.45,"m":74},{"b":13.0,"d":0.45,"m":71},{"b":13.5,"d":0.45,"m":79},{"b":14.0,"d":0.45,"m":67},{"b":14.5,"d":0.45,"m":71},{"b":15.0,"d":0.45,"m":74},{"b":15.5,"d":0.95,"m":71},{"b":16,"d":0.45,"m":62},{"b":16.5,"d":0.45,"m":69},{"b":17.0,"d":0.45,"m":66},{"b":17.5,"d":0.45,"m":74},{"b":18.0,"d":0.45,"m":62},{"b":18.5,"d":0.45,"m":66},{"b":19.0,"d":0.45,"m":69},{"b":19.5,"d":0.95,"m":66},{"b":20,"d":0.45,"m":69},{"b":20.5,"d":0.45,"m":76},{"b":21.0,"d":0.45,"m":73},{"b":21.5,"d":0.45,"m":81},{"b":22.0,"d":0.45,"m":69},{"b":22.5,"d":0.45,"m":73},{"b":23.0,"d":0.45,"m":76},{"b":23.5,"d":0.95,"m":73},{"b":24,"d":0.45,"m":67},{"b":24.5,"d":0.45,"m":74},{"b":25.0,"d":0.45,"m":71},{"b":25.5,"d":0.45,"m":79},{"b":26.0,"d":0.45,"m":67},{"b":26.5,"d":0.45,"m":71},{"b":27.0,"d":0.45,"m":74},{"b":27.5,"d":0.95,"m":71},{"b":28,"d":0.45,"m":69},{"b":28.5,"d":0.45,"m":76},{"b":29.0,"d":0.45,"m":73},{"b":29.5,"d":0.45,"m":81},{"b":30.0,"d":0.45,"m":69},{"b":30.5,"d":0.45,"m":73},{"b":31.0,"d":0.45,"m":76},{"b":31.5,"d":0.95,"m":73}],"chords":[{"n":"D","b":0,"d":4},{"n":"A","b":4,"d":4},{"n":"Bm","b":8,"d":4},{"n":"G","b":12,"d":4},{"n":"D","b":16,"d":4},{"n":"A","b":20,"d":4},{"n":"G","b":24,"d":4},{"n":"A","b":28,"d":4}],"lines":[{"b":0.0,"d":4.0,"hz":"아침에 눈을 뜨면","py":"","ko":"좋은 아침! 오늘도 힘내요.","ctip":"早上好！今天也要加油。","cko":"좋은 아침! 오늘도 힘내요."},{"b":4.0,"d":4.0,"hz":"오늘의 목표 하나","py":"","ko":"오늘 목표는 뭐예요?","ctip":"今天的目标是什么？","cko":"오늘 목표는 뭐예요?"},{"b":8.0,"d":4.0,"hz":"작은 일도 해내 가며","py":"","ko":"하나씩 해 봐요.","ctip":"一件一件做吧。","cko":"하나씩 해 봐요."},{"b":12.0,"d":4.0,"hz":"지친 날엔 쉬어 가도","py":"","ko":"오늘은 좀 쉬어요.","ctip":"今天休息一下吧。","cko":"오늘은 좀 쉬어요."},{"b":16.0,"d":4.0,"hz":"친구와 손을 잡고","py":"","ko":"우리 같이 가요.","ctip":"我们一起走吧。","cko":"우리 같이 가요."},{"b":20.0,"d":4.0,"hz":"웃음이 번져 가고","py":"","ko":"웃으니까 기분이 좋아요.","ctip":"笑起来心情很好。","cko":"웃으니까 기분이 좋아요."},{"b":24.0,"d":4.0,"hz":"내일이 더 기다려져","py":"","ko":"내일이 기대돼요.","ctip":"期待明天。","cko":"내일이 기대돼요."},{"b":28.0,"d":4.0,"hz":"크게 외쳐 화이팅","py":"","ko":"힘내요! 넌 분명 잘할 수 있어요!","ctip":"加油！你一定可以的！","cko":"힘내요! 넌 분명 잘할 수 있어요!"}],"tip":"한국어 · 중국어 표현 팁","lang":"ko","ko":1}];
+  const M = (window.V169 = window.V169 || { errors: [], version: '16.8' });
+  const E = function (m) { try { if (M.errors.length < 80) M.errors.push(String(m).slice(0, 160)); } catch (e) {} };
+  try {
+    SONGS.forEach(function (s) { if (!KTV_SONGS.some(function (x) { return x.id === s.id; })) KTV_SONGS.push(s); });
+    M.ko = SONGS.length;
+  } catch (e) { E('add:' + e.message); return; }
+
+  let filter = 'all';
+  const isKo = function (s) { return s && (s.lang === 'ko' || s.ko); };
+
+  function css() {
+    if (document.getElementById('v169css')) return;
+    const st = document.createElement('style');
+    st.id = 'v169css';
+    st.textContent = [
+      '.ktv-cats{display:flex;gap:6px;margin:0 0 7px;flex-wrap:wrap}',
+      '.ktv-cats button{flex:0 0 auto;font-size:10px;font-weight:800;padding:5px 10px;border-radius:99px;border:1px solid rgba(200,140,220,.35);background:rgba(48,36,58,.7);color:#d8c4e4;white-space:nowrap}',
+      '.ktv-cats button.on{background:linear-gradient(150deg,#c061a4,#8b3c8d);border-color:rgba(255,220,255,.6);color:#fff5fd}',
+      '.ktv-ctip{color:#ffd9a0 !important;font-size:11px !important;font-weight:700;margin-top:2px;letter-spacing:.01em}',
+      '.ktv-ko{font-size:10.5px}',
+      '.ktv-chip.ko b{color:#ffe9f8}',
+      '.ktv-chip.ko{border-color:rgba(255,196,140,.45)}',
+      '@media (max-width:380px){.ktv-cats button{font-size:9.5px;padding:4px 8px}}',
+    ].join('\n');
+    document.head.appendChild(st);
+  }
+
+  function ensureCats() {
+    css();
+    try {
+      if (document.getElementById('ktvCats')) return;
+      const box = document.getElementById('ktvSongs');
+      if (!box || !box.parentNode) return;
+      const d = document.createElement('div');
+      d.id = 'ktvCats';
+      d.className = 'ktv-cats';
+      box.parentNode.insertBefore(d, box);
+    } catch (e) { E('cats:' + e.message); }
+  }
+
+  function countKo() { return KTV_SONGS.filter(isKo).length; }
+  function countZh() { return KTV_SONGS.length - countKo(); }
+
+  function paintCats() {
+    const d = document.getElementById('ktvCats');
+    if (!d) return;
+    const rows = [['all', '전체 ' + KTV_SONGS.length], ['zh', '🇨🇳 중국어 ' + countZh()], ['ko', '🇰🇷 한국어 ' + countKo()]];
+    d.innerHTML = '';
+    rows.forEach(function (r) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = r[0] === filter ? 'on' : '';
+      b.textContent = r[1];
+      b.onclick = function () { filter = r[0]; Ktv.renderSongs(); };
+      d.appendChild(b);
+    });
+    const t = document.getElementById('ktvCount');
+    if (t) t.textContent = KTV_SONGS.length + '곡 · 한국어 ' + countKo();
+  }
+
+  /* 곡 목록 다시 그리기 — 카테고리 필터 지원 */
+  Ktv.renderSongs = function () {
+    const box = document.getElementById('ktvSongs');
+    if (!box) return;
+    ensureCats();
+    paintCats();
+    box.innerHTML = '';
+    KTV_SONGS.forEach(function (s, i) {
+      if (filter === 'ko' && !isKo(s)) return;
+      if (filter === 'zh' && isKo(s)) return;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ktv-chip' + (i === Ktv.songIdx ? ' on' : '') + (isKo(s) ? ' ko' : '');
+      b.dataset.i = String(i);
+      b.innerHTML = '<b>' + s.title + '</b><span>' + s.artist + ' · ' + (s.tip || '') + '</span>';
+      b.onclick = function () { Ktv.select(i); };
+      box.appendChild(b);
+    });
+  };
+
+  /* 가사 — 한국어 곡은 중국어 표현 팁을 노란 줄로 */
+  const oldLyrics = Ktv.renderLyrics.bind(Ktv);
+  Ktv.renderLyrics = function () {
+    oldLyrics();
+    try {
+      const s = this.song();
+      ensureCats();
+      paintCats();
+      const box = document.getElementById('ktvLyrics');
+      if (!box || !isKo(s)) return;
+      const els = box.querySelectorAll('.ktv-line[data-i]');
+      s.lines.forEach(function (ln, i) {
+        const el = els[i];
+        if (!el) return;
+        const py = el.querySelector('.ktv-py');
+        if (py) { py.textContent = '🇨🇳 ' + (ln.ctip || ''); py.classList.add('ktv-ctip'); }
+        const ko = el.querySelector('.ktv-ko');
+        if (ko) ko.textContent = ln.cko || ln.ko || '';
+      });
+    } catch (e) { E('lyrics:' + e.message); }
+  };
+
+  /* 🔊 한국어 가사 읽기 (ko-KR TTS) */
+  function addSay() {
+    try {
+      const c = document.querySelector('#ktvModal .ktv-controls');
+      if (!c || document.getElementById('ktvKoSay')) return;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ktv-btn';
+      b.id = 'ktvKoSay';
+      b.textContent = '🔊 한국어 가사';
+      b.onclick = function () {
+        try {
+          const s = Ktv.song();
+          const i = (Ktv.curLine >= 0 && s.lines[Ktv.curLine]) ? Ktv.curLine : 0;
+          const ln = s.lines[i];
+          if (!ln) return;
+          if (typeof speakKo === 'function') speakKo(ln.hz, b, '노래방');
+          else if (window.speechSynthesis) {
+            const u = new SpeechSynthesisUtterance(ln.hz); u.lang = 'ko-KR'; speechSynthesis.speak(u);
+          }
+        } catch (e) { E('say:' + e.message); }
+      };
+      c.appendChild(b);
+    } catch (e) { E('saybtn:' + e.message); }
+  }
+
+  const oldOpen = Ktv.open.bind(Ktv);
+  Ktv.open = function (idx) {
+    oldOpen(idx);
+    try { ensureCats(); paintCats(); addSay(); } catch (e) {}
+  };
+
+  try { ensureCats(); paintCats(); addSay(); } catch (e) {}
+  try { if (Ktv.opened) Ktv.renderSongs(); } catch (e) {}
+  M.info = function () {
+    return { ko: countKo(), total: KTV_SONGS.length, filter: filter, errors: M.errors.slice(0, 5),
+      songs: KTV_SONGS.filter(isKo).map(function (s) { return { id: s.id, title: s.title, lines: s.lines.length, beats: s.beats }; }) };
+  };
+})();
+</script>
+<!--V169-END-->
+
 </body>
 </html>
