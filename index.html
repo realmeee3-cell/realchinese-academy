@@ -51843,15 +51843,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
     if (!ok) return false;
     D.lots.forEach(function (l) { try { paintLot(l); } catch (e) { E('paint:' + e.message); } });
     builtScene = true;
-    try {
-      if (!M.__zone) {
-        M.__zone = 1;
-        if (V16.addZone) {
-          V16.addZone({ x0: -60, x1: 3, z0: 40, z1: 92 }, '자동 신축 마을 · 自建村');
-          if (V16.installZone) V16.installZone();
-        }
-      }
-    } catch (e) {}
+    /* 구역 이름은 기존 '창작 마을' 표기를 그대로 둔다 (캠퍼스 명칭을 덮지 않게) */
     return true;
   }
 
@@ -52768,6 +52760,7 @@ window.V15_BASIC22 = [{"u":1,"title":"처음 만났을 때: 인사와 자기소�
 })();
 </script>
 <!--V168-END-->
+
 
 
 
